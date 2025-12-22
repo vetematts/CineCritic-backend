@@ -15,16 +15,6 @@ Currently, two official plugins are available:
 
 The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
 
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
-
-## Code Style Guide
-
-This project follows the Google JavaScript Style Guide: https://google.github.io/styleguide/jsguide.html
-
-Style is enforced with ESLint (eslint-config-google) and formatting is handled by Prettier. ESLint is configured to defer formatting rules to Prettier to avoid conflicts.
-
 ### Commands
 
 - npm run lint # check style + code issues
@@ -38,3 +28,8 @@ Copy `.env.example` to `.env` and set your values:
 - `TMDB_API_KEY` (required): your TMDB API key (kept server-side)
 - `DATABASE_URL` (required): Postgres connection string
 <!-- - `OMDB_API_KEY` (optional): OMDb key if you add extra ratings -->
+
+
+## How to contribute
+
+The project planning documentation can be found in our Wiki: [(Project Plan: Frontend)](https://github.com/vetematts/CineCritic/wiki/Project-Plan-%E2%80%90-Frontend).
