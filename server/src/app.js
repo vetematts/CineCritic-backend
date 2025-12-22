@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import dotenv from 'dotenv';
+import moviesRouter from './routes/movies.js';
 
 dotenv.config();
 
@@ -14,6 +15,8 @@ app.use(express.json());
 app.get('/health', (req, res) => {
   res.json({ status: 'ok' });
 });
+
+app.use('/api/movies', moviesRouter);
 
 // General error handler
 // eslint-disable-next-line no-unused-vars

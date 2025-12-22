@@ -34,6 +34,7 @@ Style is enforced with ESLint (eslint-config-google) and formatting is handled b
 ## Environment Variables
 
 Copy `.env.example` to `.env` and set your values:
+
 - `TMDB_API_KEY` (required): your TMDB API key (kept server-side)
 - `DATABASE_URL` (required): Postgres connection string
 <!-- - `OMDB_API_KEY` (optional): OMDb key if you add extra ratings -->
