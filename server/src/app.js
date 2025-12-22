@@ -1,28 +1,28 @@
-import express from 'express'
-import cors from 'cors'
-import helmet from 'helmet'
-import dotenv from 'dotenv'
+import express from 'express';
+import cors from 'cors';
+import helmet from 'helmet';
+import dotenv from 'dotenv';
 
-dotenv.config()
+dotenv.config();
 
-const app = express()
+const app = express();
 
-app.use(helmet())
-app.use(cors())
-app.use(express.json())
+app.use(helmet());
+app.use(cors());
+app.use(express.json());
 
 app.get('/health', (req, res) => {
-  res.json({ status: 'ok' })
-})
+  res.json({ status: 'ok' });
+});
 
-// Centralized error handler
+// General error handler
 // eslint-disable-next-line no-unused-vars
 app.use((err, req, res, next) => {
-  console.error(err)
-  const status = err.status || 500
+  console.error(err);
+  const status = err.status || 500;
   res.status(status).json({
     error: err.message || 'Internal Server Error',
-  })
-})
+  });
+});
 
-export default app
+export default app;
