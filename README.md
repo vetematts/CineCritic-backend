@@ -1,4 +1,5 @@
 # CineCritic
+
 CineCritic is a full-stack web application that allows users to browse films and share reviews and ratings.
 
 # React + Vite
@@ -17,3 +18,15 @@ The React Compiler is not enabled on this template because of its impact on dev 
 ## Expanding the ESLint configuration
 
 If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+
+## Code Style Guide
+
+This project follows the Google JavaScript Style Guide: https://google.github.io/styleguide/jsguide.html
+
+Style is enforced with ESLint (eslint-config-google) and formatting is handled by Prettier. ESLint is configured to defer formatting rules to Prettier to avoid conflicts.
+
+### Commands
+
+- npm run lint # check style + code issues
+- npm run lint:fix # auto-fix eslint issues where possible
+- npm run format # format with prettier

@@ -4,7 +4,7 @@ function Login() {
       <h2>Login</h2>
       <p>Sign in placeholder.</p>
     </section>
-  )
+  );
 }
 
-export default Login
+export default Login;
