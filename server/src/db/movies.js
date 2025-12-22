@@ -1,9 +1,14 @@
 import pool from './database.js';
 
-const baseColumns =
-  'tmdb_id, title, release_year, poster_url, content_type, created_at';
+const baseColumns = 'tmdb_id, title, release_year, poster_url, content_type, created_at';
 
-export async function upsertMovie({ tmdbId, title, releaseYear, posterUrl, contentType = 'movie' }) {
+export async function upsertMovie({
+  tmdbId,
+  title,
+  releaseYear,
+  posterUrl,
+  contentType = 'movie',
+}) {
   const query = `
     INSERT INTO movies (tmdb_id, title, release_year, poster_url, content_type)
     VALUES ($1, $2, $3, $4, $5)

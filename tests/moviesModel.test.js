@@ -2,20 +2,16 @@ import { readFileSync } from 'fs';
 import path from 'path';
 import { jest } from '@jest/globals';
 import { newDb } from 'pg-mem';
-
-const moviesSchemaPath = path.resolve(process.cwd(), 'server/db/schemas/movies.sql');
-const moviesSchemaSQL = readFileSync(moviesSchemaPath, 'utf-8');
+import { createTables } from '../server/src/db/init.js';
 
 describe('movies model', () => {
   test('upsert and getMovieByTmdbId', async () => {
     const db = newDb();
     const pg = db.adapters.createPg();
     const pool = new pg.Pool();
-    await pool.query(moviesSchemaSQL);
+    await createTables(pool);
 
-    jest.unstable_mockModule('../server/src/db/pool.js', () => ({
-      default: pool,
-    }));
+    jest.unstable_mockModule('../server/src/db/database.js', () => ({ default: pool }));
 
     const { upsertMovie, getMovieByTmdbId } = await import('../server/src/db/movies.js');
 

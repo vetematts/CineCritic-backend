@@ -1,19 +1,15 @@
-import { readFileSync } from 'fs';
-import path from 'path';
 import { newDb } from 'pg-mem';
 import { jest } from '@jest/globals';
-
-const moviesSchemaPath = path.resolve(process.cwd(), 'server/db/schemas/movies.sql');
-const moviesSchemaSQL = readFileSync(moviesSchemaPath, 'utf-8');
+import { createTables } from '../server/src/db/init.js';
 
 describe('database schema', () => {
   test('movies table exists with expected columns', async () => {
     const db = newDb();
-    const client = db.adapters.createPg().Client;
-    const pgClient = new client();
-    await pgClient.connect();
-    await pgClient.query(moviesSchemaSQL);
+    const pg = db.adapters.createPg();
+    const testDb = new pg.Pool();
+    await createTables(testDb);
 
+    const pgClient = await testDb.connect();
     const result = await pgClient.query(
       `SELECT column_name, data_type
        FROM information_schema.columns
@@ -23,7 +19,15 @@ describe('database schema', () => {
 
     const columns = result.rows.map((row) => row.column_name);
     expect(columns).toEqual(
-      expect.arrayContaining(['id', 'tmdb_id', 'title', 'release_year', 'poster_url', 'content_type', 'created_at'])
+      expect.arrayContaining([
+        'id',
+        'tmdb_id',
+        'title',
+        'release_year',
+        'poster_url',
+        'content_type',
+        'created_at',
+      ])
     );
 
     const idColumn = result.rows.find((r) => r.column_name === 'id');
@@ -37,6 +41,11 @@ describe('database schema', () => {
     );
     expect(contentTypeCheck.rowCount).toBe(1);
 
-    await pgClient.end();
+    const statusResult = await testDb.query(
+      "SELECT conname FROM pg_constraint WHERE conname = 'ck_movies_content_type'"
+    );
+    expect(statusResult.rowCount).toBe(1);
+
+    await testDb.end();
   }, 10000);
 });
