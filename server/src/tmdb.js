@@ -109,6 +109,15 @@ export async function getGenres(contentType = 'movie') {
   return data.genres;
 }
 
+export async function searchContent(query, contentType = 'movie', page = 1) {
+  const data = await fetchFromTMDB(`/search/${contentType}`, {
+    query,
+    page: page.toString(),
+    include_adult: 'false',
+  });
+  return data.results;
+}
+
 // Simple in-memory cache for genres
 const genreCache = {};
 
