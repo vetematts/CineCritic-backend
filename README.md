@@ -1,25 +1,21 @@
-# CineCritic
+# CineCritic API
 
-CineCritic is a full-stack web application that allows users to browse films and share reviews and ratings.
+Backend-only Express API for fetching TMDB data and serving movie endpoints. Frontend will live in a separate repo.
 
-# React + Vite
+## Code Style Guide
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This project follows the Google JavaScript Style Guide: https://google.github.io/styleguide/jsguide.html
 
-Currently, two official plugins are available:
-
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
-
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+Style is enforced with ESLint (eslint-config-google) and formatting is handled by Prettier. ESLint is configured to defer formatting rules to Prettier to avoid conflicts.
 
 ### Commands
 
-- npm run lint # check style + code issues
-- npm run lint:fix # auto-fix eslint issues where possible
-- npm run format # format with prettier
+- npm run lint      # check style + code issues
+- npm run lint:fix  # auto-fix eslint issues where possible
+- npm run format    # format with prettier
+- npm run dev:server # run Express with nodemon
+- npm run start:server # run Express directly
+- npm test          # run Jest tests (uses pg-mem; install deps first)
 
 ## Environment Variables
 
@@ -28,8 +24,3 @@ Copy `.env.example` to `.env` and set your values:
 - `TMDB_API_KEY` (required): your TMDB API key (kept server-side)
 - `DATABASE_URL` (required): Postgres connection string
 <!-- - `OMDB_API_KEY` (optional): OMDb key if you add extra ratings -->
-
-
-## How to contribute
-
-The project planning documentation can be found in our Wiki: [(Project Plan: Frontend)](https://github.com/vetematts/CineCritic/wiki/Project-Plan-%E2%80%90-Frontend).
