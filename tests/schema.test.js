@@ -1,5 +1,4 @@
 import { newDb } from 'pg-mem';
-import { jest } from '@jest/globals';
 import { createTables } from '../server/src/db/init.js';
 
 describe('database schema', () => {

@@ -12,7 +12,7 @@ const __dirname = path.dirname(__filename);
 const compat = new FlatCompat({ baseDirectory: __dirname });
 
 export default defineConfig([
-  globalIgnores(['dist']),
+  globalIgnores(['dist', '.venv']),
   ...compat.extends('google', 'plugin:prettier/recommended'),
   {
     files: ['**/*.{js,jsx}'],

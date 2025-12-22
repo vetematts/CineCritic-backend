@@ -1,5 +1,3 @@
-import { readFileSync } from 'fs';
-import path from 'path';
 import { jest } from '@jest/globals';
 import { newDb } from 'pg-mem';
 import { createTables } from '../server/src/db/init.js';
