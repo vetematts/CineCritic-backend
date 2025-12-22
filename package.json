@@ -10,13 +10,14 @@
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
     "preview": "vite preview",
-    "dev:server": "nodemon server/src/server.js",
-    "start:server": "node server/src/server.js"
+    "dev:server": "nodemon server/index.js",
+    "start:server": "node server/index.js"
   },
   "dependencies": {
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
+    "helmet": "^7.1.0",
     "pg": "^8.11.5",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
