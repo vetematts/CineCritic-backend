@@ -1,3 +1,4 @@
+import { jest } from '@jest/globals';
 import request from 'supertest';
 import app from '../server/src/app.js';
 
@@ -7,7 +8,7 @@ const sampleTrending = [
 ];
 
 beforeAll(() => {
-  global.fetch = vi.fn(async (url) => {
+  global.fetch = jest.fn(async (url) => {
     if (url.toString().includes('/trending/')) {
       return {
         ok: true,
