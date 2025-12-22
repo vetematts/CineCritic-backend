@@ -5,12 +5,21 @@ dotenv.config();
 const TMDB_API_KEY = process.env.TMDB_API_KEY;
 const TMDB_BASE_URL = 'https://api.themoviedb.org/3';
 const TMDB_IMAGE_BASE_URL = 'https://image.tmdb.org/t/p';
+const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
+
+const responseCache = new Map();
 
 async function fetchFromTMDB(endpoint, params = {}) {
   if (!TMDB_API_KEY) {
     const error = new Error('TMDB_API_KEY is not set');
     error.status = 500;
     throw error;
+  }
+
+  const cacheKey = `${endpoint}?${new URLSearchParams(params).toString()}`;
+  const cached = responseCache.get(cacheKey);
+  if (cached && cached.expiresAt > Date.now()) {
+    return cached.data;
   }
 
   const url = new URL(`${TMDB_BASE_URL}${endpoint}`);
@@ -34,7 +43,10 @@ async function fetchFromTMDB(endpoint, params = {}) {
     throw error;
   }
 
-  return response.json();
+  const json = await response.json();
+
+  responseCache.set(cacheKey, { data: json, expiresAt: Date.now() + CACHE_TTL_MS });
+  return json;
 }
 
 export function getPosterUrl(path, size = 'w500') {
