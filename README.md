@@ -35,6 +35,7 @@ Style is enforced with ESLint (eslint-config-google) and formatting is handled b
 Docs available at `http://localhost:4000/docs` once the server is running.
 
 ## Key Endpoints
+
 - GET /health – service check
 - GET /docs – Swagger UI (OpenAPI)
 - Movies: GET /api/movies/trending, /top-rated, /genres, /search?q=, /year/{year}, /genre/{id}, /{id}
