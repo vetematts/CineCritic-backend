@@ -40,10 +40,12 @@ export async function createTables(dbPool = pool) {
     );
 
     CREATE TABLE IF NOT EXISTS watchlist (
+      id SERIAL PRIMARY KEY,
       user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
       movie_id INTEGER NOT NULL REFERENCES movies(id) ON DELETE CASCADE,
+      status VARCHAR(20) NOT NULL DEFAULT 'planned',
       added_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-      PRIMARY KEY (user_id, movie_id)
+      CONSTRAINT uq_watchlist_user_movie UNIQUE (user_id, movie_id)
     );
   `);
 }
