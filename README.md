@@ -23,13 +23,13 @@ Style is enforced with ESLint (eslint-config-google) and formatting is handled b
 
 ### Commands
 
-- npm run lint # check style + code issues
-- npm run lint:fix # auto-fix eslint issues where possible
-- npm run format # format with prettier
-- npm run dev # run Express with nodemon
-- npm run start # run Express directly
-- npm test # run Jest tests (uses pg-mem; install deps first)
-- npm run seed # seed the database with sample data (dev)
+- `npm run lint` # check style + code issues
+- `npm run lint:fix` # auto-fix eslint issues where possible
+- `npm run format` # format with prettier
+- `npm run dev` # run Express with nodemon
+- `npm run start` # run Express directly
+- `npm test` # run Jest tests (uses pg-mem; install deps first)
+- `npm run seed` # seed the database with sample data (dev)
 
 ## Environment Variables
 
