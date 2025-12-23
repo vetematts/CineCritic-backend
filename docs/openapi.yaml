@@ -112,3 +112,95 @@ paths:
           description: Movie details
         '500':
           description: Server error
+  /api/reviews/{tmdbId}:
+    get:
+      summary: Get reviews for a movie by TMDB id
+      parameters:
+        - in: path
+          name: tmdbId
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: List of reviews for the movie
+        '500':
+          description: Server error
+  /api/reviews:
+    post:
+      summary: Create a review for a movie
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [tmdbId, userId, rating]
+              properties:
+                tmdbId:
+                  type: integer
+                userId:
+                  type: integer
+                rating:
+                  type: number
+                  format: float
+                  description: Rating between 0.5 and 5 in 0.5 steps
+                body:
+                  type: string
+                status:
+                  type: string
+                  enum: [draft, published, flagged]
+                  default: published
+      responses:
+        '201':
+          description: Review created
+        '400':
+          description: Missing or invalid fields
+        '500':
+          description: Server error
+  /api/reviews/{id}:
+    put:
+      summary: Update a review
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                rating:
+                  type: number
+                  format: float
+                body:
+                  type: string
+                status:
+                  type: string
+                  enum: [draft, published, flagged]
+      responses:
+        '200':
+          description: Review updated
+        '404':
+          description: Review not found or no fields to update
+        '500':
+          description: Server error
+    delete:
+      summary: Delete a review
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Review deleted
+        '404':
+          description: Review not found
+        '500':
+          description: Server error
