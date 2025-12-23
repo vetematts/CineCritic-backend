@@ -1,6 +1,6 @@
 import pool from './database.js';
 
-const baseColumns = 'tmdb_id, title, release_year, poster_url, content_type, created_at';
+const baseColumns = 'id, tmdb_id, title, release_year, poster_url, content_type, created_at';
 
 export async function upsertMovie({
   tmdbId,
@@ -30,4 +30,9 @@ export async function getMovieByTmdbId(tmdbId) {
     [tmdbId]
   );
   return rows[0] || null;
+}
+
+export async function getMovieIdByTmdbId(tmdbId) {
+  const { rows } = await pool.query('SELECT id FROM movies WHERE tmdb_id = $1 LIMIT 1', [tmdbId]);
+  return rows[0]?.id || null;
 }
