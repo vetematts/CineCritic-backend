@@ -1,12 +1,7 @@
 import { Router } from 'express';
 import { getContentById, getPosterUrl } from '../tmdb.js';
 import { upsertMovie, getMovieIdByTmdbId } from '../db/movies.js';
-import {
-  createReview,
-  getReviewsByMovie,
-  updateReview,
-  deleteReview,
-} from '../db/reviews.js';
+import { createReview, getReviewsByMovie, updateReview, deleteReview } from '../db/reviews.js';
 
 const router = Router();
 
