@@ -1,0 +1,114 @@
+openapi: 3.0.3
+info:
+  title: CineCritic API
+  version: 0.1.0
+  description: API for fetching movie data via TMDB proxy and CineCritic resources.
+servers:
+  - url: http://localhost:4000
+paths:
+  /api/movies/trending:
+    get:
+      summary: Get trending movies
+      responses:
+        '200':
+          description: List of trending items
+        '500':
+          description: Server error
+  /api/movies/top-rated:
+    get:
+      summary: Get top rated movies
+      responses:
+        '200':
+          description: List of top rated items
+        '500':
+          description: Server error
+  /api/movies/genres:
+    get:
+      summary: Get genres
+      responses:
+        '200':
+          description: List of genres
+        '500':
+          description: Server error
+  /api/movies/search:
+    get:
+      summary: Search movies
+      parameters:
+        - in: query
+          name: q
+          required: true
+          schema:
+            type: string
+          description: Search query
+        - in: query
+          name: page
+          schema:
+            type: integer
+          description: Page number
+      responses:
+        '200':
+          description: Search results
+        '400':
+          description: Missing query
+        '500':
+          description: Server error
+  /api/movies/year/{year}:
+    get:
+      summary: Get movies by release year
+      parameters:
+        - in: path
+          name: year
+          required: true
+          schema:
+            type: integer
+        - in: query
+          name: sortBy
+          schema:
+            type: string
+          description: Sort option
+        - in: query
+          name: limit
+          schema:
+            type: integer
+          description: Limit results
+      responses:
+        '200':
+          description: Results for the year
+        '500':
+          description: Server error
+  /api/movies/genre/{id}:
+    get:
+      summary: Get movies by genre
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+        - in: query
+          name: sortBy
+          schema:
+            type: string
+        - in: query
+          name: page
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Results for the genre
+        '500':
+          description: Server error
+  /api/movies/{id}:
+    get:
+      summary: Get movie by TMDB id
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Movie details
+        '500':
+          description: Server error

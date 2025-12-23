@@ -3,9 +3,17 @@ import cors from 'cors';
 import helmet from 'helmet';
 import dotenv from 'dotenv';
 import rateLimit from 'express-rate-limit';
+import swaggerUi from 'swagger-ui-express';
+import YAML from 'yamljs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import moviesRouter from './routes/movies.js';
 
 dotenv.config();
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const swaggerDoc = YAML.load(path.join(__dirname, '..', '..', 'docs', 'openapi.yaml'));
 
 const app = express();
 
@@ -27,6 +35,7 @@ app.get('/health', (req, res) => {
 });
 
 app.use('/api/movies', moviesRouter);
+app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDoc));
 
 // General error handler
 // eslint-disable-next-line no-unused-vars

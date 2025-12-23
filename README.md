@@ -18,6 +18,7 @@ Style is enforced with ESLint (eslint-config-google) and formatting is handled b
 | helmet                                 | Secures HTTP headers                                     |
 | cors                                   | Cross-origin resource sharing middleware                 |
 | express-rate-limit                     | Basic rate limiting to protect TMDB and the API          |
+| swagger-ui-express, yamljs             | Serves API docs at `/docs` from `docs/openapi.yaml`       |
 | jest, supertest, pg-mem                | Testing stack (unit/integration with in-memory Postgres) |
 | eslint, prettier, eslint-config-google | Linting/formatting per Google JS style                   |
 
@@ -30,6 +31,8 @@ Style is enforced with ESLint (eslint-config-google) and formatting is handled b
 - `npm run start` # run Express directly
 - `npm test` # run Jest tests (uses pg-mem; install deps first)
 - `npm run seed` # seed the database with sample data (dev)
+
+Docs available at `http://localhost:4000/docs` once the server is running.
 
 ## Environment Variables
 
