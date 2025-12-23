@@ -8,6 +8,20 @@ This project follows the Google JavaScript Style Guide: https://google.github.io
 
 Style is enforced with ESLint (eslint-config-google) and formatting is handled by Prettier. ESLint is configured to defer formatting rules to Prettier to avoid conflicts.
 
+## Dependencies
+
+| Name | Description |
+| ---- | ----------- |
+| express | HTTP server for the API |
+| pg | PostgreSQL client |
+| dotenv | Loads environment variables from `.env` |
+| helmet | Secures HTTP headers |
+| cors | Cross-origin resource sharing middleware |
+| express-rate-limit | Basic rate limiting to protect TMDB and the API |
+| jest, supertest, pg-mem | Testing stack (unit/integration with in-memory Postgres) |
+| eslint, prettier, eslint-config-google | Linting/formatting per Google JS style |
+
+
 ### Commands
 
 - npm run lint # check style + code issues
