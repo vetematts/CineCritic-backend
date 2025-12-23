@@ -34,6 +34,11 @@ Style is enforced with ESLint (eslint-config-google) and formatting is handled b
 
 Docs available at `http://localhost:4000/docs` once the server is running.
 
+Key endpoints
+
+- `/api/movies/*` TMDB-backed movie data (trending, top-rated, genres, search, year, genre, by id)
+- `/api/reviews/*` CRUD for reviews, upserts minimal movie cache by TMDB id
+
 ## Environment Variables
 
 Copy `.env.example` to `.env` and set your values:
