@@ -18,7 +18,7 @@ Style is enforced with ESLint (eslint-config-google) and formatting is handled b
 | helmet                                 | Secures HTTP headers                                     |
 | cors                                   | Cross-origin resource sharing middleware                 |
 | express-rate-limit                     | Basic rate limiting to protect TMDB and the API          |
-| swagger-ui-express, yamljs             | Serves API docs at `/docs` from `docs/openapi.yaml`       |
+| swagger-ui-express, yamljs             | Serves API docs at `/docs` from `docs/openapi.yaml`      |
 | jest, supertest, pg-mem                | Testing stack (unit/integration with in-memory Postgres) |
 | eslint, prettier, eslint-config-google | Linting/formatting per Google JS style                   |
 
