@@ -45,7 +45,7 @@ jest.unstable_mockModule('../server/src/db/movies.js', () => ({
 
 jest.unstable_mockModule('../server/src/db/watchlist.js', () => ({
   addToWatchlist: async ({ userId, movieId, status }) => {
-    let existing = watchlistStore.find((w) => w.user_id === userId && w.movie_id === movieId);
+    const existing = watchlistStore.find((w) => w.user_id === userId && w.movie_id === movieId);
     if (existing) {
       existing.status = status;
       return existing;
