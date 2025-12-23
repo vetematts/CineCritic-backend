@@ -7,7 +7,9 @@ import {
   getContentById,
   getCachedGenres,
   searchContent,
+  getPosterUrl,
 } from '../tmdb.js';
+import { upsertMovie } from '../db/movies.js';
 
 const router = Router();
 
@@ -77,6 +79,17 @@ router.get('/:id', async (req, res, next) => {
   try {
     const { id } = req.params;
     const result = await getContentById(Number(id), 'movie');
+
+    // Cache minimal movie fields for FK references (reviews/watchlist).
+    const releaseYear = result.release_date ? new Date(result.release_date).getFullYear() : null;
+    await upsertMovie({
+      tmdbId: result.id,
+      title: result.title,
+      releaseYear,
+      posterUrl: getPosterUrl(result.poster_path),
+      contentType: 'movie',
+    });
+
     res.json(result);
   } catch (err) {
     next(err);

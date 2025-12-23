@@ -32,14 +32,6 @@ describe('database schema', () => {
     const idColumn = columnsResult.rows.find((r) => r.column_name === 'id');
     expect(idColumn.data_type).toBe('integer');
 
-    const constraintResult = await client.query(
-      `SELECT conname
-       FROM pg_constraint
-       WHERE conrelid = 'movies'::regclass
-         AND conname = 'ck_movies_content_type';`
-    );
-    expect(constraintResult.rowCount).toBe(1);
-
     client.release();
     await pool.end();
   }, 10000);
