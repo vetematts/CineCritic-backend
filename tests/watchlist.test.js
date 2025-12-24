@@ -61,6 +61,7 @@ jest.unstable_mockModule('../server/src/db/watchlist.js', () => ({
     return entry;
   },
   getWatchlistByUser: async (userId) => watchlistStore.filter((w) => w.user_id === userId),
+  getWatchlistEntryById: async (id) => watchlistStore.find((w) => w.id === id) ?? null,
   updateWatchStatus: async (id, status) => {
     const entry = watchlistStore.find((w) => w.id === id);
     if (!entry) return null;
@@ -82,7 +83,9 @@ describe('watchlist routes', () => {
     resetStores();
   });
 
-  const token = signJwt({ sub: 7, role: 'user', username: 'tester' });
+  const ownerToken = signJwt({ sub: 7, role: 'user', username: 'tester' });
+  const otherToken = signJwt({ sub: 8, role: 'user', username: 'other' });
+  const adminToken = signJwt({ sub: 99, role: 'admin', username: 'admin' });
 
   const requestRouter = async ({ method, url, body, headers = {} }) => {
     const req = createRequest({ method, url, headers });
@@ -103,7 +106,7 @@ describe('watchlist routes', () => {
       method: 'POST',
       url: '/',
       body: { tmdbId: 1, userId: 7, status: 'planned' },
-      headers: { Authorization: `Bearer ${token}` },
+      headers: { Authorization: `Bearer ${ownerToken}` },
     });
     expect(resCreate._getStatusCode()).toBe(201);
     expect(resCreate._getJSONData().status).toBe('planned');
@@ -111,7 +114,7 @@ describe('watchlist routes', () => {
     const resGet = await requestRouter({
       method: 'GET',
       url: '/7',
-      headers: { Authorization: `Bearer ${token}` },
+      headers: { Authorization: `Bearer ${ownerToken}` },
     });
     expect(resGet._getStatusCode()).toBe(200);
     expect(resGet._getJSONData()).toHaveLength(1);
@@ -122,7 +125,7 @@ describe('watchlist routes', () => {
       method: 'POST',
       url: '/',
       body: { tmdbId: 2, userId: 7, status: 'bad' },
-      headers: { Authorization: `Bearer ${token}` },
+      headers: { Authorization: `Bearer ${ownerToken}` },
     });
     expect(res._getStatusCode()).toBe(400);
   });
@@ -131,8 +134,8 @@ describe('watchlist routes', () => {
     const resCreate = await requestRouter({
       method: 'POST',
       url: '/',
-      body: { tmdbId: 3, userId: 8, status: 'planned' },
-      headers: { Authorization: `Bearer ${token}` },
+      body: { tmdbId: 3, userId: 7, status: 'planned' },
+      headers: { Authorization: `Bearer ${ownerToken}` },
     });
     const id = resCreate._getJSONData().id;
 
@@ -140,16 +143,49 @@ describe('watchlist routes', () => {
       method: 'PUT',
       url: `/${id}`,
       body: { status: 'completed' },
-      headers: { Authorization: `Bearer ${token}` },
+      headers: { Authorization: `Bearer ${ownerToken}` },
     });
     expect(resPut._getStatusCode()).toBe(200);
     expect(resPut._getJSONData().status).toBe('completed');
 
-    const resDel = await requestRouter({
+    const forbidDel = await requestRouter({
       method: 'DELETE',
       url: `/${id}`,
-      headers: { Authorization: `Bearer ${token}` },
+      headers: { Authorization: `Bearer ${otherToken}` },
     });
-    expect(resDel._getStatusCode()).toBe(204);
+    expect(forbidDel._getStatusCode()).toBe(403);
+
+    const ownerDel = await requestRouter({
+      method: 'DELETE',
+      url: `/${id}`,
+      headers: { Authorization: `Bearer ${ownerToken}` },
+    });
+    expect(ownerDel._getStatusCode()).toBe(204);
+  });
+
+  test('admin can manage any watchlist entry', async () => {
+    const resCreate = await requestRouter({
+      method: 'POST',
+      url: '/',
+      body: { tmdbId: 4, userId: 7, status: 'planned' },
+      headers: { Authorization: `Bearer ${ownerToken}` },
+    });
+    const id = resCreate._getJSONData().id;
+
+    const adminPut = await requestRouter({
+      method: 'PUT',
+      url: `/${id}`,
+      body: { status: 'watching' },
+      headers: { Authorization: `Bearer ${adminToken}` },
+    });
+    expect(adminPut._getStatusCode()).toBe(200);
+    expect(adminPut._getJSONData().status).toBe('watching');
+
+    const adminDel = await requestRouter({
+      method: 'DELETE',
+      url: `/${id}`,
+      headers: { Authorization: `Bearer ${adminToken}` },
+    });
+    expect(adminDel._getStatusCode()).toBe(204);
   });
 });

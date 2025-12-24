@@ -6,6 +6,7 @@ import {
   getWatchlistByUser,
   updateWatchStatus,
   removeFromWatchlist,
+  getWatchlistEntryById,
 } from '../db/watchlist.js';
 import { requireAuth } from '../middlewares/auth.js';
 
@@ -30,6 +31,9 @@ async function ensureMovieId(tmdbId) {
 router.get('/:userId', requireAuth, async (req, res, next) => {
   try {
     const { userId } = req.params;
+    if (req.user?.role !== 'admin' && req.user?.sub !== Number(userId)) {
+      return res.status(403).json({ error: 'Forbidden' });
+    }
     const items = await getWatchlistByUser(Number(userId));
     res.json(items);
   } catch (err) {
@@ -42,6 +46,9 @@ router.post('/', requireAuth, async (req, res, next) => {
     const { tmdbId, userId, status = 'planned' } = req.body || {};
     if (!tmdbId || !userId) {
       return res.status(400).json({ error: 'tmdbId and userId are required' });
+    }
+    if (req.user?.role !== 'admin' && req.user?.sub !== Number(userId)) {
+      return res.status(403).json({ error: 'Forbidden' });
     }
     if (!allowedStatuses.includes(status)) {
       return res.status(400).json({ error: 'status must be planned, watching, or completed' });
@@ -61,6 +68,13 @@ router.put('/:id', requireAuth, async (req, res, next) => {
     if (!status || !allowedStatuses.includes(status)) {
       return res.status(400).json({ error: 'status must be planned, watching, or completed' });
     }
+    const entry = await getWatchlistEntryById(Number(id));
+    if (!entry) {
+      return res.status(404).json({ error: 'Watchlist entry not found' });
+    }
+    if (req.user?.role !== 'admin' && entry.user_id !== req.user?.sub) {
+      return res.status(403).json({ error: 'Forbidden' });
+    }
     const updated = await updateWatchStatus(Number(id), status);
     if (!updated) {
       return res.status(404).json({ error: 'Watchlist entry not found' });
@@ -74,6 +88,13 @@ router.put('/:id', requireAuth, async (req, res, next) => {
 router.delete('/:id', requireAuth, async (req, res, next) => {
   try {
     const { id } = req.params;
+    const entry = await getWatchlistEntryById(Number(id));
+    if (!entry) {
+      return res.status(404).json({ error: 'Watchlist entry not found' });
+    }
+    if (req.user?.role !== 'admin' && entry.user_id !== req.user?.sub) {
+      return res.status(403).json({ error: 'Forbidden' });
+    }
     const deleted = await removeFromWatchlist(Number(id));
     if (!deleted) {
       return res.status(404).json({ error: 'Watchlist entry not found' });
