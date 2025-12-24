@@ -71,8 +71,7 @@ router.post('/login', async (req, res, next) => {
     }
 
     const user =
-      (username && (await getUserByUsername(username))) ||
-      (email && (await getUserByEmail(email)));
+      (username && (await getUserByUsername(username))) || (email && (await getUserByEmail(email)));
 
     if (!user || !verifyPassword(password, user.password_hash)) {
       return res.status(401).json({ error: 'Invalid credentials' });
