@@ -27,8 +27,7 @@ function verifyPassword(password, storedHash) {
 
 function sanitizeUser(user) {
   if (!user) return null;
-  // eslint-disable-next-line camelcase
-  const { password_hash, ...rest } = user;
+  const { password_hash: _passwordHash, ...rest } = user;
   return rest;
 }
 
