@@ -5,6 +5,12 @@ info:
   description: API for fetching movie data via TMDB proxy and CineCritic resources.
 servers:
   - url: http://localhost:4000
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
 paths:
   /api/movies/trending:
     get:
@@ -115,6 +121,8 @@ paths:
   /api/users:
     get:
       summary: List users
+      security:
+        - bearerAuth: []
       responses:
         '200':
           description: List of users (password hashes omitted)
@@ -207,6 +215,8 @@ paths:
           description: Server error
     delete:
       summary: Delete a user
+      security:
+        - bearerAuth: []
       parameters:
         - in: path
           name: id
