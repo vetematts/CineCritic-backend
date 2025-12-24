@@ -1,6 +1,6 @@
 import { jest } from '@jest/globals';
-import express from 'express';
-import request from 'supertest';
+import { createRequest, createResponse } from './helpers/mockHttp.js';
+import { signJwt } from '../server/src/auth/jwt.js';
 
 const movieStore = new Map();
 const watchlistStore = [];
@@ -61,6 +61,7 @@ jest.unstable_mockModule('../server/src/db/watchlist.js', () => ({
     return entry;
   },
   getWatchlistByUser: async (userId) => watchlistStore.filter((w) => w.user_id === userId),
+  getWatchlistEntryById: async (id) => watchlistStore.find((w) => w.id === id) ?? null,
   updateWatchStatus: async (id, status) => {
     const entry = watchlistStore.find((w) => w.id === id);
     if (!entry) return null;
@@ -77,45 +78,114 @@ jest.unstable_mockModule('../server/src/db/watchlist.js', () => ({
 
 const { default: watchlistRouter } = await import('../server/src/routes/watchlist.js');
 
-const app = express();
-app.use(express.json());
-app.use('/api/watchlist', watchlistRouter);
-
 describe('watchlist routes', () => {
   beforeEach(() => {
     resetStores();
   });
 
-  test('adds to watchlist and retrieves by user', async () => {
-    const resCreate = await request(app)
-      .post('/api/watchlist')
-      .send({ tmdbId: 1, userId: 7, status: 'planned' });
-    expect(resCreate.status).toBe(201);
-    expect(resCreate.body.status).toBe('planned');
+  const ownerToken = signJwt({ sub: 7, role: 'user', username: 'tester' });
+  const otherToken = signJwt({ sub: 8, role: 'user', username: 'other' });
+  const adminToken = signJwt({ sub: 99, role: 'admin', username: 'admin' });
 
-    const resGet = await request(app).get('/api/watchlist/7');
-    expect(resGet.status).toBe(200);
-    expect(resGet.body).toHaveLength(1);
+  const requestRouter = async ({ method, url, body, headers = {} }) => {
+    const req = createRequest({ method, url, headers });
+    req.body = body;
+    const res = createResponse();
+    await new Promise((resolve, reject) => {
+      res.on('end', resolve);
+      watchlistRouter.handle(req, res, (err) => {
+        if (err) reject(err);
+        else resolve();
+      });
+    });
+    return res;
+  };
+
+  test('adds to watchlist and retrieves by user', async () => {
+    const resCreate = await requestRouter({
+      method: 'POST',
+      url: '/',
+      body: { tmdbId: 1, userId: 7, status: 'planned' },
+      headers: { Authorization: `Bearer ${ownerToken}` },
+    });
+    expect(resCreate._getStatusCode()).toBe(201);
+    expect(resCreate._getJSONData().status).toBe('planned');
+
+    const resGet = await requestRouter({
+      method: 'GET',
+      url: '/7',
+      headers: { Authorization: `Bearer ${ownerToken}` },
+    });
+    expect(resGet._getStatusCode()).toBe(200);
+    expect(resGet._getJSONData()).toHaveLength(1);
   });
 
   test('rejects invalid status', async () => {
-    const res = await request(app)
-      .post('/api/watchlist')
-      .send({ tmdbId: 2, userId: 7, status: 'bad' });
-    expect(res.status).toBe(400);
+    const res = await requestRouter({
+      method: 'POST',
+      url: '/',
+      body: { tmdbId: 2, userId: 7, status: 'bad' },
+      headers: { Authorization: `Bearer ${ownerToken}` },
+    });
+    expect(res._getStatusCode()).toBe(400);
   });
 
   test('updates status and deletes entry', async () => {
-    const resCreate = await request(app)
-      .post('/api/watchlist')
-      .send({ tmdbId: 3, userId: 8, status: 'planned' });
-    const id = resCreate.body.id;
+    const resCreate = await requestRouter({
+      method: 'POST',
+      url: '/',
+      body: { tmdbId: 3, userId: 7, status: 'planned' },
+      headers: { Authorization: `Bearer ${ownerToken}` },
+    });
+    const id = resCreate._getJSONData().id;
 
-    const resPut = await request(app).put(`/api/watchlist/${id}`).send({ status: 'completed' });
-    expect(resPut.status).toBe(200);
-    expect(resPut.body.status).toBe('completed');
+    const resPut = await requestRouter({
+      method: 'PUT',
+      url: `/${id}`,
+      body: { status: 'completed' },
+      headers: { Authorization: `Bearer ${ownerToken}` },
+    });
+    expect(resPut._getStatusCode()).toBe(200);
+    expect(resPut._getJSONData().status).toBe('completed');
 
-    const resDel = await request(app).delete(`/api/watchlist/${id}`);
-    expect(resDel.status).toBe(204);
+    const forbidDel = await requestRouter({
+      method: 'DELETE',
+      url: `/${id}`,
+      headers: { Authorization: `Bearer ${otherToken}` },
+    });
+    expect(forbidDel._getStatusCode()).toBe(403);
+
+    const ownerDel = await requestRouter({
+      method: 'DELETE',
+      url: `/${id}`,
+      headers: { Authorization: `Bearer ${ownerToken}` },
+    });
+    expect(ownerDel._getStatusCode()).toBe(204);
+  });
+
+  test('admin can manage any watchlist entry', async () => {
+    const resCreate = await requestRouter({
+      method: 'POST',
+      url: '/',
+      body: { tmdbId: 4, userId: 7, status: 'planned' },
+      headers: { Authorization: `Bearer ${ownerToken}` },
+    });
+    const id = resCreate._getJSONData().id;
+
+    const adminPut = await requestRouter({
+      method: 'PUT',
+      url: `/${id}`,
+      body: { status: 'watching' },
+      headers: { Authorization: `Bearer ${adminToken}` },
+    });
+    expect(adminPut._getStatusCode()).toBe(200);
+    expect(adminPut._getJSONData().status).toBe('watching');
+
+    const adminDel = await requestRouter({
+      method: 'DELETE',
+      url: `/${id}`,
+      headers: { Authorization: `Bearer ${adminToken}` },
+    });
+    expect(adminDel._getStatusCode()).toBe(204);
   });
 });

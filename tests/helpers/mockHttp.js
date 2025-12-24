@@ -1,12 +1,15 @@
 import { EventEmitter } from 'events';
 
-export function createRequest({ method = 'GET', url = '/', query = {} } = {}) {
+export function createRequest({ method = 'GET', url = '/', query = {}, headers = {} } = {}) {
   const req = new EventEmitter();
   req.method = method;
   req.url = url;
   req.query = query;
   req.params = {};
-  req.headers = {};
+  req.headers = Object.keys(headers).reduce((acc, key) => {
+    acc[key.toLowerCase()] = headers[key];
+    return acc;
+  }, {});
   req.ip = '127.0.0.1';
   req.socket = { remoteAddress: '127.0.0.1' };
   req.connection = { remoteAddress: '127.0.0.1' };

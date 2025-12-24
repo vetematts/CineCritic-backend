@@ -1,7 +1,14 @@
 import { Router } from 'express';
 import { getContentById, getPosterUrl } from '../tmdb.js';
 import { upsertMovie, getMovieIdByTmdbId } from '../db/movies.js';
-import { createReview, getReviewsByMovie, updateReview, deleteReview } from '../db/reviews.js';
+import {
+  createReview,
+  getReviewsByMovie,
+  updateReview,
+  deleteReview,
+  getReviewById,
+} from '../db/reviews.js';
+import { requireAuth } from '../middlewares/auth.js';
 
 const router = Router();
 
@@ -31,11 +38,14 @@ router.get('/:tmdbId', async (req, res, next) => {
   }
 });
 
-router.post('/', async (req, res, next) => {
+router.post('/', requireAuth, async (req, res, next) => {
   try {
     const { tmdbId, userId, rating, body, status = 'published' } = req.body || {};
     if (!tmdbId || !userId || rating === undefined) {
       return res.status(400).json({ error: 'tmdbId, userId, and rating are required' });
+    }
+    if (req.user?.role !== 'admin' && Number(userId) !== req.user?.sub) {
+      return res.status(403).json({ error: 'Forbidden' });
     }
     const numericRating = Number(rating);
     const validRatings = [0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5];
@@ -57,22 +67,33 @@ router.post('/', async (req, res, next) => {
   }
 });
 
-router.put('/:id', async (req, res, next) => {
+router.put('/:id', requireAuth, async (req, res, next) => {
   try {
     const { id } = req.params;
-    const review = await updateReview(Number(id), req.body || {});
-    if (!review) {
+    const existing = await getReviewById(Number(id));
+    if (!existing) {
       return res.status(404).json({ error: 'Review not found or no fields to update' });
     }
+    if (req.user?.role !== 'admin' && existing.user_id !== req.user?.sub) {
+      return res.status(403).json({ error: 'Forbidden' });
+    }
+    const review = await updateReview(Number(id), req.body || {});
     res.json(review);
   } catch (err) {
     next(err);
   }
 });
 
-router.delete('/:id', async (req, res, next) => {
+router.delete('/:id', requireAuth, async (req, res, next) => {
   try {
     const { id } = req.params;
+    const existing = await getReviewById(Number(id));
+    if (!existing) {
+      return res.status(404).json({ error: 'Review not found' });
+    }
+    if (req.user?.role !== 'admin' && existing.user_id !== req.user?.sub) {
+      return res.status(403).json({ error: 'Forbidden' });
+    }
     const deleted = await deleteReview(Number(id));
     if (!deleted) {
       return res.status(404).json({ error: 'Review not found' });

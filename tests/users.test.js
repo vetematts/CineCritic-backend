@@ -1,6 +1,8 @@
 import { jest } from '@jest/globals';
 import express from 'express';
 import { createRequest, createResponse } from './helpers/mockHttp.js';
+import { requireAuth } from '../server/src/middlewares/auth.js';
+import { verifyJwt, signJwt } from '../server/src/auth/jwt.js';
 
 const users = [];
 let idCounter = 1;
@@ -42,6 +44,8 @@ jest.unstable_mockModule('../server/src/db/users.js', () => ({
   },
 }));
 
+process.env.JWT_SECRET = 'test-secret';
+
 const { default: usersRouter } = await import('../server/src/routes/users.js');
 
 const app = express();
@@ -53,13 +57,13 @@ describe('users routes', () => {
     resetStore();
   });
 
-  const requestRouter = async ({ method, url, body }) => {
-    const req = createRequest({ method, url });
+  const requestRouter = async ({ method, url, body, headers, router = usersRouter }) => {
+    const req = createRequest({ method, url, headers });
     req.body = body;
     const res = createResponse();
     await new Promise((resolve, reject) => {
       res.on('end', resolve);
-      usersRouter.handle(req, res, (err) => {
+      router.handle(req, res, (err) => {
         if (err) reject(err);
         else resolve();
       });
@@ -78,7 +82,18 @@ describe('users routes', () => {
     expect(body.username).toBe('alice');
     expect(body.password_hash).toBeUndefined();
 
-    const listRes = await requestRouter({ method: 'GET', url: '/' });
+    const loginRes = await requestRouter({
+      method: 'POST',
+      url: '/login',
+      body: { username: 'alice', password: 'secret' },
+    });
+    const token = loginRes._getJSONData().token;
+
+    const listRes = await requestRouter({
+      method: 'GET',
+      url: '/',
+      headers: { Authorization: `Bearer ${token}` },
+    });
     expect(listRes._getStatusCode()).toBe(200);
     const list = listRes._getJSONData();
     expect(list).toHaveLength(1);
@@ -129,6 +144,9 @@ describe('users routes', () => {
     const loginUserBody = loginUser._getJSONData();
     expect(loginUserBody.token).toBeTruthy();
     expect(loginUserBody.user.username).toBe('eve');
+    const decoded = verifyJwt(loginUserBody.token);
+    expect(decoded?.sub).toBeTruthy();
+    expect(decoded?.role).toBe('user');
 
     const loginEmail = await requestRouter({
       method: 'POST',
@@ -136,6 +154,74 @@ describe('users routes', () => {
       body: { email: 'e@example.com', password: 'secret' },
     });
     expect(loginEmail._getStatusCode()).toBe(200);
+  });
+
+  test('rejects protected routes without token', async () => {
+    const res = await requestRouter({ method: 'GET', url: '/' });
+    expect(res._getStatusCode()).toBe(401);
+  });
+
+  test('requires admin role to delete users', async () => {
+    const adminToken = signJwt({ sub: 999, role: 'admin', username: 'admin' });
+    const createRes = await requestRouter({
+      method: 'POST',
+      url: '/',
+      body: { username: 'henry', email: 'h@example.com', password: 'secret' },
+    });
+    const id = createRes._getJSONData().id;
+
+    const loginRes = await requestRouter({
+      method: 'POST',
+      url: '/login',
+      body: { username: 'henry', password: 'secret' },
+    });
+    const userToken = loginRes._getJSONData().token;
+
+    const forbid = await requestRouter({
+      method: 'DELETE',
+      url: `/${id}`,
+      headers: { Authorization: `Bearer ${userToken}` },
+    });
+    expect(forbid._getStatusCode()).toBe(403);
+
+    const allow = await requestRouter({
+      method: 'DELETE',
+      url: `/${id}`,
+      headers: { Authorization: `Bearer ${adminToken}` },
+    });
+    expect(allow._getStatusCode()).toBe(204);
+  });
+
+  test('requireAuth attaches user on protected route', async () => {
+    const createRes = await requestRouter({
+      method: 'POST',
+      url: '/',
+      body: { username: 'henry', email: 'h@example.com', password: 'secret' },
+    });
+    const id = createRes._getJSONData().id;
+    const loginRes = await requestRouter({
+      method: 'POST',
+      url: '/login',
+      body: { username: 'henry', password: 'secret' },
+    });
+    const token = loginRes._getJSONData().token;
+
+    // eslint-disable-next-line new-cap
+    const protectedRouter = express.Router({ mergeParams: true });
+    protectedRouter.get('/protected', requireAuth, (req, res) => {
+      res.json({ user: req.user });
+    });
+
+    const res = await requestRouter({
+      method: 'GET',
+      url: '/protected',
+      headers: { Authorization: `Bearer ${token}` },
+      router: protectedRouter,
+    });
+    expect(res._getStatusCode()).toBe(200);
+    const payload = res._getJSONData().user;
+    expect(payload.sub).toBe(id);
+    expect(payload.role).toBe('user');
   });
 
   test('rejects invalid login', async () => {
@@ -167,7 +253,12 @@ describe('users routes', () => {
     expect(user.email).toBe('g@example.com');
     expect(user.password_hash).toBeUndefined();
 
-    const delRes = await requestRouter({ method: 'DELETE', url: `/${id}` });
+    const adminToken = signJwt({ sub: 1, role: 'admin', username: 'admin' });
+    const delRes = await requestRouter({
+      method: 'DELETE',
+      url: `/${id}`,
+      headers: { Authorization: `Bearer ${adminToken}` },
+    });
     expect(delRes._getStatusCode()).toBe(204);
 
     const missing = await requestRouter({ method: 'GET', url: `/${id}` });

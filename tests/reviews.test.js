@@ -1,6 +1,6 @@
 import { jest } from '@jest/globals';
-import express from 'express';
-import request from 'supertest';
+import { createRequest, createResponse } from './helpers/mockHttp.js';
+import { signJwt } from '../server/src/auth/jwt.js';
 
 // In-memory stores for mocks
 const movieStore = new Map();
@@ -63,6 +63,7 @@ jest.unstable_mockModule('../server/src/db/reviews.js', () => ({
     return review;
   },
   getReviewsByMovie: async (movieId) => reviewsStore.filter((r) => r.movie_id === movieId),
+  getReviewById: async (id) => reviewsStore.find((r) => r.id === id) ?? null,
   updateReview: async (id, fields) => {
     const review = reviewsStore.find((r) => r.id === id);
     if (!review) return null;
@@ -82,58 +83,145 @@ jest.unstable_mockModule('../server/src/db/reviews.js', () => ({
 
 const { default: reviewsRouter } = await import('../server/src/routes/reviews.js');
 
-const app = express();
-app.use(express.json());
-app.use('/api/reviews', reviewsRouter);
-
 describe('reviews routes', () => {
   beforeEach(() => {
     resetStores();
   });
 
-  test('creates and fetches a review', async () => {
-    const createRes = await request(app)
-      .post('/api/reviews')
-      .send({ tmdbId: 101, userId: 1, rating: 4.5, body: 'Nice' });
-    expect(createRes.status).toBe(201);
-    expect(createRes.body.rating).toBe(4.5);
+  const authorToken = signJwt({ sub: 1, role: 'user', username: 'tester' });
+  const otherToken = signJwt({ sub: 2, role: 'user', username: 'other' });
+  const adminToken = signJwt({ sub: 99, role: 'admin', username: 'admin' });
 
-    const listRes = await request(app).get('/api/reviews/101');
-    expect(listRes.status).toBe(200);
-    expect(listRes.body).toHaveLength(1);
-    expect(listRes.body[0].body).toBe('Nice');
+  const requestRouter = async ({ method, url, body, headers = {} }) => {
+    const req = createRequest({ method, url, headers });
+    req.body = body;
+    const res = createResponse();
+    await new Promise((resolve, reject) => {
+      res.on('end', resolve);
+      reviewsRouter.handle(req, res, (err) => {
+        if (err) reject(err);
+        else resolve();
+      });
+    });
+    return res;
+  };
+
+  test('creates and fetches a review', async () => {
+    const createRes = await requestRouter({
+      method: 'POST',
+      url: '/',
+      body: { tmdbId: 101, userId: 1, rating: 4.5, body: 'Nice' },
+      headers: { Authorization: `Bearer ${authorToken}` },
+    });
+    expect(createRes._getStatusCode()).toBe(201);
+    const created = createRes._getJSONData();
+    expect(created.rating).toBe(4.5);
+
+    const listRes = await requestRouter({ method: 'GET', url: '/101' });
+    expect(listRes._getStatusCode()).toBe(200);
+    const list = listRes._getJSONData();
+    expect(list).toHaveLength(1);
+    expect(list[0].body).toBe('Nice');
   });
 
   test('rejects missing required fields', async () => {
-    const res = await request(app).post('/api/reviews').send({ userId: 1, rating: 4 });
-    expect(res.status).toBe(400);
+    const res = await requestRouter({
+      method: 'POST',
+      url: '/',
+      body: { userId: 1, rating: 4 },
+      headers: { Authorization: `Bearer ${authorToken}` },
+    });
+    expect(res._getStatusCode()).toBe(400);
   });
 
   test('updates a review', async () => {
-    const createRes = await request(app)
-      .post('/api/reviews')
-      .send({ tmdbId: 202, userId: 2, rating: 3, body: 'Ok' });
-    const reviewIdCreated = createRes.body.id;
+    const createRes = await requestRouter({
+      method: 'POST',
+      url: '/',
+      body: { tmdbId: 202, userId: 1, rating: 3, body: 'Ok' },
+      headers: { Authorization: `Bearer ${authorToken}` },
+    });
+    const reviewIdCreated = createRes._getJSONData().id;
 
-    const updateRes = await request(app)
-      .put(`/api/reviews/${reviewIdCreated}`)
-      .send({ body: 'Better now', rating: 4 });
-    expect(updateRes.status).toBe(200);
-    expect(updateRes.body.body).toBe('Better now');
-    expect(updateRes.body.rating).toBe(4);
+    const updateRes = await requestRouter({
+      method: 'PUT',
+      url: `/${reviewIdCreated}`,
+      body: { body: 'Better now', rating: 4 },
+      headers: { Authorization: `Bearer ${authorToken}` },
+    });
+    expect(updateRes._getStatusCode()).toBe(200);
+    const updated = updateRes._getJSONData();
+    expect(updated.body).toBe('Better now');
+    expect(updated.rating).toBe(4);
   });
 
-  test('deletes a review', async () => {
-    const createRes = await request(app)
-      .post('/api/reviews')
-      .send({ tmdbId: 303, userId: 3, rating: 5 });
-    const reviewIdCreated = createRes.body.id;
+  test('prevents non-owner from updating and allows admin', async () => {
+    const createRes = await requestRouter({
+      method: 'POST',
+      url: '/',
+      body: { tmdbId: 250, userId: 1, rating: 4 },
+      headers: { Authorization: `Bearer ${authorToken}` },
+    });
+    const reviewIdCreated = createRes._getJSONData().id;
 
-    const delRes = await request(app).delete(`/api/reviews/${reviewIdCreated}`);
-    expect(delRes.status).toBe(204);
+    const forbid = await requestRouter({
+      method: 'PUT',
+      url: `/${reviewIdCreated}`,
+      body: { body: 'nope' },
+      headers: { Authorization: `Bearer ${otherToken}` },
+    });
+    expect(forbid._getStatusCode()).toBe(403);
 
-    const listRes = await request(app).get('/api/reviews/303');
-    expect(listRes.status).toBe(200);
-    expect(listRes.body).toHaveLength(0);
+    const allow = await requestRouter({
+      method: 'PUT',
+      url: `/${reviewIdCreated}`,
+      body: { body: 'admin edit' },
+      headers: { Authorization: `Bearer ${adminToken}` },
+    });
+    expect(allow._getStatusCode()).toBe(200);
+    expect(allow._getJSONData().body).toBe('admin edit');
+  });
+
+  test('deletes a review with owner or admin', async () => {
+    const createRes = await requestRouter({
+      method: 'POST',
+      url: '/',
+      body: { tmdbId: 303, userId: 1, rating: 5 },
+      headers: { Authorization: `Bearer ${authorToken}` },
+    });
+    const reviewIdCreated = createRes._getJSONData().id;
+
+    const forbid = await requestRouter({
+      method: 'DELETE',
+      url: `/${reviewIdCreated}`,
+      headers: { Authorization: `Bearer ${otherToken}` },
+    });
+    expect(forbid._getStatusCode()).toBe(403);
+
+    const ownerDel = await requestRouter({
+      method: 'DELETE',
+      url: `/${reviewIdCreated}`,
+      headers: { Authorization: `Bearer ${authorToken}` },
+    });
+    expect(ownerDel._getStatusCode()).toBe(204);
+
+    const recreate = await requestRouter({
+      method: 'POST',
+      url: '/',
+      body: { tmdbId: 303, userId: 1, rating: 5 },
+      headers: { Authorization: `Bearer ${authorToken}` },
+    });
+    const id2 = recreate._getJSONData().id;
+
+    const adminDel = await requestRouter({
+      method: 'DELETE',
+      url: `/${id2}`,
+      headers: { Authorization: `Bearer ${adminToken}` },
+    });
+    expect(adminDel._getStatusCode()).toBe(204);
+
+    const listRes = await requestRouter({ method: 'GET', url: '/303' });
+    expect(listRes._getStatusCode()).toBe(200);
+    expect(listRes._getJSONData()).toHaveLength(0);
   });
 });

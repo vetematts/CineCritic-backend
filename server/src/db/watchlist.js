@@ -42,3 +42,14 @@ export async function removeFromWatchlist(id) {
   const { rowCount } = await pool.query('DELETE FROM watchlist WHERE id = $1', [id]);
   return rowCount > 0;
 }
+
+export async function getWatchlistEntryById(id) {
+  const { rows } = await pool.query(
+    `SELECT id, user_id, movie_id, status, added_at
+       FROM watchlist
+      WHERE id = $1
+      LIMIT 1`,
+    [id]
+  );
+  return rows[0] || null;
+}

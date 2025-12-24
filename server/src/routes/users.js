@@ -8,6 +8,8 @@ import {
   listUsers,
   deleteUser,
 } from '../db/users.js';
+import { signJwt } from '../auth/jwt.js';
+import { requireAuth, requireRole } from '../middlewares/auth.js';
 
 const router = Router();
 const roles = ['user', 'admin'];
@@ -31,7 +33,7 @@ function sanitizeUser(user) {
   return rest;
 }
 
-router.get('/', async (req, res, next) => {
+router.get('/', requireAuth, async (req, res, next) => {
   try {
     const users = await listUsers();
     res.json(users.map(sanitizeUser));
@@ -76,7 +78,7 @@ router.post('/login', async (req, res, next) => {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
 
-    const token = Buffer.from(`${user.id}:${Date.now()}`).toString('base64');
+    const token = signJwt({ sub: user.id, role: user.role, username: user.username });
     res.json({ token, user: sanitizeUser(user) });
   } catch (err) {
     next(err);
@@ -96,7 +98,7 @@ router.get('/:id', async (req, res, next) => {
   }
 });
 
-router.delete('/:id', async (req, res, next) => {
+router.delete('/:id', requireAuth, requireRole('admin'), async (req, res, next) => {
   try {
     const { id } = req.params;
     const removed = await deleteUser(Number(id));

@@ -18,6 +18,7 @@ Style is enforced with ESLint (eslint-config-google) and formatting is handled b
 | [helmet](https://www.npmjs.com/package/helmet)                                                                                                                                 | Security headers                                |
 | [cors](https://www.npmjs.com/package/cors)                                                                                                                                     | Cross-origin resource sharing                   |
 | [express-rate-limit](https://www.npmjs.com/package/express-rate-limit)                                                                                                         | Basic rate limiting (protect TMDB proxy)        |
+| [jsonwebtoken](https://www.npmjs.com/package/jsonwebtoken)                                                                                                                     | JWT signing/verification for auth               |
 | [swagger-ui-express](https://www.npmjs.com/package/swagger-ui-express), [yamljs](https://www.npmjs.com/package/yamljs)                                                         | Serve Swagger docs from openapi.yaml            |
 | [jest](https://www.npmjs.com/package/jest), [supertest](https://www.npmjs.com/package/supertest), [pg-mem](https://www.npmjs.com/package/pg-mem)                               | Testing (unit, integration, in-memory Postgres) |
 | [eslint](https://www.npmjs.com/package/eslint), [prettier](https://www.npmjs.com/package/prettier), [eslint-config-google](https://www.npmjs.com/package/eslint-config-google) | Code style and formatting                       |
@@ -42,6 +43,8 @@ Docs available at `http://localhost:4000/docs` once the server is running.
 - Reviews: GET /api/reviews/{tmdbId}, POST /api/reviews, PUT /api/reviews/{id}, DELETE /api/reviews/{id}
 - Watchlist: GET /api/watchlist/{userId}, POST /api/watchlist, PUT /api/watchlist/{id}, DELETE /api/watchlist/{id}
 - Users: GET /api/users, POST /api/users, POST /api/users/login, GET /api/users/{id}, DELETE /api/users/{id}
+  - Auth required for GET /api/users and DELETE /api/users/{id}; other mutating routes (reviews POST/PUT/DELETE, watchlist GET/POST/PUT/DELETE) also require Bearer JWT.
+  - Role rules: only admins can delete users; reviews and watchlist mutations require the owner or an admin.
 
 ## Environment Variables
 
@@ -49,4 +52,12 @@ Copy `.env.example` to `.env` and set your values:
 
 - `TMDB_API_KEY` (required): your TMDB API key (kept server-side)
 - `DATABASE_URL` (required): Postgres connection string
+- `JWT_SECRET` (required for auth): secret key for signing JWTs
 <!-- - `OMDB_API_KEY` (optional): OMDb key if you add extra ratings -->
+
+## Authentication
+
+- Login via `POST /api/users/login` to receive a JWT (`token`); default expiry 1 hour.
+- Send the token on protected routes using `Authorization: Bearer <token>`.
+- Protected today: `GET /api/users` and `DELETE /api/users/{id}` (others are public).
+  - Also protected: reviews POST/PUT/DELETE and watchlist GET/POST/PUT/DELETE.
