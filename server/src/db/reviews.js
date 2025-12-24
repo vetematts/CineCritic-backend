@@ -22,6 +22,17 @@ export async function getReviewsByMovie(movieId) {
   return rows;
 }
 
+export async function getReviewById(id) {
+  const { rows } = await pool.query(
+    `SELECT id, user_id, movie_id, rating, body, status, created_at, updated_at, published_at, flagged_at
+     FROM reviews
+     WHERE id = $1
+     LIMIT 1`,
+    [id]
+  );
+  return rows[0] || null;
+}
+
 export async function updateReview(id, fields) {
   const updates = [];
   const values = [];
