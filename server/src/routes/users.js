@@ -8,6 +8,7 @@ import {
   listUsers,
   deleteUser,
 } from '../db/users.js';
+import { signJwt } from '../auth/jwt.js';
 
 const router = Router();
 const roles = ['user', 'admin'];
@@ -76,7 +77,7 @@ router.post('/login', async (req, res, next) => {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
 
-    const token = Buffer.from(`${user.id}:${Date.now()}`).toString('base64');
+    const token = signJwt({ sub: user.id, role: user.role, username: user.username });
     res.json({ token, user: sanitizeUser(user) });
   } catch (err) {
     next(err);
