@@ -9,6 +9,7 @@ import {
   deleteUser,
 } from '../db/users.js';
 import { signJwt } from '../auth/jwt.js';
+import { requireAuth } from '../auth/middleware.js';
 
 const router = Router();
 const roles = ['user', 'admin'];
@@ -32,7 +33,7 @@ function sanitizeUser(user) {
   return rest;
 }
 
-router.get('/', async (req, res, next) => {
+router.get('/', requireAuth, async (req, res, next) => {
   try {
     const users = await listUsers();
     res.json(users.map(sanitizeUser));
@@ -97,7 +98,7 @@ router.get('/:id', async (req, res, next) => {
   }
 });
 
-router.delete('/:id', async (req, res, next) => {
+router.delete('/:id', requireAuth, async (req, res, next) => {
   try {
     const { id } = req.params;
     const removed = await deleteUser(Number(id));

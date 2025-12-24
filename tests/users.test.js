@@ -53,8 +53,8 @@ describe('users routes', () => {
     resetStore();
   });
 
-  const requestRouter = async ({ method, url, body }) => {
-    const req = createRequest({ method, url });
+  const requestRouter = async ({ method, url, body, headers }) => {
+    const req = createRequest({ method, url, headers });
     req.body = body;
     const res = createResponse();
     await new Promise((resolve, reject) => {
@@ -78,7 +78,18 @@ describe('users routes', () => {
     expect(body.username).toBe('alice');
     expect(body.password_hash).toBeUndefined();
 
-    const listRes = await requestRouter({ method: 'GET', url: '/' });
+    const loginRes = await requestRouter({
+      method: 'POST',
+      url: '/login',
+      body: { username: 'alice', password: 'secret' },
+    });
+    const token = loginRes._getJSONData().token;
+
+    const listRes = await requestRouter({
+      method: 'GET',
+      url: '/',
+      headers: { Authorization: `Bearer ${token}` },
+    });
     expect(listRes._getStatusCode()).toBe(200);
     const list = listRes._getJSONData();
     expect(list).toHaveLength(1);
@@ -138,6 +149,11 @@ describe('users routes', () => {
     expect(loginEmail._getStatusCode()).toBe(200);
   });
 
+  test('rejects protected routes without token', async () => {
+    const res = await requestRouter({ method: 'GET', url: '/' });
+    expect(res._getStatusCode()).toBe(401);
+  });
+
   test('rejects invalid login', async () => {
     await requestRouter({
       method: 'POST',
@@ -167,7 +183,18 @@ describe('users routes', () => {
     expect(user.email).toBe('g@example.com');
     expect(user.password_hash).toBeUndefined();
 
-    const delRes = await requestRouter({ method: 'DELETE', url: `/${id}` });
+    const loginRes = await requestRouter({
+      method: 'POST',
+      url: '/login',
+      body: { username: 'gina', password: 'secret' },
+    });
+    const token = loginRes._getJSONData().token;
+
+    const delRes = await requestRouter({
+      method: 'DELETE',
+      url: `/${id}`,
+      headers: { Authorization: `Bearer ${token}` },
+    });
     expect(delRes._getStatusCode()).toBe(204);
 
     const missing = await requestRouter({ method: 'GET', url: `/${id}` });
