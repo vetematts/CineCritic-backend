@@ -7,6 +7,7 @@ import {
   updateWatchStatus,
   removeFromWatchlist,
 } from '../db/watchlist.js';
+import { requireAuth } from '../middlewares/auth.js';
 
 const router = Router();
 const allowedStatuses = ['planned', 'watching', 'completed'];
@@ -26,7 +27,7 @@ async function ensureMovieId(tmdbId) {
   return saved.id;
 }
 
-router.get('/:userId', async (req, res, next) => {
+router.get('/:userId', requireAuth, async (req, res, next) => {
   try {
     const { userId } = req.params;
     const items = await getWatchlistByUser(Number(userId));
@@ -36,7 +37,7 @@ router.get('/:userId', async (req, res, next) => {
   }
 });
 
-router.post('/', async (req, res, next) => {
+router.post('/', requireAuth, async (req, res, next) => {
   try {
     const { tmdbId, userId, status = 'planned' } = req.body || {};
     if (!tmdbId || !userId) {
@@ -53,7 +54,7 @@ router.post('/', async (req, res, next) => {
   }
 });
 
-router.put('/:id', async (req, res, next) => {
+router.put('/:id', requireAuth, async (req, res, next) => {
   try {
     const { id } = req.params;
     const { status } = req.body || {};
@@ -70,7 +71,7 @@ router.put('/:id', async (req, res, next) => {
   }
 });
 
-router.delete('/:id', async (req, res, next) => {
+router.delete('/:id', requireAuth, async (req, res, next) => {
   try {
     const { id } = req.params;
     const deleted = await removeFromWatchlist(Number(id));

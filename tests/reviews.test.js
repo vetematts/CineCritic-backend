@@ -1,5 +1,6 @@
 import { jest } from '@jest/globals';
 import { createRequest, createResponse } from './helpers/mockHttp.js';
+import { signJwt } from '../server/src/auth/jwt.js';
 
 // In-memory stores for mocks
 const movieStore = new Map();
@@ -86,8 +87,10 @@ describe('reviews routes', () => {
     resetStores();
   });
 
-  const requestRouter = async ({ method, url, body }) => {
-    const req = createRequest({ method, url });
+  const token = signJwt({ sub: 1, role: 'user', username: 'tester' });
+
+  const requestRouter = async ({ method, url, body, headers = {} }) => {
+    const req = createRequest({ method, url, headers });
     req.body = body;
     const res = createResponse();
     await new Promise((resolve, reject) => {
@@ -105,6 +108,7 @@ describe('reviews routes', () => {
       method: 'POST',
       url: '/',
       body: { tmdbId: 101, userId: 1, rating: 4.5, body: 'Nice' },
+      headers: { Authorization: `Bearer ${token}` },
     });
     expect(createRes._getStatusCode()).toBe(201);
     const created = createRes._getJSONData();
@@ -118,7 +122,12 @@ describe('reviews routes', () => {
   });
 
   test('rejects missing required fields', async () => {
-    const res = await requestRouter({ method: 'POST', url: '/', body: { userId: 1, rating: 4 } });
+    const res = await requestRouter({
+      method: 'POST',
+      url: '/',
+      body: { userId: 1, rating: 4 },
+      headers: { Authorization: `Bearer ${token}` },
+    });
     expect(res._getStatusCode()).toBe(400);
   });
 
@@ -127,6 +136,7 @@ describe('reviews routes', () => {
       method: 'POST',
       url: '/',
       body: { tmdbId: 202, userId: 2, rating: 3, body: 'Ok' },
+      headers: { Authorization: `Bearer ${token}` },
     });
     const reviewIdCreated = createRes._getJSONData().id;
 
@@ -134,6 +144,7 @@ describe('reviews routes', () => {
       method: 'PUT',
       url: `/${reviewIdCreated}`,
       body: { body: 'Better now', rating: 4 },
+      headers: { Authorization: `Bearer ${token}` },
     });
     expect(updateRes._getStatusCode()).toBe(200);
     const updated = updateRes._getJSONData();
@@ -146,10 +157,15 @@ describe('reviews routes', () => {
       method: 'POST',
       url: '/',
       body: { tmdbId: 303, userId: 3, rating: 5 },
+      headers: { Authorization: `Bearer ${token}` },
     });
     const reviewIdCreated = createRes._getJSONData().id;
 
-    const delRes = await requestRouter({ method: 'DELETE', url: `/${reviewIdCreated}` });
+    const delRes = await requestRouter({
+      method: 'DELETE',
+      url: `/${reviewIdCreated}`,
+      headers: { Authorization: `Bearer ${token}` },
+    });
     expect(delRes._getStatusCode()).toBe(204);
 
     const listRes = await requestRouter({ method: 'GET', url: '/303' });

@@ -1,5 +1,6 @@
 import { jest } from '@jest/globals';
 import { createRequest, createResponse } from './helpers/mockHttp.js';
+import { signJwt } from '../server/src/auth/jwt.js';
 
 const movieStore = new Map();
 const watchlistStore = [];
@@ -81,8 +82,10 @@ describe('watchlist routes', () => {
     resetStores();
   });
 
-  const requestRouter = async ({ method, url, body }) => {
-    const req = createRequest({ method, url });
+  const token = signJwt({ sub: 7, role: 'user', username: 'tester' });
+
+  const requestRouter = async ({ method, url, body, headers = {} }) => {
+    const req = createRequest({ method, url, headers });
     req.body = body;
     const res = createResponse();
     await new Promise((resolve, reject) => {
@@ -100,11 +103,16 @@ describe('watchlist routes', () => {
       method: 'POST',
       url: '/',
       body: { tmdbId: 1, userId: 7, status: 'planned' },
+      headers: { Authorization: `Bearer ${token}` },
     });
     expect(resCreate._getStatusCode()).toBe(201);
     expect(resCreate._getJSONData().status).toBe('planned');
 
-    const resGet = await requestRouter({ method: 'GET', url: '/7' });
+    const resGet = await requestRouter({
+      method: 'GET',
+      url: '/7',
+      headers: { Authorization: `Bearer ${token}` },
+    });
     expect(resGet._getStatusCode()).toBe(200);
     expect(resGet._getJSONData()).toHaveLength(1);
   });
@@ -114,6 +122,7 @@ describe('watchlist routes', () => {
       method: 'POST',
       url: '/',
       body: { tmdbId: 2, userId: 7, status: 'bad' },
+      headers: { Authorization: `Bearer ${token}` },
     });
     expect(res._getStatusCode()).toBe(400);
   });
@@ -123,6 +132,7 @@ describe('watchlist routes', () => {
       method: 'POST',
       url: '/',
       body: { tmdbId: 3, userId: 8, status: 'planned' },
+      headers: { Authorization: `Bearer ${token}` },
     });
     const id = resCreate._getJSONData().id;
 
@@ -130,11 +140,16 @@ describe('watchlist routes', () => {
       method: 'PUT',
       url: `/${id}`,
       body: { status: 'completed' },
+      headers: { Authorization: `Bearer ${token}` },
     });
     expect(resPut._getStatusCode()).toBe(200);
     expect(resPut._getJSONData().status).toBe('completed');
 
-    const resDel = await requestRouter({ method: 'DELETE', url: `/${id}` });
+    const resDel = await requestRouter({
+      method: 'DELETE',
+      url: `/${id}`,
+      headers: { Authorization: `Bearer ${token}` },
+    });
     expect(resDel._getStatusCode()).toBe(204);
   });
 });

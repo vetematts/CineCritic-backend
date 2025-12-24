@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { getContentById, getPosterUrl } from '../tmdb.js';
 import { upsertMovie, getMovieIdByTmdbId } from '../db/movies.js';
 import { createReview, getReviewsByMovie, updateReview, deleteReview } from '../db/reviews.js';
+import { requireAuth } from '../middlewares/auth.js';
 
 const router = Router();
 
@@ -31,7 +32,7 @@ router.get('/:tmdbId', async (req, res, next) => {
   }
 });
 
-router.post('/', async (req, res, next) => {
+router.post('/', requireAuth, async (req, res, next) => {
   try {
     const { tmdbId, userId, rating, body, status = 'published' } = req.body || {};
     if (!tmdbId || !userId || rating === undefined) {
@@ -57,7 +58,7 @@ router.post('/', async (req, res, next) => {
   }
 });
 
-router.put('/:id', async (req, res, next) => {
+router.put('/:id', requireAuth, async (req, res, next) => {
   try {
     const { id } = req.params;
     const review = await updateReview(Number(id), req.body || {});
@@ -70,7 +71,7 @@ router.put('/:id', async (req, res, next) => {
   }
 });
 
-router.delete('/:id', async (req, res, next) => {
+router.delete('/:id', requireAuth, async (req, res, next) => {
   try {
     const { id } = req.params;
     const deleted = await deleteReview(Number(id));
