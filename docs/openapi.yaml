@@ -247,6 +247,8 @@ paths:
   /api/reviews:
     post:
       summary: Create a review for a movie
+      security:
+        - bearerAuth: []
       requestBody:
         required: true
         content:
@@ -279,6 +281,8 @@ paths:
   /api/reviews/{id}:
     put:
       summary: Update a review
+      security:
+        - bearerAuth: []
       parameters:
         - in: path
           name: id
@@ -309,6 +313,8 @@ paths:
           description: Server error
     delete:
       summary: Delete a review
+      security:
+        - bearerAuth: []
       parameters:
         - in: path
           name: id
@@ -326,6 +332,8 @@ paths:
   /api/watchlist/{userId}:
     get:
       summary: Get a user watchlist
+      security:
+        - bearerAuth: []
       parameters:
         - in: path
           name: userId
@@ -338,6 +346,8 @@ paths:
   /api/watchlist:
     post:
       summary: Add/update watchlist entry
+      security:
+        - bearerAuth: []
       requestBody:
         required: true
         content:
@@ -360,6 +370,8 @@ paths:
   /api/watchlist/{id}:
     put:
       summary: Update watchlist status
+      security:
+        - bearerAuth: []
       parameters:
         - in: path
           name: id
@@ -383,6 +395,8 @@ paths:
         '500': { description: Server error }
     delete:
       summary: Remove watchlist entry
+      security:
+        - bearerAuth: []
       parameters:
         - in: path
           name: id
