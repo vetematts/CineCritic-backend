@@ -2,7 +2,7 @@ import { jest } from '@jest/globals';
 import express from 'express';
 import { createRequest, createResponse } from './helpers/mockHttp.js';
 import { requireAuth } from '../server/src/middlewares/auth.js';
-import { verifyJwt } from '../server/src/auth/jwt.js';
+import { verifyJwt, signJwt } from '../server/src/auth/jwt.js';
 
 const users = [];
 let idCounter = 1;
@@ -161,6 +161,37 @@ describe('users routes', () => {
     expect(res._getStatusCode()).toBe(401);
   });
 
+  test('requires admin role to delete users', async () => {
+    const adminToken = signJwt({ sub: 999, role: 'admin', username: 'admin' });
+    const createRes = await requestRouter({
+      method: 'POST',
+      url: '/',
+      body: { username: 'henry', email: 'h@example.com', password: 'secret' },
+    });
+    const id = createRes._getJSONData().id;
+
+    const loginRes = await requestRouter({
+      method: 'POST',
+      url: '/login',
+      body: { username: 'henry', password: 'secret' },
+    });
+    const userToken = loginRes._getJSONData().token;
+
+    const forbid = await requestRouter({
+      method: 'DELETE',
+      url: `/${id}`,
+      headers: { Authorization: `Bearer ${userToken}` },
+    });
+    expect(forbid._getStatusCode()).toBe(403);
+
+    const allow = await requestRouter({
+      method: 'DELETE',
+      url: `/${id}`,
+      headers: { Authorization: `Bearer ${adminToken}` },
+    });
+    expect(allow._getStatusCode()).toBe(204);
+  });
+
   test('requireAuth attaches user on protected route', async () => {
     const createRes = await requestRouter({
       method: 'POST',
@@ -222,17 +253,11 @@ describe('users routes', () => {
     expect(user.email).toBe('g@example.com');
     expect(user.password_hash).toBeUndefined();
 
-    const loginRes = await requestRouter({
-      method: 'POST',
-      url: '/login',
-      body: { username: 'gina', password: 'secret' },
-    });
-    const token = loginRes._getJSONData().token;
-
+    const adminToken = signJwt({ sub: 1, role: 'admin', username: 'admin' });
     const delRes = await requestRouter({
       method: 'DELETE',
       url: `/${id}`,
-      headers: { Authorization: `Bearer ${token}` },
+      headers: { Authorization: `Bearer ${adminToken}` },
     });
     expect(delRes._getStatusCode()).toBe(204);
 

@@ -9,7 +9,7 @@ import {
   deleteUser,
 } from '../db/users.js';
 import { signJwt } from '../auth/jwt.js';
-import { requireAuth } from '../middlewares/auth.js';
+import { requireAuth, requireRole } from '../middlewares/auth.js';
 
 const router = Router();
 const roles = ['user', 'admin'];
@@ -98,7 +98,7 @@ router.get('/:id', async (req, res, next) => {
   }
 });
 
-router.delete('/:id', requireAuth, async (req, res, next) => {
+router.delete('/:id', requireAuth, requireRole('admin'), async (req, res, next) => {
   try {
     const { id } = req.params;
     const removed = await deleteUser(Number(id));
