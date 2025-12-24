@@ -14,9 +14,7 @@ export async function createUser({ username, email, passwordHash, role = 'user' 
 }
 
 export async function getUserById(id) {
-  const { rows } = await pool.query(`SELECT ${baseColumns} FROM users WHERE id = $1 LIMIT 1`, [
-    id,
-  ]);
+  const { rows } = await pool.query(`SELECT ${baseColumns} FROM users WHERE id = $1 LIMIT 1`, [id]);
   return rows[0] || null;
 }
 
@@ -29,10 +27,9 @@ export async function getUserByUsername(username) {
 }
 
 export async function getUserByEmail(email) {
-  const { rows } = await pool.query(
-    `SELECT ${baseColumns} FROM users WHERE email = $1 LIMIT 1`,
-    [email]
-  );
+  const { rows } = await pool.query(`SELECT ${baseColumns} FROM users WHERE email = $1 LIMIT 1`, [
+    email,
+  ]);
   return rows[0] || null;
 }
 
