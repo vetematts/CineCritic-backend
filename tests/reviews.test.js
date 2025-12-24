@@ -1,6 +1,5 @@
 import { jest } from '@jest/globals';
-import express from 'express';
-import request from 'supertest';
+import { createRequest, createResponse } from './helpers/mockHttp.js';
 
 // In-memory stores for mocks
 const movieStore = new Map();
@@ -82,58 +81,79 @@ jest.unstable_mockModule('../server/src/db/reviews.js', () => ({
 
 const { default: reviewsRouter } = await import('../server/src/routes/reviews.js');
 
-const app = express();
-app.use(express.json());
-app.use('/api/reviews', reviewsRouter);
-
 describe('reviews routes', () => {
   beforeEach(() => {
     resetStores();
   });
 
-  test('creates and fetches a review', async () => {
-    const createRes = await request(app)
-      .post('/api/reviews')
-      .send({ tmdbId: 101, userId: 1, rating: 4.5, body: 'Nice' });
-    expect(createRes.status).toBe(201);
-    expect(createRes.body.rating).toBe(4.5);
+  const requestRouter = async ({ method, url, body }) => {
+    const req = createRequest({ method, url });
+    req.body = body;
+    const res = createResponse();
+    await new Promise((resolve, reject) => {
+      res.on('end', resolve);
+      reviewsRouter.handle(req, res, (err) => {
+        if (err) reject(err);
+        else resolve();
+      });
+    });
+    return res;
+  };
 
-    const listRes = await request(app).get('/api/reviews/101');
-    expect(listRes.status).toBe(200);
-    expect(listRes.body).toHaveLength(1);
-    expect(listRes.body[0].body).toBe('Nice');
+  test('creates and fetches a review', async () => {
+    const createRes = await requestRouter({
+      method: 'POST',
+      url: '/',
+      body: { tmdbId: 101, userId: 1, rating: 4.5, body: 'Nice' },
+    });
+    expect(createRes._getStatusCode()).toBe(201);
+    const created = createRes._getJSONData();
+    expect(created.rating).toBe(4.5);
+
+    const listRes = await requestRouter({ method: 'GET', url: '/101' });
+    expect(listRes._getStatusCode()).toBe(200);
+    const list = listRes._getJSONData();
+    expect(list).toHaveLength(1);
+    expect(list[0].body).toBe('Nice');
   });
 
   test('rejects missing required fields', async () => {
-    const res = await request(app).post('/api/reviews').send({ userId: 1, rating: 4 });
-    expect(res.status).toBe(400);
+    const res = await requestRouter({ method: 'POST', url: '/', body: { userId: 1, rating: 4 } });
+    expect(res._getStatusCode()).toBe(400);
   });
 
   test('updates a review', async () => {
-    const createRes = await request(app)
-      .post('/api/reviews')
-      .send({ tmdbId: 202, userId: 2, rating: 3, body: 'Ok' });
-    const reviewIdCreated = createRes.body.id;
+    const createRes = await requestRouter({
+      method: 'POST',
+      url: '/',
+      body: { tmdbId: 202, userId: 2, rating: 3, body: 'Ok' },
+    });
+    const reviewIdCreated = createRes._getJSONData().id;
 
-    const updateRes = await request(app)
-      .put(`/api/reviews/${reviewIdCreated}`)
-      .send({ body: 'Better now', rating: 4 });
-    expect(updateRes.status).toBe(200);
-    expect(updateRes.body.body).toBe('Better now');
-    expect(updateRes.body.rating).toBe(4);
+    const updateRes = await requestRouter({
+      method: 'PUT',
+      url: `/${reviewIdCreated}`,
+      body: { body: 'Better now', rating: 4 },
+    });
+    expect(updateRes._getStatusCode()).toBe(200);
+    const updated = updateRes._getJSONData();
+    expect(updated.body).toBe('Better now');
+    expect(updated.rating).toBe(4);
   });
 
   test('deletes a review', async () => {
-    const createRes = await request(app)
-      .post('/api/reviews')
-      .send({ tmdbId: 303, userId: 3, rating: 5 });
-    const reviewIdCreated = createRes.body.id;
+    const createRes = await requestRouter({
+      method: 'POST',
+      url: '/',
+      body: { tmdbId: 303, userId: 3, rating: 5 },
+    });
+    const reviewIdCreated = createRes._getJSONData().id;
 
-    const delRes = await request(app).delete(`/api/reviews/${reviewIdCreated}`);
-    expect(delRes.status).toBe(204);
+    const delRes = await requestRouter({ method: 'DELETE', url: `/${reviewIdCreated}` });
+    expect(delRes._getStatusCode()).toBe(204);
 
-    const listRes = await request(app).get('/api/reviews/303');
-    expect(listRes.status).toBe(200);
-    expect(listRes.body).toHaveLength(0);
+    const listRes = await requestRouter({ method: 'GET', url: '/303' });
+    expect(listRes._getStatusCode()).toBe(200);
+    expect(listRes._getJSONData()).toHaveLength(0);
   });
 });

@@ -1,6 +1,5 @@
 import { jest } from '@jest/globals';
-import express from 'express';
-import request from 'supertest';
+import { createRequest, createResponse } from './helpers/mockHttp.js';
 
 const movieStore = new Map();
 const watchlistStore = [];
@@ -77,45 +76,65 @@ jest.unstable_mockModule('../server/src/db/watchlist.js', () => ({
 
 const { default: watchlistRouter } = await import('../server/src/routes/watchlist.js');
 
-const app = express();
-app.use(express.json());
-app.use('/api/watchlist', watchlistRouter);
-
 describe('watchlist routes', () => {
   beforeEach(() => {
     resetStores();
   });
 
-  test('adds to watchlist and retrieves by user', async () => {
-    const resCreate = await request(app)
-      .post('/api/watchlist')
-      .send({ tmdbId: 1, userId: 7, status: 'planned' });
-    expect(resCreate.status).toBe(201);
-    expect(resCreate.body.status).toBe('planned');
+  const requestRouter = async ({ method, url, body }) => {
+    const req = createRequest({ method, url });
+    req.body = body;
+    const res = createResponse();
+    await new Promise((resolve, reject) => {
+      res.on('end', resolve);
+      watchlistRouter.handle(req, res, (err) => {
+        if (err) reject(err);
+        else resolve();
+      });
+    });
+    return res;
+  };
 
-    const resGet = await request(app).get('/api/watchlist/7');
-    expect(resGet.status).toBe(200);
-    expect(resGet.body).toHaveLength(1);
+  test('adds to watchlist and retrieves by user', async () => {
+    const resCreate = await requestRouter({
+      method: 'POST',
+      url: '/',
+      body: { tmdbId: 1, userId: 7, status: 'planned' },
+    });
+    expect(resCreate._getStatusCode()).toBe(201);
+    expect(resCreate._getJSONData().status).toBe('planned');
+
+    const resGet = await requestRouter({ method: 'GET', url: '/7' });
+    expect(resGet._getStatusCode()).toBe(200);
+    expect(resGet._getJSONData()).toHaveLength(1);
   });
 
   test('rejects invalid status', async () => {
-    const res = await request(app)
-      .post('/api/watchlist')
-      .send({ tmdbId: 2, userId: 7, status: 'bad' });
-    expect(res.status).toBe(400);
+    const res = await requestRouter({
+      method: 'POST',
+      url: '/',
+      body: { tmdbId: 2, userId: 7, status: 'bad' },
+    });
+    expect(res._getStatusCode()).toBe(400);
   });
 
   test('updates status and deletes entry', async () => {
-    const resCreate = await request(app)
-      .post('/api/watchlist')
-      .send({ tmdbId: 3, userId: 8, status: 'planned' });
-    const id = resCreate.body.id;
+    const resCreate = await requestRouter({
+      method: 'POST',
+      url: '/',
+      body: { tmdbId: 3, userId: 8, status: 'planned' },
+    });
+    const id = resCreate._getJSONData().id;
 
-    const resPut = await request(app).put(`/api/watchlist/${id}`).send({ status: 'completed' });
-    expect(resPut.status).toBe(200);
-    expect(resPut.body.status).toBe('completed');
+    const resPut = await requestRouter({
+      method: 'PUT',
+      url: `/${id}`,
+      body: { status: 'completed' },
+    });
+    expect(resPut._getStatusCode()).toBe(200);
+    expect(resPut._getJSONData().status).toBe('completed');
 
-    const resDel = await request(app).delete(`/api/watchlist/${id}`);
-    expect(resDel.status).toBe(204);
+    const resDel = await requestRouter({ method: 'DELETE', url: `/${id}` });
+    expect(resDel._getStatusCode()).toBe(204);
   });
 });
