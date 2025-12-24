@@ -9,7 +9,7 @@ import {
   deleteUser,
 } from '../db/users.js';
 import { signJwt } from '../auth/jwt.js';
-import { requireAuth } from '../auth/middleware.js';
+import { requireAuth } from '../middlewares/auth.js';
 
 const router = Router();
 const roles = ['user', 'admin'];

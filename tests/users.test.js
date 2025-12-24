@@ -1,7 +1,7 @@
 import { jest } from '@jest/globals';
 import express from 'express';
 import { createRequest, createResponse } from './helpers/mockHttp.js';
-import { requireAuth } from '../server/src/auth/middleware.js';
+import { requireAuth } from '../server/src/middlewares/auth.js';
 import { verifyJwt } from '../server/src/auth/jwt.js';
 
 const users = [];

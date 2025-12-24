@@ -1,4 +1,4 @@
-import { verifyJwt } from './jwt.js';
+import { verifyJwt } from '../auth/jwt.js';
 
 export function requireAuth(req, res, next) {
   const authHeader = req.headers.authorization || '';
