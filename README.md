@@ -51,3 +51,9 @@ Copy `.env.example` to `.env` and set your values:
 - `DATABASE_URL` (required): Postgres connection string
 - `JWT_SECRET` (required for auth): secret key for signing JWTs
 <!-- - `OMDB_API_KEY` (optional): OMDb key if you add extra ratings -->
+
+## Authentication
+
+- Login via `POST /api/users/login` to receive a JWT (`token`); default expiry 1 hour.
+- Send the token on protected routes using `Authorization: Bearer <token>`.
+- Protected today: `GET /api/users` and `DELETE /api/users/{id}` (others are public).
