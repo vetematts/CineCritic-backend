@@ -9,7 +9,8 @@ export async function createTables(dbPool = pool) {
       email TEXT NOT NULL UNIQUE,
       password_hash TEXT NOT NULL,
       role VARCHAR(20) NOT NULL DEFAULT 'user',
-      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      CONSTRAINT ck_users_role CHECK (role IN ('user', 'admin'))
     );
 
     CREATE TABLE IF NOT EXISTS movies (
