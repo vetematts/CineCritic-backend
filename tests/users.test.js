@@ -175,7 +175,8 @@ describe('users routes', () => {
     });
     const token = loginRes._getJSONData().token;
 
-    const protectedRouter = express.Router();
+    // eslint-disable-next-line new-cap
+    const protectedRouter = express.Router({ mergeParams: true });
     protectedRouter.get('/protected', requireAuth, (req, res) => {
       res.json({ user: req.user });
     });
