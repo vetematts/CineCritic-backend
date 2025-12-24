@@ -41,6 +41,7 @@ Docs available at `http://localhost:4000/docs` once the server is running.
 - Movies: GET /api/movies/trending, /top-rated, /genres, /search?q=, /year/{year}, /genre/{id}, /{id}
 - Reviews: GET /api/reviews/{tmdbId}, POST /api/reviews, PUT /api/reviews/{id}, DELETE /api/reviews/{id}
 - Watchlist: GET /api/watchlist/{userId}, POST /api/watchlist, PUT /api/watchlist/{id}, DELETE /api/watchlist/{id}
+- Users: GET /api/users, POST /api/users, POST /api/users/login, GET /api/users/{id}, DELETE /api/users/{id}
 
 ## Environment Variables
 
