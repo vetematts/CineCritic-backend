@@ -1,6 +1,8 @@
 import { jest } from '@jest/globals';
 import express from 'express';
 import { createRequest, createResponse } from './helpers/mockHttp.js';
+import { requireAuth } from '../server/src/auth/middleware.js';
+import { verifyJwt } from '../server/src/auth/jwt.js';
 
 const users = [];
 let idCounter = 1;
@@ -42,6 +44,8 @@ jest.unstable_mockModule('../server/src/db/users.js', () => ({
   },
 }));
 
+process.env.JWT_SECRET = 'test-secret';
+
 const { default: usersRouter } = await import('../server/src/routes/users.js');
 
 const app = express();
@@ -53,13 +57,13 @@ describe('users routes', () => {
     resetStore();
   });
 
-  const requestRouter = async ({ method, url, body, headers }) => {
+  const requestRouter = async ({ method, url, body, headers, router = usersRouter }) => {
     const req = createRequest({ method, url, headers });
     req.body = body;
     const res = createResponse();
     await new Promise((resolve, reject) => {
       res.on('end', resolve);
-      usersRouter.handle(req, res, (err) => {
+      router.handle(req, res, (err) => {
         if (err) reject(err);
         else resolve();
       });
@@ -140,6 +144,9 @@ describe('users routes', () => {
     const loginUserBody = loginUser._getJSONData();
     expect(loginUserBody.token).toBeTruthy();
     expect(loginUserBody.user.username).toBe('eve');
+    const decoded = verifyJwt(loginUserBody.token);
+    expect(decoded?.sub).toBeTruthy();
+    expect(decoded?.role).toBe('user');
 
     const loginEmail = await requestRouter({
       method: 'POST',
@@ -152,6 +159,37 @@ describe('users routes', () => {
   test('rejects protected routes without token', async () => {
     const res = await requestRouter({ method: 'GET', url: '/' });
     expect(res._getStatusCode()).toBe(401);
+  });
+
+  test('requireAuth attaches user on protected route', async () => {
+    const createRes = await requestRouter({
+      method: 'POST',
+      url: '/',
+      body: { username: 'henry', email: 'h@example.com', password: 'secret' },
+    });
+    const id = createRes._getJSONData().id;
+    const loginRes = await requestRouter({
+      method: 'POST',
+      url: '/login',
+      body: { username: 'henry', password: 'secret' },
+    });
+    const token = loginRes._getJSONData().token;
+
+    const protectedRouter = express.Router();
+    protectedRouter.get('/protected', requireAuth, (req, res) => {
+      res.json({ user: req.user });
+    });
+
+    const res = await requestRouter({
+      method: 'GET',
+      url: '/protected',
+      headers: { Authorization: `Bearer ${token}` },
+      router: protectedRouter,
+    });
+    expect(res._getStatusCode()).toBe(200);
+    const payload = res._getJSONData().user;
+    expect(payload.sub).toBe(id);
+    expect(payload.role).toBe('user');
   });
 
   test('rejects invalid login', async () => {
