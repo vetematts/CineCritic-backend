@@ -9,7 +9,7 @@ export function signJwt(payload, options = {}) {
 export function verifyJwt(token) {
   try {
     return jwt.verify(token, secret, { algorithms: ['HS256'] });
-  } catch (err) {
+  } catch {
     return null;
   }
 }
