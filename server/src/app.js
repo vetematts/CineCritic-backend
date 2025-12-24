@@ -10,6 +10,7 @@ import { fileURLToPath } from 'url';
 import moviesRouter from './routes/movies.js';
 import reviewsRouter from './routes/reviews.js';
 import watchlistRouter from './routes/watchlist.js';
+import usersRouter from './routes/users.js';
 
 dotenv.config();
 
@@ -39,6 +40,7 @@ app.get('/health', (req, res) => {
 app.use('/api/movies', moviesRouter);
 app.use('/api/reviews', reviewsRouter);
 app.use('/api/watchlist', watchlistRouter);
+app.use('/api/users', usersRouter);
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDoc));
 
 // General error handler
