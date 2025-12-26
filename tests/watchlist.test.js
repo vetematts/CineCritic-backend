@@ -1,6 +1,7 @@
 import { jest } from '@jest/globals';
 import { createRequest, createResponse } from './helpers/mockHttp.js';
 import { signJwt } from '../src/auth/jwt.js';
+import { errorHandler } from '../src/middlewares/error.js';
 
 const movieStore = new Map();
 const watchlistStore = [];
