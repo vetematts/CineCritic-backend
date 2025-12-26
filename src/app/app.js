@@ -1,7 +1,6 @@
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
-import dotenv from 'dotenv';
 import rateLimit from 'express-rate-limit';
 import swaggerUi from 'swagger-ui-express';
 import YAML from 'yamljs';
@@ -12,8 +11,6 @@ import reviewsRouter from '../routes/reviews.js';
 import watchlistRouter from '../routes/watchlist.js';
 import usersRouter from '../routes/users.js';
 import { errorHandler } from '../middlewares/error.js';
-
-dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
