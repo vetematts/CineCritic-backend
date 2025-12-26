@@ -1,8 +1,6 @@
-import dotenv from 'dotenv';
+import { config } from '../config/index.js';
 
-dotenv.config();
-
-const TMDB_API_KEY = process.env.TMDB_API_KEY;
+const TMDB_API_KEY = config.tmdbApiKey;
 const TMDB_BASE_URL = 'https://api.themoviedb.org/3';
 const TMDB_IMAGE_BASE_URL = 'https://image.tmdb.org/t/p';
 const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes

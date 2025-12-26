@@ -1,6 +1,6 @@
 import { jest } from '@jest/globals';
 import { createRequest, createResponse } from './helpers/mockHttp.js';
-import { signJwt } from '../server/src/auth/jwt.js';
+import { signJwt } from '../src/auth/jwt.js';
 
 const movieStore = new Map();
 const watchlistStore = [];
@@ -12,7 +12,7 @@ const resetStores = () => {
   watchId = 1;
 };
 
-jest.unstable_mockModule('../server/src/tmdb.js', () => ({
+jest.unstable_mockModule('../src/services/tmdb.js', () => ({
   getContentById: async (id) => ({
     id,
     title: `Movie ${id}`,
@@ -22,7 +22,7 @@ jest.unstable_mockModule('../server/src/tmdb.js', () => ({
   getPosterUrl: (path) => (path ? `http://image/${path}` : null),
 }));
 
-jest.unstable_mockModule('../server/src/db/movies.js', () => ({
+jest.unstable_mockModule('../src/db/movies.js', () => ({
   getMovieIdByTmdbId: async (tmdbId) => movieStore.get(Number(tmdbId)) ?? null,
   upsertMovie: async ({ tmdbId, title, releaseYear, posterUrl, contentType }) => {
     const key = Number(tmdbId);
@@ -43,7 +43,7 @@ jest.unstable_mockModule('../server/src/db/movies.js', () => ({
   },
 }));
 
-jest.unstable_mockModule('../server/src/db/watchlist.js', () => ({
+jest.unstable_mockModule('../src/db/watchlist.js', () => ({
   addToWatchlist: async ({ userId, movieId, status }) => {
     const existing = watchlistStore.find((w) => w.user_id === userId && w.movie_id === movieId);
     if (existing) {
@@ -76,7 +76,7 @@ jest.unstable_mockModule('../server/src/db/watchlist.js', () => ({
   },
 }));
 
-const { default: watchlistRouter } = await import('../server/src/routes/watchlist.js');
+const { default: watchlistRouter } = await import('../src/routes/watchlist.js');
 
 describe('watchlist routes', () => {
   beforeEach(() => {

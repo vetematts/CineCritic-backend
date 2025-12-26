@@ -1,5 +1,5 @@
-import { Router } from 'express';
-import { getContentById, getPosterUrl } from '../tmdb.js';
+import express from 'express';
+import { getContentById, getPosterUrl } from '../services/tmdb.js';
 import { upsertMovie, getMovieIdByTmdbId } from '../db/movies.js';
 import {
   createReview,
@@ -10,7 +10,8 @@ import {
 } from '../db/reviews.js';
 import { requireAuth } from '../middlewares/auth.js';
 
-const router = Router();
+// eslint-disable-next-line new-cap
+const router = express.Router();
 
 async function ensureMovieId(tmdbId) {
   const existingId = await getMovieIdByTmdbId(Number(tmdbId));

@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import express from 'express';
 import crypto from 'crypto';
 import {
   createUser,
@@ -12,7 +12,8 @@ import {
 import { signJwt } from '../auth/jwt.js';
 import { requireAuth, requireRole } from '../middlewares/auth.js';
 
-const router = Router();
+// eslint-disable-next-line new-cap
+const router = express.Router();
 const roles = ['user', 'admin'];
 
 function hashPassword(password) {
