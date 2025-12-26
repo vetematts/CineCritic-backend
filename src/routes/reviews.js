@@ -1,4 +1,5 @@
 import express from 'express';
+import { z } from 'zod';
 import { getContentById, getPosterUrl } from '../services/tmdb.js';
 import { upsertMovie, getMovieIdByTmdbId } from '../db/movies.js';
 import {
@@ -9,9 +10,31 @@ import {
   getReviewById,
 } from '../db/reviews.js';
 import { requireAuth } from '../middlewares/auth.js';
+import { validate } from '../middlewares/validate.js';
 
 // eslint-disable-next-line new-cap
 const router = express.Router();
+
+const ratingEnum = [0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5];
+const createReviewSchema = z.object({
+  body: z.object({
+    tmdbId: z.number().int(),
+    userId: z.number().int(),
+    rating: z.number().refine((val) => ratingEnum.includes(val), {
+      message: 'rating must be between 0.5 and 5 in 0.5 steps',
+    }),
+    body: z.string().optional(),
+    status: z.enum(['draft', 'published', 'flagged']).optional(),
+  }),
+  params: z.object({}).optional(),
+  query: z.object({}).optional(),
+});
+
+const idParamSchema = z.object({
+  params: z.object({ id: z.string().regex(/^\d+$/, 'id must be a number') }),
+  body: z.object({}).passthrough().optional(),
+  query: z.object({}).optional(),
+});
 
 async function ensureMovieId(tmdbId) {
   const existingId = await getMovieIdByTmdbId(Number(tmdbId));
@@ -39,26 +62,18 @@ router.get('/:tmdbId', async (req, res, next) => {
   }
 });
 
-router.post('/', requireAuth, async (req, res, next) => {
+router.post('/', requireAuth, validate(createReviewSchema), async (req, res, next) => {
   try {
-    const { tmdbId, userId, rating, body, status = 'published' } = req.body || {};
-    if (!tmdbId || !userId || rating === undefined) {
-      return res.status(400).json({ error: 'tmdbId, userId, and rating are required' });
-    }
+    const { tmdbId, userId, rating, body, status = 'published' } = req.validated.body;
     if (req.user?.role !== 'admin' && Number(userId) !== req.user?.sub) {
       return res.status(403).json({ error: 'Forbidden' });
-    }
-    const numericRating = Number(rating);
-    const validRatings = [0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5];
-    if (!validRatings.includes(numericRating)) {
-      return res.status(400).json({ error: 'rating must be between 0.5 and 5 in 0.5 steps' });
     }
 
     const movieId = await ensureMovieId(tmdbId);
     const review = await createReview({
       userId,
       movieId,
-      rating: numericRating,
+      rating,
       body,
       status,
     });
@@ -68,9 +83,9 @@ router.post('/', requireAuth, async (req, res, next) => {
   }
 });
 
-router.put('/:id', requireAuth, async (req, res, next) => {
+router.put('/:id', requireAuth, validate(idParamSchema), async (req, res, next) => {
   try {
-    const { id } = req.params;
+    const { id } = req.validated.params;
     const existing = await getReviewById(Number(id));
     if (!existing) {
       return res.status(404).json({ error: 'Review not found or no fields to update' });
@@ -85,9 +100,9 @@ router.put('/:id', requireAuth, async (req, res, next) => {
   }
 });
 
-router.delete('/:id', requireAuth, async (req, res, next) => {
+router.delete('/:id', requireAuth, validate(idParamSchema), async (req, res, next) => {
   try {
-    const { id } = req.params;
+    const { id } = req.validated.params;
     const existing = await getReviewById(Number(id));
     if (!existing) {
       return res.status(404).json({ error: 'Review not found' });

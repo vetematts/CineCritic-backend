@@ -1,4 +1,5 @@
 import express from 'express';
+import { z } from 'zod';
 import { getContentById, getPosterUrl } from '../services/tmdb.js';
 import { upsertMovie, getMovieIdByTmdbId } from '../db/movies.js';
 import {
@@ -9,10 +10,33 @@ import {
   getWatchlistEntryById,
 } from '../db/watchlist.js';
 import { requireAuth } from '../middlewares/auth.js';
+import { validate } from '../middlewares/validate.js';
 
 // eslint-disable-next-line new-cap
 const router = express.Router();
 const allowedStatuses = ['planned', 'watching', 'completed'];
+
+const watchlistCreateSchema = z.object({
+  body: z.object({
+    tmdbId: z.number().int(),
+    userId: z.number().int(),
+    status: z.enum(['planned', 'watching', 'completed']).optional(),
+  }),
+  params: z.object({}).optional(),
+  query: z.object({}).optional(),
+});
+
+const watchlistIdSchema = z.object({
+  params: z.object({ id: z.string().regex(/^\d+$/, 'id must be a number') }),
+  body: z.object({}).passthrough().optional(),
+  query: z.object({}).optional(),
+});
+
+const watchlistGetSchema = z.object({
+  params: z.object({ userId: z.string().regex(/^\d+$/, 'userId must be a number') }),
+  body: z.object({}).optional(),
+  query: z.object({}).optional(),
+});
 
 async function ensureMovieId(tmdbId) {
   const existingId = await getMovieIdByTmdbId(Number(tmdbId));
@@ -29,25 +53,23 @@ async function ensureMovieId(tmdbId) {
   return saved.id;
 }
 
-router.get('/:userId', requireAuth, async (req, res, next) => {
+router.get('/:userId', requireAuth, validate(watchlistGetSchema), async (req, res, next) => {
   try {
-    const { userId } = req.params;
-    if (req.user?.role !== 'admin' && req.user?.sub !== Number(userId)) {
+    const { userId } = req.validated.params;
+    const numericUserId = Number(userId);
+    if (req.user?.role !== 'admin' && req.user?.sub !== numericUserId) {
       return res.status(403).json({ error: 'Forbidden' });
     }
-    const items = await getWatchlistByUser(Number(userId));
+    const items = await getWatchlistByUser(numericUserId);
     res.json(items);
   } catch (err) {
     next(err);
   }
 });
 
-router.post('/', requireAuth, async (req, res, next) => {
+router.post('/', requireAuth, validate(watchlistCreateSchema), async (req, res, next) => {
   try {
-    const { tmdbId, userId, status = 'planned' } = req.body || {};
-    if (!tmdbId || !userId) {
-      return res.status(400).json({ error: 'tmdbId and userId are required' });
-    }
+    const { tmdbId, userId, status = 'planned' } = req.validated.body;
     if (req.user?.role !== 'admin' && req.user?.sub !== Number(userId)) {
       return res.status(403).json({ error: 'Forbidden' });
     }
@@ -62,9 +84,9 @@ router.post('/', requireAuth, async (req, res, next) => {
   }
 });
 
-router.put('/:id', requireAuth, async (req, res, next) => {
+router.put('/:id', requireAuth, validate(watchlistIdSchema), async (req, res, next) => {
   try {
-    const { id } = req.params;
+    const { id } = req.validated.params;
     const { status } = req.body || {};
     if (!status || !allowedStatuses.includes(status)) {
       return res.status(400).json({ error: 'status must be planned, watching, or completed' });
@@ -86,9 +108,9 @@ router.put('/:id', requireAuth, async (req, res, next) => {
   }
 });
 
-router.delete('/:id', requireAuth, async (req, res, next) => {
+router.delete('/:id', requireAuth, validate(watchlistIdSchema), async (req, res, next) => {
   try {
-    const { id } = req.params;
+    const { id } = req.validated.params;
     const entry = await getWatchlistEntryById(Number(id));
     if (!entry) {
       return res.status(404).json({ error: 'Watchlist entry not found' });
