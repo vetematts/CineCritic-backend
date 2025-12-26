@@ -126,6 +126,10 @@ paths:
       responses:
         '200':
           description: List of users (password hashes omitted)
+        '401':
+          description: Missing or invalid token
+        '403':
+          description: Forbidden (insufficient role)
         '500':
           description: Server error
     post:
@@ -226,6 +230,10 @@ paths:
       responses:
         '204':
           description: User deleted
+        '401':
+          description: Missing or invalid token
+        '403':
+          description: Forbidden (admin only)
         '404':
           description: User not found
         '500':
@@ -276,6 +284,10 @@ paths:
           description: Review created
         '400':
           description: Missing or invalid fields
+        '401':
+          description: Missing or invalid token
+        '403':
+          description: Forbidden (must be author or admin)
         '500':
           description: Server error
   /api/reviews/{id}:
@@ -309,6 +321,10 @@ paths:
           description: Review updated
         '404':
           description: Review not found or no fields to update
+        '401':
+          description: Missing or invalid token
+        '403':
+          description: Forbidden (must be author or admin)
         '500':
           description: Server error
     delete:
@@ -324,6 +340,10 @@ paths:
       responses:
         '204':
           description: Review deleted
+        '401':
+          description: Missing or invalid token
+        '403':
+          description: Forbidden (must be author or admin)
         '404':
           description: Review not found
         '500':
@@ -341,6 +361,8 @@ paths:
           schema: { type: integer }
       responses:
         '200': { description: Watchlist items }
+        '401': { description: Missing or invalid token }
+        '403': { description: Forbidden (must be owner or admin) }
         '500': { description: Server error }
 
   /api/watchlist:
@@ -365,6 +387,8 @@ paths:
       responses:
         '201': { description: Watchlist entry created/updated }
         '400': { description: Missing/invalid fields }
+        '401': { description: Missing or invalid token }
+        '403': { description: Forbidden (must be owner or admin) }
         '500': { description: Server error }
 
   /api/watchlist/{id}:
@@ -391,6 +415,8 @@ paths:
       responses:
         '200': { description: Updated entry }
         '400': { description: Invalid status }
+        '401': { description: Missing or invalid token }
+        '403': { description: Forbidden (must be owner or admin) }
         '404': { description: Not found }
         '500': { description: Server error }
     delete:
@@ -404,5 +430,7 @@ paths:
           schema: { type: integer }
       responses:
         '204': { description: Deleted }
+        '401': { description: Missing or invalid token }
+        '403': { description: Forbidden (must be owner or admin) }
         '404': { description: Not found }
         '500': { description: Server error }
