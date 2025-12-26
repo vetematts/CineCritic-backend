@@ -38,6 +38,38 @@ export async function listUsers() {
   return rows;
 }
 
+export async function updateUser(id, fields) {
+  const updates = [];
+  const values = [];
+  let idx = 1;
+
+  if (fields.username !== undefined) {
+    updates.push(`username = $${idx++}`);
+    values.push(fields.username);
+  }
+  if (fields.email !== undefined) {
+    updates.push(`email = $${idx++}`);
+    values.push(fields.email);
+  }
+  if (fields.passwordHash !== undefined) {
+    updates.push(`password_hash = $${idx++}`);
+    values.push(fields.passwordHash);
+  }
+  if (fields.role !== undefined) {
+    updates.push(`role = $${idx++}`);
+    values.push(fields.role);
+  }
+
+  if (!updates.length) return null;
+
+  values.push(id);
+  const { rows } = await pool.query(
+    `UPDATE users SET ${updates.join(', ')} WHERE id = $${idx} RETURNING ${baseColumns};`,
+    values
+  );
+  return rows[0] || null;
+}
+
 export async function deleteUser(id) {
   const { rowCount } = await pool.query('DELETE FROM users WHERE id = $1', [id]);
   return rowCount > 0;
