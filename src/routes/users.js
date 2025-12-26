@@ -11,10 +11,48 @@ import {
 } from '../db/users.js';
 import { signJwt } from '../auth/jwt.js';
 import { requireAuth, requireRole } from '../middlewares/auth.js';
+import { validate } from '../middlewares/validate.js';
+import { z } from 'zod';
 
 // eslint-disable-next-line new-cap
 const router = express.Router();
 const roles = ['user', 'admin'];
+
+const createUserSchema = z.object({
+  body: z.object({
+    username: z.string().min(1, 'username is required'),
+    email: z.string().email('email must be valid'),
+    password: z.string().min(1, 'password is required'),
+    role: z.enum(['user', 'admin']).optional(),
+  }),
+  params: z.object({}).optional(),
+  query: z.object({}).optional(),
+});
+
+const loginSchema = z.object({
+  body: z.object({
+    username: z.string().min(1).optional(),
+    email: z.string().email().optional(),
+    password: z.string().min(1, 'password is required'),
+  }),
+  params: z.object({}).optional(),
+  query: z.object({}).optional(),
+});
+
+const patchUserSchema = z.object({
+  params: z.object({
+    id: z.string().regex(/^\d+$/, 'id must be a number'),
+  }),
+  body: z
+    .object({
+      username: z.string().min(1).optional(),
+      email: z.string().email().optional(),
+      password: z.string().min(1).optional(),
+      role: z.enum(['user', 'admin']).optional(),
+    })
+    .refine((data) => Object.keys(data).length > 0, 'No fields to update'),
+  query: z.object({}).optional(),
+});
 
 function hashPassword(password) {
   const salt = crypto.randomBytes(16).toString('hex');
@@ -44,12 +82,9 @@ router.get('/', requireAuth, async (req, res, next) => {
   }
 });
 
-router.post('/', async (req, res, next) => {
+router.post('/', validate(createUserSchema), async (req, res, next) => {
   try {
-    const { username, email, password, role = 'user' } = req.body || {};
-    if (!username || !email || !password) {
-      return res.status(400).json({ error: 'username, email, and password are required' });
-    }
+    const { username, email, password, role = 'user' } = req.validated.body;
     if (!roles.includes(role)) {
       return res.status(400).json({ error: 'role must be user or admin' });
     }
@@ -64,14 +99,9 @@ router.post('/', async (req, res, next) => {
   }
 });
 
-router.post('/login', async (req, res, next) => {
+router.post('/login', validate(loginSchema), async (req, res, next) => {
   try {
-    const { username, email, password } = req.body || {};
-    if ((!username && !email) || !password) {
-      return res
-        .status(400)
-        .json({ error: 'username or email plus password are required to login' });
-    }
+    const { username, email, password } = req.validated.body;
 
     const user =
       (username && (await getUserByUsername(username))) || (email && (await getUserByEmail(email)));
@@ -100,14 +130,14 @@ router.get('/:id', async (req, res, next) => {
   }
 });
 
-router.patch('/:id', requireAuth, async (req, res, next) => {
+router.patch('/:id', requireAuth, validate(patchUserSchema), async (req, res, next) => {
   try {
-    const { id } = req.params;
+    const { id } = req.validated.params;
     const targetId = Number(id);
     if (req.user.role !== 'admin' && req.user.sub !== targetId) {
       return res.status(403).json({ error: 'Forbidden' });
     }
-    const { username, email, password, role } = req.body || {};
+    const { username, email, password, role } = req.validated.body;
     if (role && req.user.role !== 'admin') {
       return res.status(403).json({ error: 'Only admins can change roles' });
     }
