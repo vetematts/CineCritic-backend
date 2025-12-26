@@ -11,6 +11,7 @@ import moviesRouter from './routes/movies.js';
 import reviewsRouter from './routes/reviews.js';
 import watchlistRouter from './routes/watchlist.js';
 import usersRouter from './routes/users.js';
+import { errorHandler } from './middlewares/error.js';
 
 dotenv.config();
 
@@ -43,14 +44,6 @@ app.use('/api/watchlist', watchlistRouter);
 app.use('/api/users', usersRouter);
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDoc));
 
-// General error handler
-// eslint-disable-next-line no-unused-vars
-app.use((err, req, res, next) => {
-  console.error(err);
-  const status = err.status || 500;
-  res.status(status).json({
-    error: err.message || 'Internal Server Error',
-  });
-});
+app.use(errorHandler);
 
 export default app;
