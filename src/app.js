@@ -17,7 +17,7 @@ dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const swaggerDoc = YAML.load(path.join(__dirname, '..', '..', 'docs', 'openapi.yaml'));
+const swaggerDoc = YAML.load(path.join(__dirname, '..', 'docs', 'openapi.yaml'));
 
 const app = express();
 

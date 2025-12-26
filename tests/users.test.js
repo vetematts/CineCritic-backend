@@ -1,8 +1,8 @@
 import { jest } from '@jest/globals';
 import express from 'express';
 import { createRequest, createResponse } from './helpers/mockHttp.js';
-import { requireAuth } from '../server/src/middlewares/auth.js';
-import { verifyJwt, signJwt } from '../server/src/auth/jwt.js';
+import { requireAuth } from '../src/middlewares/auth.js';
+import { verifyJwt, signJwt } from '../src/auth/jwt.js';
 
 const users = [];
 let idCounter = 1;
@@ -13,7 +13,7 @@ function resetStore() {
 }
 
 // Mock users repo with in-memory store
-jest.unstable_mockModule('../server/src/db/users.js', () => ({
+jest.unstable_mockModule('../src/db/users.js', () => ({
   createUser: async ({ username, email, passwordHash, role }) => {
     const exists = users.some((u) => u.username === username || u.email === email);
     if (exists) {
@@ -55,7 +55,7 @@ jest.unstable_mockModule('../server/src/db/users.js', () => ({
 
 process.env.JWT_SECRET = 'test-secret';
 
-const { default: usersRouter } = await import('../server/src/routes/users.js');
+const { default: usersRouter } = await import('../src/routes/users.js');
 
 const app = express();
 app.use(express.json());

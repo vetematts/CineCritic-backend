@@ -1,6 +1,6 @@
 import { jest } from '@jest/globals';
 import { newDb } from 'pg-mem';
-import { createTables } from '../server/src/db/init.js';
+import { createTables } from '../src/db/init.js';
 
 describe('movies model', () => {
   test('upsert and fetch by tmdb id', async () => {
@@ -9,8 +9,8 @@ describe('movies model', () => {
     const pool = new pg.Pool();
     await createTables(pool);
 
-    jest.unstable_mockModule('../server/src/db/database.js', () => ({ default: pool }));
-    const { upsertMovie, getMovieByTmdbId } = await import('../server/src/db/movies.js');
+    jest.unstable_mockModule('../src/db/database.js', () => ({ default: pool }));
+    const { upsertMovie, getMovieByTmdbId } = await import('../src/db/movies.js');
 
     const saved = await upsertMovie({
       tmdbId: 123,

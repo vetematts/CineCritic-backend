@@ -1,5 +1,5 @@
 import { jest } from '@jest/globals';
-import moviesRouter from '../server/src/routes/movies.js';
+import moviesRouter from '../src/routes/movies.js';
 import { createRequest, createResponse } from './helpers/mockHttp.js';
 
 // Mock fetch so tests don't hit the real TMDB API
@@ -54,7 +54,7 @@ describe('health', () => {
   test('returns ok', async () => {
     const req = createRequest({ method: 'GET', url: '/health' });
     const res = createResponse();
-    const { default: app } = await import('../server/src/app.js');
+    const { default: app } = await import('../src/app.js');
     await new Promise((resolve, reject) => {
       res.on('end', () => resolve());
       app.handle(req, res, (err) => {
