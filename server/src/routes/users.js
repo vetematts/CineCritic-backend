@@ -6,6 +6,7 @@ import {
   getUserByUsername,
   getUserByEmail,
   listUsers,
+  updateUser,
   deleteUser,
 } from '../db/users.js';
 import { signJwt } from '../auth/jwt.js';
@@ -94,6 +95,41 @@ router.get('/:id', async (req, res, next) => {
     }
     res.json(sanitizeUser(user));
   } catch (err) {
+    next(err);
+  }
+});
+
+router.patch('/:id', requireAuth, async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const targetId = Number(id);
+    if (req.user.role !== 'admin' && req.user.sub !== targetId) {
+      return res.status(403).json({ error: 'Forbidden' });
+    }
+    const { username, email, password, role } = req.body || {};
+    if (role && req.user.role !== 'admin') {
+      return res.status(403).json({ error: 'Only admins can change roles' });
+    }
+
+    const updates = {};
+    if (username !== undefined) updates.username = username;
+    if (email !== undefined) updates.email = email;
+    if (role !== undefined) updates.role = role;
+    if (password !== undefined) updates.passwordHash = hashPassword(password);
+
+    if (!Object.keys(updates).length) {
+      return res.status(400).json({ error: 'No fields to update' });
+    }
+
+    const updated = await updateUser(targetId, updates);
+    if (!updated) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    res.json(sanitizeUser(updated));
+  } catch (err) {
+    if (err.code === '23505') {
+      return res.status(409).json({ error: 'username or email already exists' });
+    }
     next(err);
   }
 });

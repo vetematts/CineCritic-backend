@@ -36,6 +36,15 @@ jest.unstable_mockModule('../server/src/db/users.js', () => ({
   getUserByUsername: async (username) => users.find((u) => u.username === username) ?? null,
   getUserByEmail: async (email) => users.find((u) => u.email === email) ?? null,
   listUsers: async () => [...users],
+  updateUser: async (id, fields) => {
+    const user = users.find((u) => u.id === id);
+    if (!user) return null;
+    if (fields.username !== undefined) user.username = fields.username;
+    if (fields.email !== undefined) user.email = fields.email;
+    if (fields.passwordHash !== undefined) user.password_hash = fields.passwordHash;
+    if (fields.role !== undefined) user.role = fields.role;
+    return user;
+  },
   deleteUser: async (id) => {
     const idx = users.findIndex((u) => u.id === id);
     if (idx === -1) return false;
@@ -263,5 +272,42 @@ describe('users routes', () => {
 
     const missing = await requestRouter({ method: 'GET', url: `/${id}` });
     expect(missing._getStatusCode()).toBe(404);
+  });
+
+  test('allows self update and forbids other users', async () => {
+    const createRes = await requestRouter({
+      method: 'POST',
+      url: '/',
+      body: { username: 'ivy', email: 'i@example.com', password: 'secret' },
+    });
+    const id = createRes._getJSONData().id;
+    const token = signJwt({ sub: id, role: 'user', username: 'ivy' });
+    const otherToken = signJwt({ sub: 123, role: 'user', username: 'other' });
+
+    const forbid = await requestRouter({
+      method: 'PATCH',
+      url: `/${id}`,
+      body: { email: 'new@example.com' },
+      headers: { Authorization: `Bearer ${otherToken}` },
+    });
+    expect(forbid._getStatusCode()).toBe(403);
+
+    const allow = await requestRouter({
+      method: 'PATCH',
+      url: `/${id}`,
+      body: { email: 'new@example.com' },
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    expect(allow._getStatusCode()).toBe(200);
+    expect(allow._getJSONData().email).toBe('new@example.com');
+
+    const adminUpdate = await requestRouter({
+      method: 'PATCH',
+      url: `/${id}`,
+      body: { role: 'admin' },
+      headers: { Authorization: `Bearer ${signJwt({ sub: 1, role: 'admin', username: 'admin' })}` },
+    });
+    expect(adminUpdate._getStatusCode()).toBe(200);
+    expect(adminUpdate._getJSONData().role).toBe('admin');
   });
 });
