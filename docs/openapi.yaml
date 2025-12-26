@@ -217,6 +217,49 @@ paths:
           description: User not found
         '500':
           description: Server error
+    patch:
+      summary: Update a user (self or admin)
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                  format: password
+                role:
+                  type: string
+                  enum: [user, admin]
+      responses:
+        '200':
+          description: User updated
+        '400':
+          description: No fields to update or invalid data
+        '401':
+          description: Missing or invalid token
+        '403':
+          description: Forbidden (must be self or admin; role change admin only)
+        '404':
+          description: User not found
+        '409':
+          description: Duplicate username or email
+        '500':
+          description: Server error
     delete:
       summary: Delete a user
       security:
