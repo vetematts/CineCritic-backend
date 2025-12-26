@@ -14,7 +14,7 @@ const resetStores = () => {
 };
 
 // Mock TMDB client
-jest.unstable_mockModule('../src/tmdb.js', () => ({
+jest.unstable_mockModule('../src/services/tmdb.js', () => ({
   getContentById: async (id) => ({
     id,
     title: `Movie ${id}`,

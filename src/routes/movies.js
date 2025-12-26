@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import express from 'express';
 import {
   getTrending,
   getTopRated,
@@ -8,10 +8,11 @@ import {
   getCachedGenres,
   searchContent,
   getPosterUrl,
-} from '../tmdb.js';
+} from '../services/tmdb.js';
 import { upsertMovie } from '../db/movies.js';
 
-const router = Router();
+// eslint-disable-next-line new-cap
+const router = express.Router();
 
 router.get('/trending', async (req, res, next) => {
   try {
