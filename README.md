@@ -61,3 +61,4 @@ Copy `.env.example` to `.env` and set your values:
 - Login via `POST /api/users/login` to receive a JWT (`token`); default expiry 1 hour.
 - Send the token on protected routes using `Authorization: Bearer <token>`.
 - Protected routes: `GET /api/users`, `GET /api/users/me`, `POST /api/users/logout`, `PATCH /api/users/{id}`, `DELETE /api/users/{id}`, reviews POST/PUT/DELETE, and watchlist GET/POST/PUT/DELETE.
+- Logout is stateless: `POST /api/users/logout` simply acknowledges; clients must clear their stored token.

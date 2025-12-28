@@ -222,7 +222,7 @@ paths:
         - bearerAuth: []
       responses:
         '200':
-          description: Logout acknowledgement
+          description: Logout acknowledgement (stateless; client clears token)
         '401':
           description: Missing or invalid token
         '500':
