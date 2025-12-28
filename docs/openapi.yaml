@@ -201,6 +201,32 @@ paths:
           description: Invalid credentials
         '500':
           description: Server error
+  /api/users/me:
+    get:
+      summary: Get the current authenticated user
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Current user (password hash omitted)
+        '401':
+          description: Missing or invalid token
+        '404':
+          description: User not found
+        '500':
+          description: Server error
+  /api/users/logout:
+    post:
+      summary: Logout (client should clear stored token)
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Logout acknowledgement
+        '401':
+          description: Missing or invalid token
+        '500':
+          description: Server error
   /api/users/{id}:
     get:
       summary: Get a user by id

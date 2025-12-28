@@ -169,6 +169,39 @@ describe('users routes', () => {
     expect(loginEmail._getStatusCode()).toBe(200);
   });
 
+  test('returns current user via /me and logs out', async () => {
+    await requestRouter({
+      method: 'POST',
+      url: '/',
+      body: { username: 'mia', email: 'm@example.com', password: 'secret' },
+    });
+    const login = await requestRouter({
+      method: 'POST',
+      url: '/login',
+      body: { username: 'mia', password: 'secret' },
+    });
+    const token = login._getJSONData().token;
+
+    const meRes = await requestRouter({
+      method: 'GET',
+      url: '/me',
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    expect(meRes._getStatusCode()).toBe(200);
+    const me = meRes._getJSONData();
+    expect(me.username).toBe('mia');
+    expect(me.email).toBe('m@example.com');
+    expect(me.password_hash).toBeUndefined();
+
+    const logoutRes = await requestRouter({
+      method: 'POST',
+      url: '/logout',
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    expect(logoutRes._getStatusCode()).toBe(200);
+    expect(logoutRes._getJSONData().message).toMatch(/logged out/i);
+  });
+
   test('rejects protected routes without token', async () => {
     const res = await requestRouter({ method: 'GET', url: '/' });
     expect(res._getStatusCode()).toBe(401);
