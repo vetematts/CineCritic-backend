@@ -1,4 +1,5 @@
 import express from 'express';
+import { BadRequestError } from '../errors/http.js';
 import {
   getTrending,
   getTopRated,
@@ -67,7 +68,7 @@ router.get('/search', async (req, res, next) => {
   try {
     const { q = '', page = 1 } = req.query;
     if (!q) {
-      return res.status(400).json({ error: 'Query parameter q is required' });
+      throw new BadRequestError('Query parameter q is required');
     }
     const results = await searchContent(q, 'movie', Number(page));
     res.json(results);

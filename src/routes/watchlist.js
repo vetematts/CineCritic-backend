@@ -11,6 +11,7 @@ import {
 } from '../db/watchlist.js';
 import { requireAuth } from '../middlewares/auth.js';
 import { validate } from '../middlewares/validate.js';
+import { BadRequestError, ForbiddenError, NotFoundError } from '../errors/http.js';
 
 // eslint-disable-next-line new-cap
 const router = express.Router();
@@ -58,7 +59,7 @@ router.get('/:userId', requireAuth, validate(watchlistGetSchema), async (req, re
     const { userId } = req.validated.params;
     const numericUserId = Number(userId);
     if (req.user?.role !== 'admin' && req.user?.sub !== numericUserId) {
-      return res.status(403).json({ error: 'Forbidden' });
+      throw new ForbiddenError();
     }
     const items = await getWatchlistByUser(numericUserId);
     res.json(items);
@@ -71,10 +72,10 @@ router.post('/', requireAuth, validate(watchlistCreateSchema), async (req, res, 
   try {
     const { tmdbId, userId, status = 'planned' } = req.validated.body;
     if (req.user?.role !== 'admin' && req.user?.sub !== Number(userId)) {
-      return res.status(403).json({ error: 'Forbidden' });
+      throw new ForbiddenError();
     }
     if (!allowedStatuses.includes(status)) {
-      return res.status(400).json({ error: 'status must be planned, watching, or completed' });
+      throw new BadRequestError('status must be planned, watching, or completed');
     }
     const movieId = await ensureMovieId(tmdbId);
     const watch = await addToWatchlist({ userId, movieId, status });
@@ -89,14 +90,14 @@ router.put('/:id', requireAuth, validate(watchlistIdSchema), async (req, res, ne
     const { id } = req.validated.params;
     const { status } = req.body || {};
     if (!status || !allowedStatuses.includes(status)) {
-      return res.status(400).json({ error: 'status must be planned, watching, or completed' });
+      throw new BadRequestError('status must be planned, watching, or completed');
     }
     const entry = await getWatchlistEntryById(Number(id));
     if (!entry) {
-      return res.status(404).json({ error: 'Watchlist entry not found' });
+      throw new NotFoundError('Watchlist entry not found');
     }
     if (req.user?.role !== 'admin' && entry.user_id !== req.user?.sub) {
-      return res.status(403).json({ error: 'Forbidden' });
+      throw new ForbiddenError();
     }
     const updated = await updateWatchStatus(Number(id), status);
     if (!updated) {
@@ -113,14 +114,14 @@ router.delete('/:id', requireAuth, validate(watchlistIdSchema), async (req, res,
     const { id } = req.validated.params;
     const entry = await getWatchlistEntryById(Number(id));
     if (!entry) {
-      return res.status(404).json({ error: 'Watchlist entry not found' });
+      throw new NotFoundError('Watchlist entry not found');
     }
     if (req.user?.role !== 'admin' && entry.user_id !== req.user?.sub) {
-      return res.status(403).json({ error: 'Forbidden' });
+      throw new ForbiddenError();
     }
     const deleted = await removeFromWatchlist(Number(id));
     if (!deleted) {
-      return res.status(404).json({ error: 'Watchlist entry not found' });
+      throw new NotFoundError('Watchlist entry not found');
     }
     res.status(204).send();
   } catch (err) {
