@@ -118,6 +118,22 @@ router.post('/login', validate(loginSchema), async (req, res, next) => {
   }
 });
 
+router.get('/me', requireAuth, async (req, res, next) => {
+  try {
+    const user = await getUserById(Number(req.user.sub));
+    if (!user) {
+      throw new NotFoundError('User not found');
+    }
+    res.json(sanitizeUser(user));
+  } catch (err) {
+    next(err);
+  }
+});
+
+router.post('/logout', requireAuth, (req, res) => {
+  res.json({ message: 'Logged out. Clear the token on the client.' });
+});
+
 router.get('/:id', async (req, res, next) => {
   try {
     const { id } = req.params;
