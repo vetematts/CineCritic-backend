@@ -1,6 +1,7 @@
 import { jest } from '@jest/globals';
 import { createRequest, createResponse } from './helpers/mockHttp.js';
 import { signJwt } from '../src/auth/jwt.js';
+import { errorHandler } from '../src/middlewares/error.js';
 
 // In-memory stores for mocks
 const movieStore = new Map();
@@ -96,11 +97,14 @@ describe('reviews routes', () => {
     const req = createRequest({ method, url, headers });
     req.body = body;
     const res = createResponse();
-    await new Promise((resolve, reject) => {
+    await new Promise((resolve) => {
       res.on('end', resolve);
       reviewsRouter.handle(req, res, (err) => {
-        if (err) reject(err);
-        else resolve();
+        if (err) {
+          errorHandler(err, req, res, () => resolve());
+        } else {
+          resolve();
+        }
       });
     });
     return res;

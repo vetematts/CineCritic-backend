@@ -11,6 +11,7 @@ import {
 } from '../db/reviews.js';
 import { requireAuth } from '../middlewares/auth.js';
 import { validate } from '../middlewares/validate.js';
+import { ForbiddenError, NotFoundError } from '../errors/http.js';
 
 // eslint-disable-next-line new-cap
 const router = express.Router();
@@ -66,7 +67,7 @@ router.post('/', requireAuth, validate(createReviewSchema), async (req, res, nex
   try {
     const { tmdbId, userId, rating, body, status = 'published' } = req.validated.body;
     if (req.user?.role !== 'admin' && Number(userId) !== req.user?.sub) {
-      return res.status(403).json({ error: 'Forbidden' });
+      throw new ForbiddenError();
     }
 
     const movieId = await ensureMovieId(tmdbId);
@@ -88,10 +89,10 @@ router.put('/:id', requireAuth, validate(idParamSchema), async (req, res, next) 
     const { id } = req.validated.params;
     const existing = await getReviewById(Number(id));
     if (!existing) {
-      return res.status(404).json({ error: 'Review not found or no fields to update' });
+      throw new NotFoundError('Review not found or no fields to update');
     }
     if (req.user?.role !== 'admin' && existing.user_id !== req.user?.sub) {
-      return res.status(403).json({ error: 'Forbidden' });
+      throw new ForbiddenError();
     }
     const review = await updateReview(Number(id), req.body || {});
     res.json(review);
@@ -105,14 +106,14 @@ router.delete('/:id', requireAuth, validate(idParamSchema), async (req, res, nex
     const { id } = req.validated.params;
     const existing = await getReviewById(Number(id));
     if (!existing) {
-      return res.status(404).json({ error: 'Review not found' });
+      throw new NotFoundError('Review not found');
     }
     if (req.user?.role !== 'admin' && existing.user_id !== req.user?.sub) {
-      return res.status(403).json({ error: 'Forbidden' });
+      throw new ForbiddenError();
     }
     const deleted = await deleteReview(Number(id));
     if (!deleted) {
-      return res.status(404).json({ error: 'Review not found' });
+      throw new NotFoundError('Review not found');
     }
     res.status(204).send();
   } catch (err) {

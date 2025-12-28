@@ -2,6 +2,7 @@ import { jest } from '@jest/globals';
 import express from 'express';
 import { createRequest, createResponse } from './helpers/mockHttp.js';
 import { requireAuth } from '../src/middlewares/auth.js';
+import { errorHandler } from '../src/middlewares/error.js';
 import { verifyJwt, signJwt } from '../src/auth/jwt.js';
 
 const users = [];
@@ -70,11 +71,14 @@ describe('users routes', () => {
     const req = createRequest({ method, url, headers });
     req.body = body;
     const res = createResponse();
-    await new Promise((resolve, reject) => {
+    await new Promise((resolve) => {
       res.on('end', resolve);
       router.handle(req, res, (err) => {
-        if (err) reject(err);
-        else resolve();
+        if (err) {
+          errorHandler(err, req, res, () => resolve());
+        } else {
+          resolve();
+        }
       });
     });
     return res;

@@ -13,6 +13,7 @@ import { signJwt } from '../auth/jwt.js';
 import { requireAuth, requireRole } from '../middlewares/auth.js';
 import { validate } from '../middlewares/validate.js';
 import { z } from 'zod';
+import { BadRequestError, ForbiddenError, NotFoundError } from '../errors/http.js';
 
 // eslint-disable-next-line new-cap
 const router = express.Router();
@@ -122,7 +123,7 @@ router.get('/:id', async (req, res, next) => {
     const { id } = req.params;
     const user = await getUserById(Number(id));
     if (!user) {
-      return res.status(404).json({ error: 'User not found' });
+      throw new NotFoundError('User not found');
     }
     res.json(sanitizeUser(user));
   } catch (err) {
@@ -135,11 +136,11 @@ router.patch('/:id', requireAuth, validate(patchUserSchema), async (req, res, ne
     const { id } = req.validated.params;
     const targetId = Number(id);
     if (req.user.role !== 'admin' && req.user.sub !== targetId) {
-      return res.status(403).json({ error: 'Forbidden' });
+      throw new ForbiddenError();
     }
     const { username, email, password, role } = req.validated.body;
     if (role && req.user.role !== 'admin') {
-      return res.status(403).json({ error: 'Only admins can change roles' });
+      throw new ForbiddenError('Only admins can change roles');
     }
 
     const updates = {};
@@ -149,17 +150,17 @@ router.patch('/:id', requireAuth, validate(patchUserSchema), async (req, res, ne
     if (password !== undefined) updates.passwordHash = hashPassword(password);
 
     if (!Object.keys(updates).length) {
-      return res.status(400).json({ error: 'No fields to update' });
+      throw new BadRequestError('No fields to update');
     }
 
     const updated = await updateUser(targetId, updates);
     if (!updated) {
-      return res.status(404).json({ error: 'User not found' });
+      throw new NotFoundError('User not found');
     }
     res.json(sanitizeUser(updated));
   } catch (err) {
     if (err.code === '23505') {
-      return res.status(409).json({ error: 'username or email already exists' });
+      return res.status(409).json({ error: 'username or email already exists', code: 'conflict' });
     }
     next(err);
   }

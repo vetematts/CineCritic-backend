@@ -1,6 +1,7 @@
 import { jest } from '@jest/globals';
 import moviesRouter from '../src/routes/movies.js';
 import { createRequest, createResponse } from './helpers/mockHttp.js';
+import { errorHandler } from '../src/middlewares/error.js';
 
 // Mock fetch so tests don't hit the real TMDB API
 const sampleTrending = [
@@ -41,11 +42,14 @@ async function runRouter(method, url, { query } = {}) {
   const req = createRequest({ method, url, query });
   const res = createResponse();
 
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve) => {
     res.on('end', () => resolve(res));
     moviesRouter.handle(req, res, (err) => {
-      if (err) reject(err);
-      else resolve(res);
+      if (err) {
+        errorHandler(err, req, res, () => resolve(res));
+      } else {
+        resolve(res);
+      }
     });
   });
 }
