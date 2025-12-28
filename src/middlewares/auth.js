@@ -4,7 +4,7 @@ export function requireAuth(req, res, next) {
   const authHeader = req.headers.authorization || '';
   const [scheme, token] = authHeader.split(' ');
   if (scheme !== 'Bearer' || !token) {
-    return res.status(401).json({ error: 'Unauthorized' });
+    return res.status(401).json({ error: 'Unauthorised' });
   }
 
   const payload = verifyJwt(token);
@@ -19,8 +19,8 @@ export function requireAuth(req, res, next) {
 export function requireRole(role) {
   return (req, res, next) => {
     if (!req.user) {
-      return res.status(401).json({ error: 'Unauthorized' });
-    }
+    return res.status(401).json({ error: 'Unauthorised' });
+  }
     if (req.user.role !== role) {
       return res.status(403).json({ error: 'Forbidden' });
     }
