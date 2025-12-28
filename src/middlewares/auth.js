@@ -19,8 +19,8 @@ export function requireAuth(req, res, next) {
 export function requireRole(role) {
   return (req, res, next) => {
     if (!req.user) {
-    return res.status(401).json({ error: 'Unauthorised' });
-  }
+      return res.status(401).json({ error: 'Unauthorised' });
+    }
     if (req.user.role !== role) {
       return res.status(403).json({ error: 'Forbidden' });
     }
