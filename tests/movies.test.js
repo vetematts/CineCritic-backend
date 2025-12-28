@@ -42,7 +42,7 @@ async function runRouter(method, url, { query } = {}) {
   const req = createRequest({ method, url, query });
   const res = createResponse();
 
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve) => {
     res.on('end', () => resolve(res));
     moviesRouter.handle(req, res, (err) => {
       if (err) {
