@@ -33,6 +33,7 @@ Style is enforced with ESLint (eslint-config-google) and formatting is handled b
 - `npm run start` # run Express directly
 - `npm test` # run Jest tests (uses pg-mem; install deps first)
 - `npm run seed` # seed the database with sample data (dev)
+  - Seeds admin (`admin@example.com` / `adminpass`) and demo (`demo@example.com` / `demopass`) users, two movies, reviews, and watchlist entries. Idempotent; run against the DB in `DATABASE_URL`.
 
 Docs available at `http://localhost:4000/docs` once the server is running.
 
