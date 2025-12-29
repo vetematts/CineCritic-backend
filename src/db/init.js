@@ -3,9 +3,7 @@ import pool from './database.js';
 // Create core tables. Accepts an optional pool for tests (e.g., pg-mem).
 export async function createTables(dbPool = pool) {
   try {
-    await dbPool.query(
-      "CREATE TYPE review_status_enum AS ENUM ('draft', 'published', 'flagged');"
-    );
+    await dbPool.query("CREATE TYPE review_status_enum AS ENUM ('draft', 'published', 'flagged');");
   } catch (err) {
     // 42710 = duplicate_object (type already exists)
     if (err.code !== '42710') {
