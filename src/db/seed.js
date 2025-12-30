@@ -128,6 +128,13 @@ async function seed() {
     posterUrl: null,
   });
 
+  const jasonXId = await upsertMovie({
+    tmdbId: 11499,
+    title: 'Jason X',
+    releaseYear: 2001,
+    posterUrl: null,
+  });
+
   const minionsGruId = await upsertMovie({
     tmdbId: 438148,
     title: 'Minions: The Rise of Gru',
@@ -161,9 +168,10 @@ async function seed() {
   await addWatchlist({ userId: jayId, movieId: jasonBourneId, status: 'planned' });
   await addWatchlist({ userId: jayId, movieId: freddyVsJasonId, status: 'planned' });
   await addWatchlist({ userId: jayId, movieId: minionsGruId, status: 'planned' });
+  await addWatchlist({ userId: jayId, movieId: jasonXId, status: 'planned' });
 
   await pool.query('UPDATE users SET favourite_movie_id = $1 WHERE id = $2', [duneId, userId]);
-  await pool.query('UPDATE users SET favourite_movie_id = $1 WHERE id = $2', [rushHourId, jayId]);
+  await pool.query('UPDATE users SET favourite_movie_id = $1 WHERE id = $2', [jasonXId, jayId]);
 
   console.log('Seed data inserted.');
 }
