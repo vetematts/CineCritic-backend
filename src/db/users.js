@@ -1,6 +1,6 @@
 import pool from './database.js';
 
-const baseColumns = 'id, username, email, password_hash, role, created_at';
+const baseColumns = 'id, username, email, password_hash, role, created_at, favourite_movie_id';
 
 export async function createUser({ username, email, passwordHash, role = 'user' }) {
   const query = `

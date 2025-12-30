@@ -1,5 +1,7 @@
 import express from 'express';
 import crypto from 'crypto';
+import { getContentById, getPosterUrl } from '../services/tmdb.js';
+import { upsertMovie, getMovieIdByTmdbId } from '../db/movies.js';
 import {
   createUser,
   getUserById,
@@ -50,6 +52,7 @@ const patchUserSchema = z.object({
       email: z.string().email().optional(),
       password: z.string().min(1).optional(),
       role: z.enum(['user', 'admin']).optional(),
+      favouriteTmdbId: z.number().int().optional(),
     })
     .refine((data) => Object.keys(data).length > 0, 'No fields to update'),
   query: z.object({}).optional(),
@@ -72,6 +75,21 @@ function sanitizeUser(user) {
   if (!user) return null;
   const { password_hash: _passwordHash, ...rest } = user;
   return rest;
+}
+
+async function ensureMovieId(tmdbId) {
+  const existingId = await getMovieIdByTmdbId(Number(tmdbId));
+  if (existingId) return existingId;
+  const movie = await getContentById(Number(tmdbId), 'movie');
+  const releaseYear = movie.release_date ? new Date(movie.release_date).getFullYear() : null;
+  const saved = await upsertMovie({
+    tmdbId: movie.id,
+    title: movie.title,
+    releaseYear,
+    posterUrl: getPosterUrl(movie.poster_path),
+    contentType: 'movie',
+  });
+  return saved.id;
 }
 
 router.get('/', requireAuth, async (req, res, next) => {
@@ -164,6 +182,10 @@ router.patch('/:id', requireAuth, validate(patchUserSchema), async (req, res, ne
     if (email !== undefined) updates.email = email;
     if (role !== undefined) updates.role = role;
     if (password !== undefined) updates.passwordHash = hashPassword(password);
+    if (req.validated.body.favouriteTmdbId !== undefined) {
+      const favId = await ensureMovieId(req.validated.body.favouriteTmdbId);
+      updates.favourite_movie_id = favId;
+    }
 
     if (!Object.keys(updates).length) {
       throw new BadRequestError('No fields to update');

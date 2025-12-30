@@ -57,4 +57,9 @@ export async function createTables(dbPool = pool) {
       CONSTRAINT uq_watchlist_user_movie UNIQUE (user_id, movie_id)
     );
   `);
+
+  await dbPool.query(`
+    ALTER TABLE users
+    ADD COLUMN IF NOT EXISTS favourite_movie_id INTEGER REFERENCES movies(id) ON DELETE SET NULL;
+  `);
 }

@@ -28,6 +28,9 @@ components:
         created_at:
           type: string
           format: date-time
+        favourite_movie_id:
+          type: integer
+          nullable: true
 paths:
   /api/movies/trending:
     get:
@@ -288,6 +291,8 @@ paths:
                 role:
                   type: string
                   enum: [user, admin]
+                favouriteTmdbId:
+                  type: integer
       responses:
         '200':
           description: User updated

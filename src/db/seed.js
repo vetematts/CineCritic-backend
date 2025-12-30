@@ -162,6 +162,9 @@ async function seed() {
   await addWatchlist({ userId: jayId, movieId: freddyVsJasonId, status: 'planned' });
   await addWatchlist({ userId: jayId, movieId: minionsGruId, status: 'planned' });
 
+  await pool.query('UPDATE users SET favourite_movie_id = $1 WHERE id = $2', [duneId, userId]);
+  await pool.query('UPDATE users SET favourite_movie_id = $1 WHERE id = $2', [rushHourId, jayId]);
+
   console.log('Seed data inserted.');
 }
 
