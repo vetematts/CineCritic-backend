@@ -122,7 +122,7 @@ async function seed() {
   });
 
   const freddyVsJasonId = await upsertMovie({
-    tmdbId: 1427,
+    tmdbId: 6466,
     title: 'Freddy vs. Jason',
     releaseYear: 2003,
     posterUrl: null,
