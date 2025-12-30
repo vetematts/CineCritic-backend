@@ -86,6 +86,13 @@ async function seed() {
     role: 'user',
   });
 
+  const jayId = await upsertUser({
+    username: 'jay_son',
+    email: 'jay.son@payload.dev',
+    password: 'json123',
+    role: 'user',
+  });
+
   const fightClubId = await upsertMovie({
     tmdbId: 550,
     title: 'Fight Club',
@@ -98,6 +105,34 @@ async function seed() {
     title: 'Dune: Part Two',
     releaseYear: 2024,
     posterUrl: '/1pdfLvkbY9ohJlCjQH2CZjjYVvJ.jpg',
+  });
+
+  const rushHourId = await upsertMovie({
+    tmdbId: 2109,
+    title: 'Rush Hour',
+    releaseYear: 1998,
+    posterUrl: null,
+  });
+
+  const jasonBourneId = await upsertMovie({
+    tmdbId: 324668,
+    title: 'Jason Bourne',
+    releaseYear: 2016,
+    posterUrl: null,
+  });
+
+  const freddyVsJasonId = await upsertMovie({
+    tmdbId: 1427,
+    title: 'Freddy vs. Jason',
+    releaseYear: 2003,
+    posterUrl: null,
+  });
+
+  const minionsGruId = await upsertMovie({
+    tmdbId: 438148,
+    title: 'Minions: The Rise of Gru',
+    releaseYear: 2022,
+    posterUrl: null,
   });
 
   await addReview({
@@ -114,8 +149,18 @@ async function seed() {
     body: 'Epic and gorgeous.',
   });
 
+  await addReview({
+    userId: jayId,
+    movieId: rushHourId,
+    rating: 4.0,
+    body: 'Classic buddy cop comedy. Great film to watch on the commute home.',
+  });
+
   await addWatchlist({ userId, movieId: fightClubId, status: 'completed' });
   await addWatchlist({ userId, movieId: duneId, status: 'planned' });
+  await addWatchlist({ userId: jayId, movieId: jasonBourneId, status: 'planned' });
+  await addWatchlist({ userId: jayId, movieId: freddyVsJasonId, status: 'planned' });
+  await addWatchlist({ userId: jayId, movieId: minionsGruId, status: 'planned' });
 
   console.log('Seed data inserted.');
 }
