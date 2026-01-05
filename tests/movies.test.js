@@ -10,6 +10,9 @@ const sampleTrending = [
 const sampleSearch = [
   { id: 2, title: 'Search Movie', poster_path: '/s.jpg', release_date: '2023-02-02' },
 ];
+const sampleDiscover = [
+  { id: 3, title: 'Discover Movie', poster_path: '/d.jpg', release_date: '2022-03-03' },
+];
 
 beforeAll(() => {
   global.fetch = jest.fn(async (url) => {
@@ -24,6 +27,18 @@ beforeAll(() => {
       return {
         ok: true,
         json: async () => ({ results: sampleSearch }),
+      };
+    }
+    if (urlStr.includes('/discover/')) {
+      return {
+        ok: true,
+        json: async () => ({ results: sampleDiscover }),
+      };
+    }
+    if (urlStr.includes('/search/person')) {
+      return {
+        ok: true,
+        json: async () => ({ results: [{ id: 99, name: 'Crew Name' }] }),
       };
     }
     return {
@@ -86,5 +101,13 @@ describe('movies routes', () => {
     const res = await runRouter('GET', '/search', { query: { q: 'test', type: 'movie' } });
     expect(res._getStatusCode()).toBe(200);
     expect(res._getJSONData()).toEqual(sampleSearch);
+  });
+
+  test('advanced search supports query and crew', async () => {
+    const res = await runRouter('GET', '/advanced', {
+      query: { query: 'discover', crew: 'Crew Name' },
+    });
+    expect(res._getStatusCode()).toBe(200);
+    expect(res._getJSONData()).toEqual(sampleDiscover);
   });
 });
