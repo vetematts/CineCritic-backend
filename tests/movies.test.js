@@ -103,9 +103,9 @@ describe('movies routes', () => {
     expect(res._getJSONData()).toEqual(sampleSearch);
   });
 
-  test('advanced search supports query and crew', async () => {
+  test('advanced search supports filters (crew/year)', async () => {
     const res = await runRouter('GET', '/advanced', {
-      query: { query: 'discover', crew: 'Crew Name' },
+      query: { crew: 'Crew Name', year: '2020' },
     });
     expect(res._getStatusCode()).toBe(200);
     expect(res._getJSONData()).toEqual(sampleDiscover);
