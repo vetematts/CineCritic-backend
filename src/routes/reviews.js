@@ -63,6 +63,19 @@ router.get('/:tmdbId', async (req, res, next) => {
   }
 });
 
+router.get('/id/:id', validate(idParamSchema), async (req, res, next) => {
+  try {
+    const { id } = req.validated.params;
+    const review = await getReviewById(Number(id));
+    if (!review) {
+      throw new NotFoundError('Review not found');
+    }
+    res.json(review);
+  } catch (err) {
+    next(err);
+  }
+});
+
 router.post('/', requireAuth, validate(createReviewSchema), async (req, res, next) => {
   try {
     const { tmdbId, userId, rating, body, status = 'published' } = req.validated.body;
