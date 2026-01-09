@@ -3,7 +3,7 @@ import express from 'express';
 import { createRequest, createResponse } from './helpers/mockHttp.js';
 import { requireAuth } from '../src/middlewares/auth.js';
 import { errorHandler } from '../src/middlewares/error.js';
-import { verifyJwt, signJwt } from '../src/auth/jwt.js';
+import { verifyJwt, signJwt } from '../src/middlewares/jwt.js';
 
 const users = [];
 let idCounter = 1;

@@ -1,4 +1,4 @@
-import { verifyJwt } from '../auth/jwt.js';
+import { verifyJwt } from './jwt.js';
 import { ForbiddenError, UnauthorisedError } from '../errors/http.js';
 
 export function requireAuth(req, res, next) {

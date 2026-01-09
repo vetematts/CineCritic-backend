@@ -10,7 +10,7 @@ import {
   updateUser,
   deleteUser,
 } from '../models/users.js';
-import { signJwt } from '../auth/jwt.js';
+import { signJwt } from '../middlewares/jwt.js';
 import { BadRequestError, ForbiddenError, NotFoundError } from '../errors/http.js';
 
 const roles = ['user', 'admin'];
