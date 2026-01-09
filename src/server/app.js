@@ -11,6 +11,7 @@ import reviewsRouter from '../routes/reviews.js';
 import watchlistRouter from '../routes/watchlist.js';
 import usersRouter from '../routes/users.js';
 import { errorHandler } from '../middlewares/error.js';
+import { notFound } from '../middlewares/notFound.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -41,6 +42,7 @@ app.use('/api/watchlist', watchlistRouter);
 app.use('/api/users', usersRouter);
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDoc));
 
+app.use(notFound);
 app.use(errorHandler);
 
 export default app;
