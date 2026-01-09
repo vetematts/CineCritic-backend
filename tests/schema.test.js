@@ -1,5 +1,5 @@
 import { newDb } from 'pg-mem';
-import { createTables } from '../src/models/init.js';
+import { createTables } from '../src/models/schema.js';
 
 describe('database schema', () => {
   test('movies table exists with expected columns and constraints', async () => {

@@ -1,6 +1,6 @@
 import { jest } from '@jest/globals';
 import { newDb } from 'pg-mem';
-import { createTables } from '../src/models/init.js';
+import { createTables } from '../src/models/schema.js';
 
 describe('movies model', () => {
   test('upsert and fetch by tmdb id', async () => {
