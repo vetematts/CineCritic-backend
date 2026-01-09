@@ -10,7 +10,7 @@ import {
   getPosterUrl,
   discoverMovies,
 } from '../services/tmdb.js';
-import { upsertMovie } from '../db/movies.js';
+import { upsertMovie } from '../models/movies.js';
 
 export async function getTrendingHandler(req, res) {
   const results = await getTrending('movie');

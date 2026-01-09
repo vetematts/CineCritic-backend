@@ -1,12 +1,12 @@
 import { getContentById, getPosterUrl } from '../services/tmdb.js';
-import { upsertMovie, getMovieIdByTmdbId } from '../db/movies.js';
+import { upsertMovie, getMovieIdByTmdbId } from '../models/movies.js';
 import {
   addToWatchlist,
   getWatchlistByUser,
   updateWatchStatus,
   removeFromWatchlist,
   getWatchlistEntryById,
-} from '../db/watchlist.js';
+} from '../models/watchlist.js';
 import { BadRequestError, ForbiddenError, NotFoundError } from '../errors/http.js';
 
 async function ensureMovieId(tmdbId) {

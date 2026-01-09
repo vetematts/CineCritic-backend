@@ -1,6 +1,6 @@
 import crypto from 'crypto';
 import { getContentById, getPosterUrl } from '../services/tmdb.js';
-import { upsertMovie, getMovieIdByTmdbId } from '../db/movies.js';
+import { upsertMovie, getMovieIdByTmdbId } from '../models/movies.js';
 import {
   createUser,
   getUserById,
@@ -9,7 +9,7 @@ import {
   listUsers,
   updateUser,
   deleteUser,
-} from '../db/users.js';
+} from '../models/users.js';
 import { signJwt } from '../auth/jwt.js';
 import { BadRequestError, ForbiddenError, NotFoundError } from '../errors/http.js';
 

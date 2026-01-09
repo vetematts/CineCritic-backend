@@ -1,12 +1,12 @@
 import { getContentById, getPosterUrl } from '../services/tmdb.js';
-import { upsertMovie, getMovieIdByTmdbId } from '../db/movies.js';
+import { upsertMovie, getMovieIdByTmdbId } from '../models/movies.js';
 import {
   createReview,
   getReviewsByMovie,
   updateReview,
   deleteReview,
   getReviewById,
-} from '../db/reviews.js';
+} from '../models/reviews.js';
 import { ForbiddenError, NotFoundError } from '../errors/http.js';
 
 async function ensureMovieId(tmdbId) {

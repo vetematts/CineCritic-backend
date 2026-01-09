@@ -23,7 +23,7 @@ jest.unstable_mockModule('../src/services/tmdb.js', () => ({
   getPosterUrl: (path) => (path ? `http://image/${path}` : null),
 }));
 
-jest.unstable_mockModule('../src/db/movies.js', () => ({
+jest.unstable_mockModule('../src/models/movies.js', () => ({
   getMovieIdByTmdbId: async (tmdbId) => movieStore.get(Number(tmdbId)) ?? null,
   upsertMovie: async ({ tmdbId, title, releaseYear, posterUrl, contentType }) => {
     const key = Number(tmdbId);
@@ -44,7 +44,7 @@ jest.unstable_mockModule('../src/db/movies.js', () => ({
   },
 }));
 
-jest.unstable_mockModule('../src/db/watchlist.js', () => ({
+jest.unstable_mockModule('../src/models/watchlist.js', () => ({
   addToWatchlist: async ({ userId, movieId, status }) => {
     const existing = watchlistStore.find((w) => w.user_id === userId && w.movie_id === movieId);
     if (existing) {
