@@ -2,6 +2,15 @@ import pool from './database.js';
 
 // Create core tables. Accepts an optional pool for tests (e.g., pg-mem).
 export async function createTables(dbPool = pool) {
+  try {
+    await dbPool.query("CREATE TYPE review_status_enum AS ENUM ('draft', 'published', 'flagged');");
+  } catch (err) {
+    // 42710 = duplicate_object (type already exists)
+    if (err.code !== '42710') {
+      throw err;
+    }
+  }
+
   await dbPool.query(`
     CREATE TABLE IF NOT EXISTS users (
       id SERIAL PRIMARY KEY,
@@ -24,7 +33,6 @@ export async function createTables(dbPool = pool) {
       CONSTRAINT ck_movies_content_type CHECK (content_type IN ('movie', 'tv'))
     );
 
-    CREATE TYPE review_status_enum AS ENUM ('draft', 'published', 'flagged');
     CREATE TABLE IF NOT EXISTS reviews (
       id SERIAL PRIMARY KEY,
       rating NUMERIC(2,1) NOT NULL,
@@ -48,5 +56,10 @@ export async function createTables(dbPool = pool) {
       added_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
       CONSTRAINT uq_watchlist_user_movie UNIQUE (user_id, movie_id)
     );
+  `);
+
+  await dbPool.query(`
+    ALTER TABLE users
+    ADD COLUMN IF NOT EXISTS favourite_movie_id INTEGER REFERENCES movies(id) ON DELETE SET NULL;
   `);
 }

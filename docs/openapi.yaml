@@ -11,6 +11,26 @@ components:
       type: http
       scheme: bearer
       bearerFormat: JWT
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+        username:
+          type: string
+        email:
+          type: string
+          format: email
+        role:
+          type: string
+          enum: [user, admin]
+        created_at:
+          type: string
+          format: date-time
+        favourite_movie_id:
+          type: integer
+          nullable: true
 paths:
   /api/movies/trending:
     get:
@@ -56,6 +76,52 @@ paths:
           description: Search results
         '400':
           description: Missing query
+        '500':
+          description: Server error
+  /api/movies/advanced:
+    get:
+      summary: Advanced movie search (title/year/genres/crew/rating)
+      parameters:
+        - in: query
+          name: query
+          schema:
+            type: string
+          description: Title keyword
+        - in: query
+          name: year
+          schema:
+            type: string
+          description: Release year (YYYY)
+        - in: query
+          name: genres
+          schema:
+            type: string
+          description: Comma-separated TMDB genre ids
+        - in: query
+          name: crew
+          schema:
+            type: string
+          description: Crew name (uses TMDB person search)
+        - in: query
+          name: ratingMin
+          schema:
+            type: string
+          description: Minimum vote_average
+        - in: query
+          name: ratingMax
+          schema:
+            type: string
+          description: Maximum vote_average
+        - in: query
+          name: page
+          schema:
+            type: integer
+          description: Page number
+      responses:
+        '200':
+          description: Matching movies
+        '400':
+          description: Invalid parameters
         '500':
           description: Server error
   /api/movies/year/{year}:
@@ -271,6 +337,8 @@ paths:
                 role:
                   type: string
                   enum: [user, admin]
+                favouriteTmdbId:
+                  type: integer
       responses:
         '200':
           description: User updated
@@ -319,6 +387,22 @@ paths:
       responses:
         '200':
           description: List of reviews for the movie
+        '500':
+          description: Server error
+  /api/reviews/id/{id}:
+    get:
+      summary: Get a review by id
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Review
+        '404':
+          description: Review not found
         '500':
           description: Server error
   /api/reviews:

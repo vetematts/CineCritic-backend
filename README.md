@@ -33,6 +33,8 @@ Style is enforced with ESLint (eslint-config-google) and formatting is handled b
 - `npm run start` # run Express directly
 - `npm test` # run Jest tests (uses pg-mem; install deps first)
 - `npm run seed` # seed the database with sample data (dev)
+  - Seeds admin (`admin@example.com` / `adminpass`) and demo (`demo@example.com` / `demopass`) users, two movies, reviews, and watchlist entries. Idempotent; run against the DB in `DATABASE_URL`.
+  - To reseed: ensure `DATABASE_URL` points at your Postgres, then rerun `npm run seed` (safe to run multiple times).
 
 Docs available at `http://localhost:4000/docs` once the server is running.
 
@@ -40,12 +42,13 @@ Docs available at `http://localhost:4000/docs` once the server is running.
 
 - GET /health – service check
 - Swagger UI: /docs (served from docs/openapi.yaml)
-- Movies: GET /api/movies/trending, /top-rated, /genres, /search?q=, /year/{year}, /genre/{id}, /{id}
+- Movies: GET /api/movies/trending, /top-rated, /genres, /search?q=, /advanced (title/year/genres/crew/rating), /year/{year}, /genre/{id}, /{id}
 - Reviews: GET /api/reviews/{tmdbId}, POST /api/reviews, PUT /api/reviews/{id}, DELETE /api/reviews/{id}
 - Watchlist: GET /api/watchlist/{userId}, POST /api/watchlist, PUT /api/watchlist/{id}, DELETE /api/watchlist/{id}
 - Users: GET /api/users, POST /api/users, POST /api/users/login, GET /api/users/me, POST /api/users/logout, GET /api/users/{id}, PATCH /api/users/{id}, DELETE /api/users/{id}
   - Auth required for GET /api/users, GET /api/users/me, POST /api/users/logout, PATCH /api/users/{id}, and DELETE /api/users/{id}; other mutating routes (reviews POST/PUT/DELETE, watchlist GET/POST/PUT/DELETE) also require Bearer JWT.
   - Role rules: only admins can delete users or change roles; reviews and watchlist mutations require the owner or an admin.
+  - PATCH supports updating username/email/password/role (admin only) and `favouriteTmdbId` (sets favourite movie by TMDB id).
 
 ## Environment Variables
 

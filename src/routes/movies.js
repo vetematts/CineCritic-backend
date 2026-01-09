@@ -9,11 +9,43 @@ import {
   getCachedGenres,
   searchContent,
   getPosterUrl,
+  discoverMovies,
 } from '../services/tmdb.js';
 import { upsertMovie } from '../db/movies.js';
+import { z } from 'zod';
 
 // eslint-disable-next-line new-cap
 const router = express.Router();
+
+const advancedSearchSchema = z.object({
+  query: z.string().optional(),
+  year: z
+    .string()
+    .regex(/^\d{4}$/, 'year must be YYYY')
+    .transform((val) => Number(val))
+    .optional(),
+  page: z
+    .string()
+    .regex(/^\d+$/)
+    .transform((val) => Number(val))
+    .default('1'),
+  ratingMin: z
+    .string()
+    .regex(/^\d+(\.\d+)?$/)
+    .transform((val) => Number(val))
+    .optional(),
+  ratingMax: z
+    .string()
+    .regex(/^\d+(\.\d+)?$/)
+    .transform((val) => Number(val))
+    .optional(),
+  crew: z.string().optional(),
+  genres: z
+    .string()
+    .regex(/^\d+(,\d+)*$/)
+    .transform((val) => val.split(',').map((g) => Number(g)))
+    .optional(),
+});
 
 router.get('/trending', async (req, res, next) => {
   try {
@@ -73,6 +105,27 @@ router.get('/search', async (req, res, next) => {
     const results = await searchContent(q, 'movie', Number(page));
     res.json(results);
   } catch (err) {
+    next(err);
+  }
+});
+
+router.get('/advanced', async (req, res, next) => {
+  try {
+    const parsed = advancedSearchSchema.parse(req.query);
+    const results = await discoverMovies({
+      query: parsed.query,
+      year: parsed.year,
+      genres: parsed.genres,
+      ratingMin: parsed.ratingMin,
+      ratingMax: parsed.ratingMax,
+      crewName: parsed.crew,
+      page: parsed.page,
+    });
+    res.json(results);
+  } catch (err) {
+    if (err instanceof z.ZodError) {
+      return next(new BadRequestError(err.errors.map((e) => e.message).join('; ')));
+    }
     next(err);
   }
 });

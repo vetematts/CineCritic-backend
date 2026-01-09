@@ -127,3 +127,63 @@ export async function getCachedGenres(contentType = 'movie') {
   genreCache[contentType] = genres;
   return genres;
 }
+
+export async function searchPerson(name) {
+  const data = await fetchFromTMDB(`/search/person`, {
+    query: name,
+    page: '1',
+    include_adult: 'false',
+  });
+  return data.results?.[0] || null;
+}
+
+export async function discoverMovies({
+  query,
+  year,
+  genres,
+  ratingMin,
+  ratingMax,
+  crewName,
+  page = 1,
+}) {
+  let withPeople;
+  if (crewName) {
+    const person = await searchPerson(crewName);
+    if (person?.id) {
+      withPeople = person.id;
+    } else {
+      return [];
+    }
+  }
+
+  const params = {
+    page: page.toString(),
+    include_adult: 'false',
+    'vote_count.gte': '50',
+  };
+
+  if (query) {
+    params.query = query;
+    const data = await fetchFromTMDB('/search/movie', params);
+    return data.results;
+  }
+
+  if (year) {
+    params['primary_release_year'] = year.toString();
+  }
+  if (genres?.length) {
+    params.with_genres = genres.join(',');
+  }
+  if (withPeople) {
+    params.with_people = withPeople.toString();
+  }
+  if (ratingMin !== undefined) {
+    params['vote_average.gte'] = ratingMin.toString();
+  }
+  if (ratingMax !== undefined) {
+    params['vote_average.lte'] = ratingMax.toString();
+  }
+
+  const data = await fetchFromTMDB('/discover/movie', params);
+  return data.results;
+}

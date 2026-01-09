@@ -3,10 +3,10 @@ import pool from './database.js';
 export async function createReview({ userId, movieId, rating, body, status = 'published' }) {
   const query = `
     INSERT INTO reviews (user_id, movie_id, rating, body, status, published_at)
-    VALUES ($1, $2, $3, $4, $5, CASE WHEN $5 = 'published' THEN NOW() ELSE NULL END)
+    VALUES ($1, $2, $3, $4, $5, CASE WHEN $6 = 'published' THEN NOW() ELSE NULL END)
     RETURNING id, user_id, movie_id, rating, body, status, created_at, updated_at, published_at, flagged_at;
   `;
-  const values = [userId, movieId, rating, body ?? null, status];
+  const values = [userId, movieId, rating, body ?? null, status, status];
   const { rows } = await pool.query(query, values);
   return rows[0];
 }
