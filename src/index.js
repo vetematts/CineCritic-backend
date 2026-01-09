@@ -6,16 +6,16 @@ import swaggerUi from 'swagger-ui-express';
 import YAML from 'yamljs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import moviesRouter from '../routes/movies.js';
-import reviewsRouter from '../routes/reviews.js';
-import watchlistRouter from '../routes/watchlist.js';
-import usersRouter from '../routes/users.js';
-import { errorHandler } from '../middlewares/error.js';
-import { notFound } from '../middlewares/notFound.js';
+import moviesRouter from './routes/movies.js';
+import reviewsRouter from './routes/reviews.js';
+import watchlistRouter from './routes/watchlist.js';
+import usersRouter from './routes/users.js';
+import { errorHandler } from './middlewares/error.js';
+import { notFound } from './middlewares/notFound.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const swaggerDoc = YAML.load(path.join(__dirname, '..', '..', 'docs', 'openapi.yaml'));
+const swaggerDoc = YAML.load(path.join(__dirname, '..', 'docs', 'openapi.yaml'));
 
 const app = express();
 
