@@ -1,6 +1,7 @@
 import express from 'express';
 import { requireAuth, requireRole } from '../middlewares/auth.js';
 import { validate } from '../middlewares/validate.js';
+import { asyncHandler } from '../middlewares/asyncHandler.js';
 import { z } from 'zod';
 import {
   listUsersHandler,
@@ -53,13 +54,13 @@ const patchUserSchema = z.object({
   query: z.object({}).optional(),
 });
 
-router.get('/', requireAuth, listUsersHandler);
-router.post('/', validate(createUserSchema), createUserHandler);
-router.post('/login', validate(loginSchema), loginHandler);
-router.get('/me', requireAuth, meHandler);
-router.post('/logout', requireAuth, logoutHandler);
-router.get('/:id', getUserByIdHandler);
-router.patch('/:id', requireAuth, validate(patchUserSchema), updateUserHandler);
-router.delete('/:id', requireAuth, requireRole('admin'), deleteUserHandler);
+router.get('/', requireAuth, asyncHandler(listUsersHandler));
+router.post('/', validate(createUserSchema), asyncHandler(createUserHandler));
+router.post('/login', validate(loginSchema), asyncHandler(loginHandler));
+router.get('/me', requireAuth, asyncHandler(meHandler));
+router.post('/logout', requireAuth, asyncHandler(logoutHandler));
+router.get('/:id', asyncHandler(getUserByIdHandler));
+router.patch('/:id', requireAuth, validate(patchUserSchema), asyncHandler(updateUserHandler));
+router.delete('/:id', requireAuth, requireRole('admin'), asyncHandler(deleteUserHandler));
 
 export default router;

@@ -2,6 +2,7 @@ import express from 'express';
 import { z } from 'zod';
 import { requireAuth } from '../middlewares/auth.js';
 import { validate } from '../middlewares/validate.js';
+import { asyncHandler } from '../middlewares/asyncHandler.js';
 import {
   getWatchlistHandler,
   addToWatchlistHandler,
@@ -34,9 +35,19 @@ const watchlistGetSchema = z.object({
   query: z.object({}).optional(),
 });
 
-router.get('/:userId', requireAuth, validate(watchlistGetSchema), getWatchlistHandler);
-router.post('/', requireAuth, validate(watchlistCreateSchema), addToWatchlistHandler);
-router.put('/:id', requireAuth, validate(watchlistIdSchema), updateWatchlistHandler);
-router.delete('/:id', requireAuth, validate(watchlistIdSchema), deleteWatchlistHandler);
+router.get(
+  '/:userId',
+  requireAuth,
+  validate(watchlistGetSchema),
+  asyncHandler(getWatchlistHandler)
+);
+router.post('/', requireAuth, validate(watchlistCreateSchema), asyncHandler(addToWatchlistHandler));
+router.put('/:id', requireAuth, validate(watchlistIdSchema), asyncHandler(updateWatchlistHandler));
+router.delete(
+  '/:id',
+  requireAuth,
+  validate(watchlistIdSchema),
+  asyncHandler(deleteWatchlistHandler)
+);
 
 export default router;

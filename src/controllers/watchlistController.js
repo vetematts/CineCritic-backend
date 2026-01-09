@@ -24,78 +24,62 @@ async function ensureMovieId(tmdbId) {
   return saved.id;
 }
 
-export async function getWatchlistHandler(req, res, next) {
-  try {
-    const { userId } = req.validated.params;
-    const targetId = Number(userId);
-    if (req.user.role !== 'admin' && req.user.sub !== targetId) {
-      throw new ForbiddenError();
-    }
-    const watchlist = await getWatchlistByUser(targetId);
-    res.json(watchlist);
-  } catch (err) {
-    next(err);
+export async function getWatchlistHandler(req, res) {
+  const { userId } = req.validated.params;
+  const targetId = Number(userId);
+  if (req.user.role !== 'admin' && req.user.sub !== targetId) {
+    throw new ForbiddenError();
   }
+  const watchlist = await getWatchlistByUser(targetId);
+  res.json(watchlist);
 }
 
-export async function addToWatchlistHandler(req, res, next) {
-  try {
-    const { tmdbId, userId, status } = req.validated.body;
-    if (req.user.role !== 'admin' && Number(userId) !== req.user.sub) {
-      throw new ForbiddenError();
-    }
-    const movieId = await ensureMovieId(tmdbId);
-    const entry = await addToWatchlist({
-      userId,
-      movieId,
-      status,
-    });
-    res.status(201).json(entry);
-  } catch (err) {
-    next(err);
+export async function addToWatchlistHandler(req, res) {
+  const { tmdbId, userId, status } = req.validated.body;
+  if (req.user.role !== 'admin' && Number(userId) !== req.user.sub) {
+    throw new ForbiddenError();
   }
+  const movieId = await ensureMovieId(tmdbId);
+  const entry = await addToWatchlist({
+    userId,
+    movieId,
+    status,
+  });
+  res.status(201).json(entry);
 }
 
-export async function updateWatchlistHandler(req, res, next) {
-  try {
-    const { id } = req.validated.params;
-    const { status } = req.body || {};
-    if (!status || !['planned', 'watching', 'completed'].includes(status)) {
-      throw new BadRequestError('status must be planned, watching, or completed');
-    }
-    const entry = await getWatchlistEntryById(Number(id));
-    if (!entry) {
-      throw new NotFoundError('Watchlist entry not found');
-    }
-    if (req.user?.role !== 'admin' && entry.user_id !== req.user?.sub) {
-      throw new ForbiddenError();
-    }
-    const updated = await updateWatchStatus(Number(id), status);
-    if (!updated) {
-      throw new NotFoundError('Watchlist entry not found');
-    }
-    res.json(updated);
-  } catch (err) {
-    next(err);
+export async function updateWatchlistHandler(req, res) {
+  const { id } = req.validated.params;
+  const { status } = req.body || {};
+  if (!status || !['planned', 'watching', 'completed'].includes(status)) {
+    throw new BadRequestError('status must be planned, watching, or completed');
   }
+  const entry = await getWatchlistEntryById(Number(id));
+  if (!entry) {
+    throw new NotFoundError('Watchlist entry not found');
+  }
+  if (req.user?.role !== 'admin' && entry.user_id !== req.user?.sub) {
+    throw new ForbiddenError();
+  }
+  const updated = await updateWatchStatus(Number(id), status);
+  if (!updated) {
+    throw new NotFoundError('Watchlist entry not found');
+  }
+  res.json(updated);
 }
 
-export async function deleteWatchlistHandler(req, res, next) {
-  try {
-    const { id } = req.validated.params;
-    const entry = await getWatchlistEntryById(Number(id));
-    if (!entry) {
-      throw new NotFoundError('Watchlist entry not found');
-    }
-    if (req.user?.role !== 'admin' && entry.user_id !== req.user?.sub) {
-      throw new ForbiddenError();
-    }
-    const deleted = await removeFromWatchlist(Number(id));
-    if (!deleted) {
-      throw new NotFoundError('Watchlist entry not found');
-    }
-    res.status(204).send();
-  } catch (err) {
-    next(err);
+export async function deleteWatchlistHandler(req, res) {
+  const { id } = req.validated.params;
+  const entry = await getWatchlistEntryById(Number(id));
+  if (!entry) {
+    throw new NotFoundError('Watchlist entry not found');
   }
+  if (req.user?.role !== 'admin' && entry.user_id !== req.user?.sub) {
+    throw new ForbiddenError();
+  }
+  const deleted = await removeFromWatchlist(Number(id));
+  if (!deleted) {
+    throw new NotFoundError('Watchlist entry not found');
+  }
+  res.status(204).send();
 }

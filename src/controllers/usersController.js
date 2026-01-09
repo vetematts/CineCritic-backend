@@ -49,16 +49,12 @@ async function ensureMovieId(tmdbId) {
   return saved.id;
 }
 
-export async function listUsersHandler(req, res, next) {
-  try {
-    const users = await listUsers();
-    res.json(users.map(sanitizeUser));
-  } catch (err) {
-    next(err);
-  }
+export async function listUsersHandler(req, res) {
+  const users = await listUsers();
+  res.json(users.map(sanitizeUser));
 }
 
-export async function createUserHandler(req, res, next) {
+export async function createUserHandler(req, res) {
   try {
     const { username, email, password, role = 'user' } = req.validated.body;
     if (!roles.includes(role)) {
@@ -71,57 +67,45 @@ export async function createUserHandler(req, res, next) {
     if (err.code === '23505') {
       return res.status(409).json({ error: 'username or email already exists' });
     }
-    next(err);
+    throw err;
   }
 }
 
-export async function loginHandler(req, res, next) {
-  try {
-    const { username, email, password } = req.validated.body;
-    const user =
-      (username && (await getUserByUsername(username))) || (email && (await getUserByEmail(email)));
+export async function loginHandler(req, res) {
+  const { username, email, password } = req.validated.body;
+  const user =
+    (username && (await getUserByUsername(username))) || (email && (await getUserByEmail(email)));
 
-    if (!user || !verifyPassword(password, user.password_hash)) {
-      return res.status(401).json({ error: 'Invalid credentials' });
-    }
-
-    const token = signJwt({ sub: user.id, role: user.role, username: user.username });
-    res.json({ token, user: sanitizeUser(user) });
-  } catch (err) {
-    next(err);
+  if (!user || !verifyPassword(password, user.password_hash)) {
+    return res.status(401).json({ error: 'Invalid credentials' });
   }
+
+  const token = signJwt({ sub: user.id, role: user.role, username: user.username });
+  res.json({ token, user: sanitizeUser(user) });
 }
 
-export async function meHandler(req, res, next) {
-  try {
-    const user = await getUserById(Number(req.user.sub));
-    if (!user) {
-      throw new NotFoundError('User not found');
-    }
-    res.json(sanitizeUser(user));
-  } catch (err) {
-    next(err);
+export async function meHandler(req, res) {
+  const user = await getUserById(Number(req.user.sub));
+  if (!user) {
+    throw new NotFoundError('User not found');
   }
+  res.json(sanitizeUser(user));
 }
 
 export function logoutHandler(req, res) {
   res.json({ message: 'Logged out. Clear the token on the client.' });
 }
 
-export async function getUserByIdHandler(req, res, next) {
-  try {
-    const { id } = req.params;
-    const user = await getUserById(Number(id));
-    if (!user) {
-      throw new NotFoundError('User not found');
-    }
-    res.json(sanitizeUser(user));
-  } catch (err) {
-    next(err);
+export async function getUserByIdHandler(req, res) {
+  const { id } = req.params;
+  const user = await getUserById(Number(id));
+  if (!user) {
+    throw new NotFoundError('User not found');
   }
+  res.json(sanitizeUser(user));
 }
 
-export async function updateUserHandler(req, res, next) {
+export async function updateUserHandler(req, res) {
   try {
     const { id } = req.validated.params;
     const targetId = Number(id);
@@ -156,19 +140,15 @@ export async function updateUserHandler(req, res, next) {
     if (err.code === '23505') {
       return res.status(409).json({ error: 'username or email already exists', code: 'conflict' });
     }
-    next(err);
+    throw err;
   }
 }
 
-export async function deleteUserHandler(req, res, next) {
-  try {
-    const { id } = req.params;
-    const removed = await deleteUser(Number(id));
-    if (!removed) {
-      return res.status(404).json({ error: 'User not found' });
-    }
-    res.status(204).send();
-  } catch (err) {
-    next(err);
+export async function deleteUserHandler(req, res) {
+  const { id } = req.params;
+  const removed = await deleteUser(Number(id));
+  if (!removed) {
+    return res.status(404).json({ error: 'User not found' });
   }
+  res.status(204).send();
 }

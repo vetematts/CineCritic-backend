@@ -1,6 +1,7 @@
 import express from 'express';
 import { z } from 'zod';
 import { BadRequestError } from '../errors/http.js';
+import { asyncHandler } from '../middlewares/asyncHandler.js';
 import {
   getTrendingHandler,
   getTopRatedHandler,
@@ -45,35 +46,23 @@ const advancedSearchSchema = z.object({
     .optional(),
 });
 
-router.get('/trending', async (req, res, next) => {
-  await getTrendingHandler(req, res, next);
-});
+router.get('/trending', asyncHandler(getTrendingHandler));
 
-router.get('/top-rated', async (req, res, next) => {
-  await getTopRatedHandler(req, res, next);
-});
+router.get('/top-rated', asyncHandler(getTopRatedHandler));
 
-router.get('/genres', async (req, res, next) => {
-  await getGenresHandler(req, res, next);
-});
+router.get('/genres', asyncHandler(getGenresHandler));
 
-router.get('/year/:year', async (req, res, next) => {
-  await getByYearHandler(req, res, next);
-});
+router.get('/year/:year', asyncHandler(getByYearHandler));
 
-router.get('/genre/:id', async (req, res, next) => {
-  await getByGenreHandler(req, res, next);
-});
+router.get('/genre/:id', asyncHandler(getByGenreHandler));
 
-router.get('/search', async (req, res, next) => {
-  await searchHandler(req, res, next);
-});
+router.get('/search', asyncHandler(searchHandler));
 
 router.get('/advanced', async (req, res, next) => {
   try {
     const parsed = advancedSearchSchema.parse(req.query);
     req.parsed = parsed;
-    await advancedSearchHandler(req, res, next);
+    await asyncHandler(advancedSearchHandler)(req, res, next);
   } catch (err) {
     if (err instanceof z.ZodError) {
       return next(new BadRequestError(err.errors.map((e) => e.message).join('; ')));
@@ -82,8 +71,6 @@ router.get('/advanced', async (req, res, next) => {
   }
 });
 
-router.get('/:id', async (req, res, next) => {
-  await getByIdHandler(req, res, next);
-});
+router.get('/:id', asyncHandler(getByIdHandler));
 
 export default router;
