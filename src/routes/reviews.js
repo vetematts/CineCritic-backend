@@ -2,6 +2,7 @@ import express from 'express';
 import { z } from 'zod';
 import { requireAuth } from '../middlewares/auth.js';
 import { validate } from '../middlewares/validate.js';
+import { asyncHandler } from '../middlewares/asyncHandler.js';
 import {
   getReviewsByTmdbId,
   getReviewByIdHandler,
@@ -34,10 +35,10 @@ const idParamSchema = z.object({
   query: z.object({}).optional(),
 });
 
-router.get('/:tmdbId', getReviewsByTmdbId);
-router.get('/id/:id', validate(idParamSchema), getReviewByIdHandler);
-router.post('/', requireAuth, validate(createReviewSchema), createReviewHandler);
-router.put('/:id', requireAuth, validate(idParamSchema), updateReviewHandler);
-router.delete('/:id', requireAuth, validate(idParamSchema), deleteReviewHandler);
+router.get('/:tmdbId', asyncHandler(getReviewsByTmdbId));
+router.get('/id/:id', validate(idParamSchema), asyncHandler(getReviewByIdHandler));
+router.post('/', requireAuth, validate(createReviewSchema), asyncHandler(createReviewHandler));
+router.put('/:id', requireAuth, validate(idParamSchema), asyncHandler(updateReviewHandler));
+router.delete('/:id', requireAuth, validate(idParamSchema), asyncHandler(deleteReviewHandler));
 
 export default router;

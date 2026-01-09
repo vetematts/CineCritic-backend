@@ -24,84 +24,64 @@ async function ensureMovieId(tmdbId) {
   return saved.id;
 }
 
-export async function getReviewsByTmdbId(req, res, next) {
-  try {
-    const { tmdbId } = req.params;
-    const movieId = await ensureMovieId(tmdbId);
-    const reviews = await getReviewsByMovie(movieId);
-    res.json(reviews);
-  } catch (err) {
-    next(err);
-  }
+export async function getReviewsByTmdbId(req, res) {
+  const { tmdbId } = req.params;
+  const movieId = await ensureMovieId(tmdbId);
+  const reviews = await getReviewsByMovie(movieId);
+  res.json(reviews);
 }
 
-export async function getReviewByIdHandler(req, res, next) {
-  try {
-    const { id } = req.validated.params;
-    const review = await getReviewById(Number(id));
-    if (!review) {
-      throw new NotFoundError('Review not found');
-    }
-    res.json(review);
-  } catch (err) {
-    next(err);
+export async function getReviewByIdHandler(req, res) {
+  const { id } = req.validated.params;
+  const review = await getReviewById(Number(id));
+  if (!review) {
+    throw new NotFoundError('Review not found');
   }
+  res.json(review);
 }
 
-export async function createReviewHandler(req, res, next) {
-  try {
-    const { tmdbId, userId, rating, body, status = 'published' } = req.validated.body;
-    if (req.user?.role !== 'admin' && Number(userId) !== req.user?.sub) {
-      throw new ForbiddenError();
-    }
-
-    const movieId = await ensureMovieId(tmdbId);
-    const review = await createReview({
-      userId,
-      movieId,
-      rating,
-      body,
-      status,
-    });
-    res.status(201).json(review);
-  } catch (err) {
-    next(err);
+export async function createReviewHandler(req, res) {
+  const { tmdbId, userId, rating, body, status = 'published' } = req.validated.body;
+  if (req.user?.role !== 'admin' && Number(userId) !== req.user?.sub) {
+    throw new ForbiddenError();
   }
+
+  const movieId = await ensureMovieId(tmdbId);
+  const review = await createReview({
+    userId,
+    movieId,
+    rating,
+    body,
+    status,
+  });
+  res.status(201).json(review);
 }
 
-export async function updateReviewHandler(req, res, next) {
-  try {
-    const { id } = req.validated.params;
-    const existing = await getReviewById(Number(id));
-    if (!existing) {
-      throw new NotFoundError('Review not found or no fields to update');
-    }
-    if (req.user?.role !== 'admin' && existing.user_id !== req.user?.sub) {
-      throw new ForbiddenError();
-    }
-    const review = await updateReview(Number(id), req.body || {});
-    res.json(review);
-  } catch (err) {
-    next(err);
+export async function updateReviewHandler(req, res) {
+  const { id } = req.validated.params;
+  const existing = await getReviewById(Number(id));
+  if (!existing) {
+    throw new NotFoundError('Review not found or no fields to update');
   }
+  if (req.user?.role !== 'admin' && existing.user_id !== req.user?.sub) {
+    throw new ForbiddenError();
+  }
+  const review = await updateReview(Number(id), req.body || {});
+  res.json(review);
 }
 
-export async function deleteReviewHandler(req, res, next) {
-  try {
-    const { id } = req.validated.params;
-    const existing = await getReviewById(Number(id));
-    if (!existing) {
-      throw new NotFoundError('Review not found');
-    }
-    if (req.user?.role !== 'admin' && existing.user_id !== req.user?.sub) {
-      throw new ForbiddenError();
-    }
-    const deleted = await deleteReview(Number(id));
-    if (!deleted) {
-      throw new NotFoundError('Review not found');
-    }
-    res.status(204).send();
-  } catch (err) {
-    next(err);
+export async function deleteReviewHandler(req, res) {
+  const { id } = req.validated.params;
+  const existing = await getReviewById(Number(id));
+  if (!existing) {
+    throw new NotFoundError('Review not found');
   }
+  if (req.user?.role !== 'admin' && existing.user_id !== req.user?.sub) {
+    throw new ForbiddenError();
+  }
+  const deleted = await deleteReview(Number(id));
+  if (!deleted) {
+    throw new NotFoundError('Review not found');
+  }
+  res.status(204).send();
 }
