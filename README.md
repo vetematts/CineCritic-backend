@@ -2,6 +2,16 @@
 
 Backend-only Express API for fetching TMDB data and serving movie endpoints. Frontend will live in a separate repo.
 
+## Repositories
+
+- Backend: https://github.com/vetematts/CineCritic-backend.git
+- Frontend: https://github.com/vetematts/CineCritic-frontend.git
+
+## Deployed URLs
+
+- Backend API: (to be added)
+- Frontend App: (to be added)
+
 ## Code Style Guide
 
 This project follows the Google JavaScript Style Guide: https://google.github.io/styleguide/jsguide.html
@@ -55,6 +65,37 @@ The project depends on open-source packages under permissive licenses (MIT/ISC/B
 
 Docs available at `http://localhost:4000/docs` once the server is running.
 
+## Backend Install Instructions
+
+1. **Clone the repo**
+   ```bash
+   git clone https://github.com/vetematts/CineCritic-backend.git
+   ```
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
+3. **Create `.env`**
+   ```sh
+   TMDB_API_KEY="YOUR_TMDB_KEY"
+   DATABASE_URL="postgres://<user>:<password>@localhost:5432/CineCritic"
+   JWT_SECRET="YOUR_JWT_SECRET"
+   ```
+4. **Seed the database**
+   ```bash
+   npm run seed
+   ```
+5. **Start the API**
+   ```bash
+   npm run dev
+   ```
+6. **Login details (seeded users)**
+   ```txt
+   admin@example.com / adminpass
+   demo@example.com / demopass
+   jay.son@payload.dev / json123
+   ```
+
 ## Key Endpoints
 
 - GET /health – service check
@@ -66,6 +107,58 @@ Docs available at `http://localhost:4000/docs` once the server is running.
   - Auth required for GET /api/users, GET /api/users/me, POST /api/users/logout, PATCH /api/users/{id}, and DELETE /api/users/{id}; other mutating routes (reviews POST/PUT/DELETE, watchlist GET/POST/PUT/DELETE) also require Bearer JWT.
   - Role rules: only admins can delete users or change roles; reviews and watchlist mutations require the owner or an admin.
   - PATCH supports updating username/email/password/role (admin only) and `favouriteTmdbId` (sets favourite movie by TMDB id).
+
+## Endpoint Tables
+
+### Authentication
+
+| Operation | URL | Method | Body | Access |
+| --- | --- | --- | --- | --- |
+| Login | `/api/users/login` | POST | `{"username": "demo", "password": "demopass"}` | Public |
+
+### Movies (TMDB Proxy)
+
+| Operation | URL | Method | Body | Access |
+| --- | --- | --- | --- | --- |
+| Trending | `/api/movies/trending` | GET | - | Public |
+| Top Rated | `/api/movies/top-rated` | GET | - | Public |
+| Genres | `/api/movies/genres` | GET | - | Public |
+| Search | `/api/movies/search?q=QUERY` | GET | - | Public |
+| Advanced Search | `/api/movies/advanced?query=&year=&genres=&crew=&ratingMin=&ratingMax=` | GET | - | Public |
+| By Year | `/api/movies/year/{year}` | GET | - | Public |
+| By Genre | `/api/movies/genre/{id}` | GET | - | Public |
+| By TMDB Id | `/api/movies/{id}` | GET | - | Public |
+
+### Reviews
+
+| Operation | URL | Method | Body | Access |
+| --- | --- | --- | --- | --- |
+| Create Review | `/api/reviews` | POST | `{"tmdbId": 550, "userId": 2, "rating": 4.5}` | Auth (author/admin) |
+| List Reviews (movie) | `/api/reviews/{tmdbId}` | GET | - | Public |
+| Get Review By Id | `/api/reviews/id/{id}` | GET | - | Public |
+| Update Review | `/api/reviews/{id}` | PUT | `{"body": "Updated", "rating": 4}` | Auth (author/admin) |
+| Delete Review | `/api/reviews/{id}` | DELETE | - | Auth (author/admin) |
+
+### Watchlist
+
+| Operation | URL | Method | Body | Access |
+| --- | --- | --- | --- | --- |
+| Get Watchlist | `/api/watchlist/{userId}` | GET | - | Auth (self/admin) |
+| Add to Watchlist | `/api/watchlist` | POST | `{"tmdbId": 550, "userId": 2, "status": "planned"}` | Auth (self/admin) |
+| Update Watchlist | `/api/watchlist/{id}` | PUT | `{"status": "completed"}` | Auth (self/admin) |
+| Delete Watchlist | `/api/watchlist/{id}` | DELETE | - | Auth (self/admin) |
+
+### Users
+
+| Operation | URL | Method | Body | Access |
+| --- | --- | --- | --- | --- |
+| Create User | `/api/users` | POST | `{"username": "alice", "email": "a@example.com", "password": "secret"}` | Public |
+| List Users | `/api/users` | GET | - | Auth |
+| Get User | `/api/users/{id}` | GET | - | Public |
+| Get Me | `/api/users/me` | GET | - | Auth |
+| Logout | `/api/users/logout` | POST | - | Auth |
+| Update User | `/api/users/{id}` | PATCH | `{"email": "new@example.com"}` | Auth (self/admin) |
+| Delete User | `/api/users/{id}` | DELETE | - | Auth (admin only) |
 
 ## Environment Variables
 
