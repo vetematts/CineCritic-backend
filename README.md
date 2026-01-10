@@ -24,6 +24,23 @@ Style is enforced with ESLint (eslint-config-google) and formatting is handled b
 | [jest](https://www.npmjs.com/package/jest), [supertest](https://www.npmjs.com/package/supertest), [pg-mem](https://www.npmjs.com/package/pg-mem)                               | Testing (unit, integration, in-memory Postgres) |
 | [eslint](https://www.npmjs.com/package/eslint), [prettier](https://www.npmjs.com/package/prettier), [eslint-config-google](https://www.npmjs.com/package/eslint-config-google) | Code style and formatting                       |
 
+## Hardware Requirements
+
+- CPU: modern dual-core (or better)
+- RAM: 4 GB minimum (8 GB recommended for running Postgres + API + frontend)
+- Disk: ~500 MB for node_modules plus database storage
+
+## Technology Choices and Alternatives
+
+- Express + Node: fast to iterate and aligns with class examples; alternative: Fastify for stricter performance/typing.
+- PostgreSQL via `pg`: relational data + constraints suit users/reviews/watchlist; alternative: MongoDB for schema-flexible docs.
+- JWT auth: stateless and simple to integrate with frontend; alternative: server sessions with cookies.
+- Zod validation: clear, reusable schema validation; alternative: express-validator or Joi.
+
+## Licensing Notes
+
+The project depends on open-source packages under permissive licenses (MIT/ISC/BSD-2/3). See each dependency's npm page for details.
+
 ### Commands
 
 - `npm run lint` # check style + code issues
