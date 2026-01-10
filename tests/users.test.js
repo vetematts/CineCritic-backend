@@ -3,7 +3,7 @@ import express from 'express';
 import { createRequest, createResponse } from './helpers/mockHttp.js';
 import { requireAuth } from '../src/middlewares/auth.js';
 import { errorHandler } from '../src/middlewares/error.js';
-import { verifyJwt, signJwt } from '../src/auth/jwt.js';
+import { verifyJwt, signJwt } from '../src/middlewares/jwt.js';
 
 const users = [];
 let idCounter = 1;
@@ -14,7 +14,7 @@ function resetStore() {
 }
 
 // Mock users repo with in-memory store
-jest.unstable_mockModule('../src/db/users.js', () => ({
+jest.unstable_mockModule('../src/models/users.js', () => ({
   createUser: async ({ username, email, passwordHash, role }) => {
     const exists = users.some((u) => u.username === username || u.email === email);
     if (exists) {

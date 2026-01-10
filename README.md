@@ -29,8 +29,8 @@ Style is enforced with ESLint (eslint-config-google) and formatting is handled b
 - `npm run lint` # check style + code issues
 - `npm run lint:fix` # auto-fix eslint issues where possible
 - `npm run format` # format with prettier
-- `npm run dev` # run Express with nodemon
-- `npm run start` # run Express directly
+- `npm run dev` # run Express with nodemon (entrypoint: src/server.js)
+- `npm run start` # run Express directly (entrypoint: src/server.js)
 - `npm test` # run Jest tests (uses pg-mem; install deps first)
 - `npm run seed` # seed the database with sample data (dev)
   - Seeds admin (`admin@example.com` / `adminpass`) and demo (`demo@example.com` / `demopass`) users, two movies, reviews, and watchlist entries. Idempotent; run against the DB in `DATABASE_URL`.

@@ -1,5 +1,5 @@
 import { HttpError } from '../errors/http.js';
-import { logger } from '../utils/logger.js';
+import { logger } from '../utils/errorLogger.js';
 
 // General error handler for the app
 // eslint-disable-next-line no-unused-vars

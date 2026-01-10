@@ -1,6 +1,6 @@
 import crypto from 'crypto';
-import pool from './database.js';
-import { createTables } from './init.js';
+import pool from '../models/database.js';
+import { createTables } from '../models/schema.js';
 
 function hashPassword(password) {
   const salt = crypto.randomBytes(16).toString('hex');

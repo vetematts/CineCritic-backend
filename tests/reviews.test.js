@@ -1,6 +1,6 @@
 import { jest } from '@jest/globals';
 import { createRequest, createResponse } from './helpers/mockHttp.js';
-import { signJwt } from '../src/auth/jwt.js';
+import { signJwt } from '../src/middlewares/jwt.js';
 import { errorHandler } from '../src/middlewares/error.js';
 
 // In-memory stores for mocks
@@ -26,7 +26,7 @@ jest.unstable_mockModule('../src/services/tmdb.js', () => ({
 }));
 
 // Mock movie cache helpers
-jest.unstable_mockModule('../src/db/movies.js', () => ({
+jest.unstable_mockModule('../src/models/movies.js', () => ({
   getMovieIdByTmdbId: async (tmdbId) => movieStore.get(Number(tmdbId)) ?? null,
   upsertMovie: async ({ tmdbId, title, releaseYear, posterUrl, contentType }) => {
     const key = Number(tmdbId);
@@ -48,7 +48,7 @@ jest.unstable_mockModule('../src/db/movies.js', () => ({
 }));
 
 // Mock reviews repo
-jest.unstable_mockModule('../src/db/reviews.js', () => ({
+jest.unstable_mockModule('../src/models/reviews.js', () => ({
   createReview: async ({ userId, movieId, rating, body, status }) => {
     const review = {
       id: reviewId++,
