@@ -1,8 +1,8 @@
-# CineCritic API
+# 🎞️ CineCritic API
 
 Backend-only Express API for fetching TMDB data and serving movie endpoints. Frontend will live in a separate repo.
 
-## Repositories
+## 📂 Repositories
 
 - Backend: https://github.com/vetematts/CineCritic-backend.git
 - Frontend: https://github.com/vetematts/CineCritic-frontend.git
@@ -108,7 +108,7 @@ Docs available at `http://localhost:4000/docs` once the server is running.
   - Role rules: only admins can delete users or change roles; reviews and watchlist mutations require the owner or an admin.
   - PATCH supports updating username/email/password/role (admin only) and `favouriteTmdbId` (sets favourite movie by TMDB id).
 
-## Endpoint Tables
+## Endpoints
 
 ### Authentication
 
