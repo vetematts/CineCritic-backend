@@ -7,18 +7,18 @@ Backend-only Express API for fetching TMDB data and serving movie endpoints. Fro
 - Backend: https://github.com/vetematts/CineCritic-backend.git
 - Frontend: https://github.com/vetematts/CineCritic-frontend.git
 
-## Deployed URLs
+## Deployed URLs 🚀
 
 - Backend API: (to be added)
 - Frontend App: (to be added)
 
-## Code Style Guide
+## Code Style Guide 📏
 
 This project follows the Google JavaScript Style Guide: https://google.github.io/styleguide/jsguide.html
 
 Style is enforced with ESLint (eslint-config-google) and formatting is handled by Prettier. ESLint is configured to defer formatting rules to Prettier to avoid conflicts.
 
-## Dependencies
+## Dependencies 📦
 
 | Name                                                                                                                                                                           | Description                                     |
 | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------- |
@@ -34,20 +34,20 @@ Style is enforced with ESLint (eslint-config-google) and formatting is handled b
 | [jest](https://www.npmjs.com/package/jest), [supertest](https://www.npmjs.com/package/supertest), [pg-mem](https://www.npmjs.com/package/pg-mem)                               | Testing (unit, integration, in-memory Postgres) |
 | [eslint](https://www.npmjs.com/package/eslint), [prettier](https://www.npmjs.com/package/prettier), [eslint-config-google](https://www.npmjs.com/package/eslint-config-google) | Code style and formatting                       |
 
-## Hardware Requirements
+## Hardware Requirements 💻
 
 - CPU: modern dual-core (or better)
 - RAM: 4 GB minimum (8 GB recommended for running Postgres + API + frontend)
 - Disk: ~500 MB for node_modules plus database storage
 
-## Technology Choices and Alternatives
+## Technology Choices and Alternatives 🧭
 
 - Express + Node: fast to iterate and aligns with class examples; alternative: Fastify for stricter performance/typing.
 - PostgreSQL via `pg`: relational data + constraints suit users/reviews/watchlist; alternative: MongoDB for schema-flexible docs.
 - JWT auth: stateless and simple to integrate with frontend; alternative: server sessions with cookies.
 - Zod validation: clear, reusable schema validation; alternative: express-validator or Joi.
 
-## Licensing Notes
+## Licensing Notes 📜
 
 The project depends on open-source packages under permissive licenses (MIT/ISC/BSD-2/3). See each dependency's npm page for details.
 
@@ -65,7 +65,7 @@ The project depends on open-source packages under permissive licenses (MIT/ISC/B
 
 Docs available at `http://localhost:4000/docs` once the server is running.
 
-## Backend Install Instructions
+## Backend Install Instructions 🛠️
 
 1. **Clone the repo**
    ```bash
@@ -96,7 +96,7 @@ Docs available at `http://localhost:4000/docs` once the server is running.
    jay.son@payload.dev / json123
    ```
 
-## Key Endpoints
+## Key Endpoints 🧩
 
 - GET /health – service check
 - Swagger UI: /docs (served from docs/openapi.yaml)
@@ -108,7 +108,7 @@ Docs available at `http://localhost:4000/docs` once the server is running.
   - Role rules: only admins can delete users or change roles; reviews and watchlist mutations require the owner or an admin.
   - PATCH supports updating username/email/password/role (admin only) and `favouriteTmdbId` (sets favourite movie by TMDB id).
 
-## Endpoints
+## Endpoints 🧪
 
 ### Authentication
 
@@ -160,7 +160,7 @@ Docs available at `http://localhost:4000/docs` once the server is running.
 | Update User | `/api/users/{id}` | PATCH | `{"email": "new@example.com"}` | Auth (self/admin) |
 | Delete User | `/api/users/{id}` | DELETE | - | Auth (admin only) |
 
-## Environment Variables
+## Environment Variables ⚙️
 
 Copy `.env.example` to `.env` and set your values:
 
@@ -169,7 +169,7 @@ Copy `.env.example` to `.env` and set your values:
 - `JWT_SECRET` (required for auth): secret key for signing JWTs
 <!-- - `OMDB_API_KEY` (optional): OMDb key if you add extra ratings -->
 
-## Authentication
+## Authentication 🔐
 
 - Login via `POST /api/users/login` to receive a JWT (`token`); default expiry 1 hour.
 - Send the token on protected routes using `Authorization: Bearer <token>`.
