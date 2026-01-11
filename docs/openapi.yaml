@@ -31,6 +31,201 @@ components:
         favourite_movie_id:
           type: integer
           nullable: true
+
+    Error:
+      type: object
+      required: [error, code]
+      properties:
+        error:
+          type: string
+          example: "Unauthorized"
+        code:
+          type: string
+          example: "AUTH_001"
+
+    MovieSummary:
+      type: object
+      required: [id, title]
+      properties:
+        id:
+          type: integer
+          example: 129
+        title:
+          type: string
+          example: "Spirited Away"
+        poster_path:
+          type: string
+          nullable: true
+          example: "/poster.jpg"
+        release_date:
+          type: string
+          nullable: true
+          example: "2001-07-20"
+        vote_average:
+          type: number
+          example: 8.5
+      additionalProperties: true
+
+    MovieDetail:
+      allOf:
+        - $ref: '#/components/schemas/MovieSummary'
+        - type: object
+          properties:
+            overview:
+              type: string
+              example: "A young girl enters the world of spirits..."
+            genres:
+              type: array
+              items:
+                $ref: '#/components/schemas/Genre'
+          additionalProperties: true
+
+    Genre:
+      type: object
+      required: [id, name]
+      properties:
+        id:
+          type: integer
+          example: 16
+        name:
+          type: string
+          example: "Animation"
+
+    TmdbPagedMovies:
+      type: object
+      required: [page, results]
+      properties:
+        page:
+          type: integer
+          example: 1
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/MovieSummary'
+        total_pages:
+          type: integer
+          example: 10
+        total_results:
+          type: integer
+          example: 200
+      additionalProperties: true
+
+    TmdbGenresResponse:
+      type: object
+      required: [genres]
+      properties:
+        genres:
+          type: array
+          items:
+            $ref: '#/components/schemas/Genre'
+      additionalProperties: true
+
+    Review:
+      type: object
+      required: [id, tmdbId, userId, rating]
+      properties:
+        id:
+          type: integer
+          example: 1
+        tmdbId:
+          type: integer
+          example: 129
+        userId:
+          type: integer
+          example: 5
+        rating:
+          type: number
+          format: float
+          example: 4.5
+        body:
+          type: string
+          nullable: true
+          example: "Loved the visuals and story."
+        status:
+          type: string
+          enum: [draft, published, flagged]
+          example: published
+        created_at:
+          type: string
+          format: date-time
+          nullable: true
+          example: "2026-01-11T07:15:00Z"
+      additionalProperties: true
+
+    WatchlistEntry:
+      type: object
+      required: [id, tmdbId, userId, status]
+      properties:
+        id:
+          type: integer
+          example: 10
+        tmdbId:
+          type: integer
+          example: 129
+        userId:
+          type: integer
+          example: 5
+        status:
+          type: string
+          enum: [planned, watching, completed]
+          example: planned
+        created_at:
+          type: string
+          format: date-time
+          nullable: true
+          example: "2026-01-11T07:15:00Z"
+      additionalProperties: true
+
+  responses:
+    BadRequestError:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: "Invalid parameters"
+            code: "REQ_400"
+
+    UnauthorizedError:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: "Missing or invalid token"
+            code: "AUTH_401"
+
+    ForbiddenError:
+      description: Forbidden
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: "Forbidden"
+            code: "AUTH_403"
+
+    NotFoundError:
+      description: Not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: "Not found"
+            code: "GEN_404"
+
+    ServerError:
+      description: Server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: "Server error"
+            code: "SRV_500"
 paths:
   /api/movies/trending:
     get:
@@ -38,24 +233,36 @@ paths:
       responses:
         '200':
           description: List of trending items
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TmdbPagedMovies'
         '500':
-          description: Server error
+          $ref: '#/components/responses/ServerError'
   /api/movies/top-rated:
     get:
       summary: Get top rated movies
       responses:
         '200':
           description: List of top rated items
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TmdbPagedMovies'
         '500':
-          description: Server error
+          $ref: '#/components/responses/ServerError'
   /api/movies/genres:
     get:
       summary: Get genres
       responses:
         '200':
           description: List of genres
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TmdbGenresResponse'
         '500':
-          description: Server error
+          $ref: '#/components/responses/ServerError'
   /api/movies/search:
     get:
       summary: Search movies
@@ -74,10 +281,14 @@ paths:
       responses:
         '200':
           description: Search results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TmdbPagedMovies'
         '400':
-          description: Missing query
+          $ref: '#/components/responses/BadRequestError'
         '500':
-          description: Server error
+          $ref: '#/components/responses/ServerError'
   /api/movies/advanced:
     get:
       summary: Advanced movie search (title/year/genres/crew/rating)
@@ -120,10 +331,14 @@ paths:
       responses:
         '200':
           description: Matching movies
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TmdbPagedMovies'
         '400':
-          description: Invalid parameters
+          $ref: '#/components/responses/BadRequestError'
         '500':
-          description: Server error
+          $ref: '#/components/responses/ServerError'
   /api/movies/year/{year}:
     get:
       summary: Get movies by release year
@@ -146,8 +361,12 @@ paths:
       responses:
         '200':
           description: Results for the year
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TmdbPagedMovies'
         '500':
-          description: Server error
+          $ref: '#/components/responses/ServerError'
   /api/movies/genre/{id}:
     get:
       summary: Get movies by genre
@@ -168,8 +387,12 @@ paths:
       responses:
         '200':
           description: Results for the genre
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TmdbPagedMovies'
         '500':
-          description: Server error
+          $ref: '#/components/responses/ServerError'
   /api/movies/{id}:
     get:
       summary: Get movie by TMDB id
@@ -182,8 +405,12 @@ paths:
       responses:
         '200':
           description: Movie details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MovieDetail'
         '500':
-          description: Server error
+          $ref: '#/components/responses/ServerError'
   /api/users:
     get:
       summary: List users
@@ -192,12 +419,18 @@ paths:
       responses:
         '200':
           description: List of users (password hashes omitted)
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
         '401':
-          description: Missing or invalid token
+          $ref: '#/components/responses/UnauthorizedError'
         '403':
-          description: Forbidden (insufficient role)
+          $ref: '#/components/responses/ForbiddenError'
         '500':
-          description: Server error
+          $ref: '#/components/responses/ServerError'
     post:
       summary: Create a user
       requestBody:
@@ -223,12 +456,16 @@ paths:
       responses:
         '201':
           description: User created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
         '400':
-          description: Missing or invalid fields
+          $ref: '#/components/responses/BadRequestError'
         '409':
           description: Username or email already exists
         '500':
-          description: Server error
+          $ref: '#/components/responses/ServerError'
   /api/users/login:
     post:
       summary: Login with username or email (returns JWT)
@@ -262,11 +499,11 @@ paths:
                   user:
                     $ref: '#/components/schemas/User'
         '400':
-          description: Missing credentials
+          $ref: '#/components/responses/BadRequestError'
         '401':
-          description: Invalid credentials
+          $ref: '#/components/responses/UnauthorizedError'
         '500':
-          description: Server error
+          $ref: '#/components/responses/ServerError'
   /api/users/me:
     get:
       summary: Get the current authenticated user
@@ -275,12 +512,16 @@ paths:
       responses:
         '200':
           description: Current user (password hash omitted)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
         '401':
-          description: Missing or invalid token
+          $ref: '#/components/responses/UnauthorizedError'
         '404':
-          description: User not found
+          $ref: '#/components/responses/NotFoundError'
         '500':
-          description: Server error
+          $ref: '#/components/responses/ServerError'
   /api/users/logout:
     post:
       summary: Logout (client should clear stored token)
@@ -289,10 +530,18 @@ paths:
       responses:
         '200':
           description: Logout acknowledgement (stateless; client clears token)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Logged out"
         '401':
-          description: Missing or invalid token
+          $ref: '#/components/responses/UnauthorizedError'
         '500':
-          description: Server error
+          $ref: '#/components/responses/ServerError'
   /api/users/{id}:
     get:
       summary: Get a user by id
@@ -305,10 +554,14 @@ paths:
       responses:
         '200':
           description: User
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
         '404':
-          description: User not found
+          $ref: '#/components/responses/NotFoundError'
         '500':
-          description: Server error
+          $ref: '#/components/responses/ServerError'
     patch:
       summary: Update a user (self or admin)
       security:
@@ -342,18 +595,22 @@ paths:
       responses:
         '200':
           description: User updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
         '400':
-          description: No fields to update or invalid data
+          $ref: '#/components/responses/BadRequestError'
         '401':
-          description: Missing or invalid token
+          $ref: '#/components/responses/UnauthorizedError'
         '403':
-          description: Forbidden (must be self or admin; role change admin only)
+          $ref: '#/components/responses/ForbiddenError'
         '404':
-          description: User not found
+          $ref: '#/components/responses/NotFoundError'
         '409':
           description: Duplicate username or email
         '500':
-          description: Server error
+          $ref: '#/components/responses/ServerError'
     delete:
       summary: Delete a user
       security:
@@ -368,13 +625,13 @@ paths:
         '204':
           description: User deleted
         '401':
-          description: Missing or invalid token
+          $ref: '#/components/responses/UnauthorizedError'
         '403':
-          description: Forbidden (admin only)
+          $ref: '#/components/responses/ForbiddenError'
         '404':
-          description: User not found
+          $ref: '#/components/responses/NotFoundError'
         '500':
-          description: Server error
+          $ref: '#/components/responses/ServerError'
   /api/reviews/{tmdbId}:
     get:
       summary: Get reviews for a movie by TMDB id
@@ -387,8 +644,14 @@ paths:
       responses:
         '200':
           description: List of reviews for the movie
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Review'
         '500':
-          description: Server error
+          $ref: '#/components/responses/ServerError'
   /api/reviews/id/{id}:
     get:
       summary: Get a review by id
@@ -401,10 +664,14 @@ paths:
       responses:
         '200':
           description: Review
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Review'
         '404':
-          description: Review not found
+          $ref: '#/components/responses/NotFoundError'
         '500':
-          description: Server error
+          $ref: '#/components/responses/ServerError'
   /api/reviews:
     post:
       summary: Create a review for a movie
@@ -435,14 +702,18 @@ paths:
       responses:
         '201':
           description: Review created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Review'
         '400':
-          description: Missing or invalid fields
+          $ref: '#/components/responses/BadRequestError'
         '401':
-          description: Missing or invalid token
+          $ref: '#/components/responses/UnauthorizedError'
         '403':
-          description: Forbidden (must be author or admin)
+          $ref: '#/components/responses/ForbiddenError'
         '500':
-          description: Server error
+          $ref: '#/components/responses/ServerError'
   /api/reviews/{id}:
     put:
       summary: Update a review
@@ -472,14 +743,18 @@ paths:
       responses:
         '200':
           description: Review updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Review'
         '404':
-          description: Review not found or no fields to update
+          $ref: '#/components/responses/NotFoundError'
         '401':
-          description: Missing or invalid token
+          $ref: '#/components/responses/UnauthorizedError'
         '403':
-          description: Forbidden (must be author or admin)
+          $ref: '#/components/responses/ForbiddenError'
         '500':
-          description: Server error
+          $ref: '#/components/responses/ServerError'
     delete:
       summary: Delete a review
       security:
@@ -494,13 +769,13 @@ paths:
         '204':
           description: Review deleted
         '401':
-          description: Missing or invalid token
+          $ref: '#/components/responses/UnauthorizedError'
         '403':
-          description: Forbidden (must be author or admin)
+          $ref: '#/components/responses/ForbiddenError'
         '404':
-          description: Review not found
+          $ref: '#/components/responses/NotFoundError'
         '500':
-          description: Server error
+          $ref: '#/components/responses/ServerError'
 
   /api/watchlist/{userId}:
     get:
@@ -513,10 +788,20 @@ paths:
           required: true
           schema: { type: integer }
       responses:
-        '200': { description: Watchlist items }
-        '401': { description: Missing or invalid token }
-        '403': { description: Forbidden (must be owner or admin) }
-        '500': { description: Server error }
+        '200':
+          description: Watchlist items
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/WatchlistEntry'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '500':
+          $ref: '#/components/responses/ServerError'
 
   /api/watchlist:
     post:
@@ -538,11 +823,20 @@ paths:
                   enum: [planned, watching, completed]
                   default: planned
       responses:
-        '201': { description: Watchlist entry created/updated }
-        '400': { description: Missing/invalid fields }
-        '401': { description: Missing or invalid token }
-        '403': { description: Forbidden (must be owner or admin) }
-        '500': { description: Server error }
+        '201':
+          description: Watchlist entry created/updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WatchlistEntry'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '500':
+          $ref: '#/components/responses/ServerError'
 
   /api/watchlist/{id}:
     put:
@@ -566,12 +860,22 @@ paths:
                   type: string
                   enum: [planned, watching, completed]
       responses:
-        '200': { description: Updated entry }
-        '400': { description: Invalid status }
-        '401': { description: Missing or invalid token }
-        '403': { description: Forbidden (must be owner or admin) }
-        '404': { description: Not found }
-        '500': { description: Server error }
+        '200':
+          description: Updated entry
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WatchlistEntry'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/ServerError'
     delete:
       summary: Remove watchlist entry
       security:
@@ -582,8 +886,13 @@ paths:
           required: true
           schema: { type: integer }
       responses:
-        '204': { description: Deleted }
-        '401': { description: Missing or invalid token }
-        '403': { description: Forbidden (must be owner or admin) }
-        '404': { description: Not found }
-        '500': { description: Server error }
+        '204':
+          description: Deleted
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/ServerError'
