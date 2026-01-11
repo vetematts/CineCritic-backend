@@ -89,15 +89,15 @@ Docs available at `http://localhost:4000/docs` once the server is running.
    ```sql
    CREATE DATABASE "CineCritic";
    ```
-4. **Seed the database**
+5. **Seed the database**
    ```bash
    npm run seed
    ```
-5. **Start the API**
+6. **Start the API**
    ```bash
    npm run dev
    ```
-6. **Login details (seeded users)**
+7. **Login details (seeded users)**
    ```txt
    admin@example.com / adminpass
    demo@example.com / demopass
@@ -120,53 +120,53 @@ Docs available at `http://localhost:4000/docs` once the server is running.
 
 ### Authentication
 
-| Operation | URL | Method | Body | Access |
-| --- | --- | --- | --- | --- |
-| Login | `/api/users/login` | POST | `{"username": "demo", "password": "demopass"}` | Public |
+| Operation | URL                | Method | Body                                           | Access |
+| --------- | ------------------ | ------ | ---------------------------------------------- | ------ |
+| Login     | `/api/users/login` | POST   | `{"username": "demo", "password": "demopass"}` | Public |
 
 ### Movies (TMDB Proxy)
 
-| Operation | URL | Method | Body | Access |
-| --- | --- | --- | --- | --- |
-| Trending | `/api/movies/trending` | GET | - | Public |
-| Top Rated | `/api/movies/top-rated` | GET | - | Public |
-| Genres | `/api/movies/genres` | GET | - | Public |
-| Search | `/api/movies/search?q=QUERY` | GET | - | Public |
-| Advanced Search | `/api/movies/advanced?query=&year=&genres=&crew=&ratingMin=&ratingMax=` | GET | - | Public |
-| By Year | `/api/movies/year/{year}` | GET | - | Public |
-| By Genre | `/api/movies/genre/{id}` | GET | - | Public |
-| By TMDB Id | `/api/movies/{id}` | GET | - | Public |
+| Operation       | URL                                                                     | Method | Body | Access |
+| --------------- | ----------------------------------------------------------------------- | ------ | ---- | ------ |
+| Trending        | `/api/movies/trending`                                                  | GET    | -    | Public |
+| Top Rated       | `/api/movies/top-rated`                                                 | GET    | -    | Public |
+| Genres          | `/api/movies/genres`                                                    | GET    | -    | Public |
+| Search          | `/api/movies/search?q=QUERY`                                            | GET    | -    | Public |
+| Advanced Search | `/api/movies/advanced?query=&year=&genres=&crew=&ratingMin=&ratingMax=` | GET    | -    | Public |
+| By Year         | `/api/movies/year/{year}`                                               | GET    | -    | Public |
+| By Genre        | `/api/movies/genre/{id}`                                                | GET    | -    | Public |
+| By TMDB Id      | `/api/movies/{id}`                                                      | GET    | -    | Public |
 
 ### Reviews
 
-| Operation | URL | Method | Body | Access |
-| --- | --- | --- | --- | --- |
-| Create Review | `/api/reviews` | POST | `{"tmdbId": 550, "userId": 2, "rating": 4.5}` | Auth (author/admin) |
-| List Reviews (movie) | `/api/reviews/{tmdbId}` | GET | - | Public |
-| Get Review By Id | `/api/reviews/id/{id}` | GET | - | Public |
-| Update Review | `/api/reviews/{id}` | PUT | `{"body": "Updated", "rating": 4}` | Auth (author/admin) |
-| Delete Review | `/api/reviews/{id}` | DELETE | - | Auth (author/admin) |
+| Operation            | URL                     | Method | Body                                          | Access              |
+| -------------------- | ----------------------- | ------ | --------------------------------------------- | ------------------- |
+| Create Review        | `/api/reviews`          | POST   | `{"tmdbId": 550, "userId": 2, "rating": 4.5}` | Auth (author/admin) |
+| List Reviews (movie) | `/api/reviews/{tmdbId}` | GET    | -                                             | Public              |
+| Get Review By Id     | `/api/reviews/id/{id}`  | GET    | -                                             | Public              |
+| Update Review        | `/api/reviews/{id}`     | PUT    | `{"body": "Updated", "rating": 4}`            | Auth (author/admin) |
+| Delete Review        | `/api/reviews/{id}`     | DELETE | -                                             | Auth (author/admin) |
 
 ### Watchlist
 
-| Operation | URL | Method | Body | Access |
-| --- | --- | --- | --- | --- |
-| Get Watchlist | `/api/watchlist/{userId}` | GET | - | Auth (self/admin) |
-| Add to Watchlist | `/api/watchlist` | POST | `{"tmdbId": 550, "userId": 2, "status": "planned"}` | Auth (self/admin) |
-| Update Watchlist | `/api/watchlist/{id}` | PUT | `{"status": "completed"}` | Auth (self/admin) |
-| Delete Watchlist | `/api/watchlist/{id}` | DELETE | - | Auth (self/admin) |
+| Operation        | URL                       | Method | Body                                                | Access            |
+| ---------------- | ------------------------- | ------ | --------------------------------------------------- | ----------------- |
+| Get Watchlist    | `/api/watchlist/{userId}` | GET    | -                                                   | Auth (self/admin) |
+| Add to Watchlist | `/api/watchlist`          | POST   | `{"tmdbId": 550, "userId": 2, "status": "planned"}` | Auth (self/admin) |
+| Update Watchlist | `/api/watchlist/{id}`     | PUT    | `{"status": "completed"}`                           | Auth (self/admin) |
+| Delete Watchlist | `/api/watchlist/{id}`     | DELETE | -                                                   | Auth (self/admin) |
 
 ### Users
 
-| Operation | URL | Method | Body | Access |
-| --- | --- | --- | --- | --- |
-| Create User | `/api/users` | POST | `{"username": "alice", "email": "a@example.com", "password": "secret"}` | Public |
-| List Users | `/api/users` | GET | - | Auth |
-| Get User | `/api/users/{id}` | GET | - | Public |
-| Get Me | `/api/users/me` | GET | - | Auth |
-| Logout | `/api/users/logout` | POST | - | Auth |
-| Update User | `/api/users/{id}` | PATCH | `{"email": "new@example.com"}` | Auth (self/admin) |
-| Delete User | `/api/users/{id}` | DELETE | - | Auth (admin only) |
+| Operation   | URL                 | Method | Body                                                                    | Access            |
+| ----------- | ------------------- | ------ | ----------------------------------------------------------------------- | ----------------- |
+| Create User | `/api/users`        | POST   | `{"username": "alice", "email": "a@example.com", "password": "secret"}` | Public            |
+| List Users  | `/api/users`        | GET    | -                                                                       | Auth              |
+| Get User    | `/api/users/{id}`   | GET    | -                                                                       | Public            |
+| Get Me      | `/api/users/me`     | GET    | -                                                                       | Auth              |
+| Logout      | `/api/users/logout` | POST   | -                                                                       | Auth              |
+| Update User | `/api/users/{id}`   | PATCH  | `{"email": "new@example.com"}`                                          | Auth (self/admin) |
+| Delete User | `/api/users/{id}`   | DELETE | -                                                                       | Auth (admin only) |
 
 ## ⚙️ Environment Variables
 

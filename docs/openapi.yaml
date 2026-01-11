@@ -38,10 +38,10 @@ components:
       properties:
         error:
           type: string
-          example: "Unauthorized"
+          example: 'Unauthorized'
         code:
           type: string
-          example: "AUTH_001"
+          example: 'AUTH_001'
 
     MovieSummary:
       type: object
@@ -52,15 +52,15 @@ components:
           example: 129
         title:
           type: string
-          example: "Spirited Away"
+          example: 'Spirited Away'
         poster_path:
           type: string
           nullable: true
-          example: "/poster.jpg"
+          example: '/poster.jpg'
         release_date:
           type: string
           nullable: true
-          example: "2001-07-20"
+          example: '2001-07-20'
         vote_average:
           type: number
           example: 8.5
@@ -73,7 +73,7 @@ components:
           properties:
             overview:
               type: string
-              example: "A young girl enters the world of spirits..."
+              example: 'A young girl enters the world of spirits...'
             genres:
               type: array
               items:
@@ -89,7 +89,7 @@ components:
           example: 16
         name:
           type: string
-          example: "Animation"
+          example: 'Animation'
 
     TmdbPagedMovies:
       type: object
@@ -140,7 +140,7 @@ components:
         body:
           type: string
           nullable: true
-          example: "Loved the visuals and story."
+          example: 'Loved the visuals and story.'
         status:
           type: string
           enum: [draft, published, flagged]
@@ -149,7 +149,7 @@ components:
           type: string
           format: date-time
           nullable: true
-          example: "2026-01-11T07:15:00Z"
+          example: '2026-01-11T07:15:00Z'
       additionalProperties: true
 
     WatchlistEntry:
@@ -173,7 +173,7 @@ components:
           type: string
           format: date-time
           nullable: true
-          example: "2026-01-11T07:15:00Z"
+          example: '2026-01-11T07:15:00Z'
       additionalProperties: true
 
   responses:
@@ -184,8 +184,8 @@ components:
           schema:
             $ref: '#/components/schemas/Error'
           example:
-            error: "Invalid parameters"
-            code: "REQ_400"
+            error: 'Invalid parameters'
+            code: 'REQ_400'
 
     UnauthorizedError:
       description: Unauthorized
@@ -194,8 +194,8 @@ components:
           schema:
             $ref: '#/components/schemas/Error'
           example:
-            error: "Missing or invalid token"
-            code: "AUTH_401"
+            error: 'Missing or invalid token'
+            code: 'AUTH_401'
 
     ForbiddenError:
       description: Forbidden
@@ -204,8 +204,8 @@ components:
           schema:
             $ref: '#/components/schemas/Error'
           example:
-            error: "Forbidden"
-            code: "AUTH_403"
+            error: 'Forbidden'
+            code: 'AUTH_403'
 
     NotFoundError:
       description: Not found
@@ -214,8 +214,8 @@ components:
           schema:
             $ref: '#/components/schemas/Error'
           example:
-            error: "Not found"
-            code: "GEN_404"
+            error: 'Not found'
+            code: 'GEN_404'
 
     ServerError:
       description: Server error
@@ -224,8 +224,8 @@ components:
           schema:
             $ref: '#/components/schemas/Error'
           example:
-            error: "Server error"
-            code: "SRV_500"
+            error: 'Server error'
+            code: 'SRV_500'
 paths:
   /api/movies/trending:
     get:
@@ -537,7 +537,7 @@ paths:
                 properties:
                   message:
                     type: string
-                    example: "Logged out"
+                    example: 'Logged out'
         '401':
           $ref: '#/components/responses/UnauthorizedError'
         '500':
