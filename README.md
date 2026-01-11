@@ -81,6 +81,14 @@ Docs available at `http://localhost:4000/docs` once the server is running.
    DATABASE_URL="postgres://<user>:<password>@localhost:5432/CineCritic"
    JWT_SECRET="YOUR_JWT_SECRET"
    ```
+4. **Local Postgres setup (if needed)**
+   ```sh
+   createdb CineCritic
+   ```
+   If `createdb` is not available, open `psql` and run:
+   ```sql
+   CREATE DATABASE "CineCritic";
+   ```
 4. **Seed the database**
    ```bash
    npm run seed
