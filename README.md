@@ -1,14 +1,24 @@
-# CineCritic API
+# 🎞️ CineCritic API
 
 Backend-only Express API for fetching TMDB data and serving movie endpoints. Frontend will live in a separate repo.
 
-## Code Style Guide
+## 📂 Repositories
+
+- Backend: https://github.com/vetematts/CineCritic-backend.git
+- Frontend: https://github.com/vetematts/CineCritic-frontend.git
+
+## 🚀 Deployed URLs
+
+- Backend API: (to be added)
+- Frontend App: (to be added)
+
+## 📏 Code Style Guide
 
 This project follows the Google JavaScript Style Guide: https://google.github.io/styleguide/jsguide.html
 
 Style is enforced with ESLint (eslint-config-google) and formatting is handled by Prettier. ESLint is configured to defer formatting rules to Prettier to avoid conflicts.
 
-## Dependencies
+## 📦 Dependencies
 
 | Name                                                                                                                                                                           | Description                                     |
 | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------- |
@@ -24,6 +34,23 @@ Style is enforced with ESLint (eslint-config-google) and formatting is handled b
 | [jest](https://www.npmjs.com/package/jest), [supertest](https://www.npmjs.com/package/supertest), [pg-mem](https://www.npmjs.com/package/pg-mem)                               | Testing (unit, integration, in-memory Postgres) |
 | [eslint](https://www.npmjs.com/package/eslint), [prettier](https://www.npmjs.com/package/prettier), [eslint-config-google](https://www.npmjs.com/package/eslint-config-google) | Code style and formatting                       |
 
+## 💻 Hardware Requirements
+
+- CPU: modern dual-core (or better)
+- RAM: 4 GB minimum (8 GB recommended for running Postgres + API + frontend)
+- Disk: ~500 MB for node_modules plus database storage
+
+## 🧭 Technology Choices and Alternatives
+
+- Express + Node: fast to iterate and aligns with class examples; alternative: Fastify for stricter performance/typing.
+- PostgreSQL via `pg`: relational data + constraints suit users/reviews/watchlist; alternative: MongoDB for schema-flexible docs.
+- JWT auth: stateless and simple to integrate with frontend; alternative: server sessions with cookies.
+- Zod validation: clear, reusable schema validation; alternative: express-validator or Joi.
+
+## 📜 Licensing Notes
+
+The project depends on open-source packages under permissive licenses (MIT/ISC/BSD-2/3). See each dependency's npm page for details.
+
 ### Commands
 
 - `npm run lint` # check style + code issues
@@ -38,7 +65,46 @@ Style is enforced with ESLint (eslint-config-google) and formatting is handled b
 
 Docs available at `http://localhost:4000/docs` once the server is running.
 
-## Key Endpoints
+## 🛠️ Backend Install Instructions
+
+1. **Clone the repo**
+   ```bash
+   git clone https://github.com/vetematts/CineCritic-backend.git
+   ```
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
+3. **Create `.env`**
+   ```sh
+   TMDB_API_KEY="YOUR_TMDB_KEY"
+   DATABASE_URL="postgres://<user>:<password>@localhost:5432/CineCritic"
+   JWT_SECRET="YOUR_JWT_SECRET"
+   ```
+4. **Local Postgres setup (if needed)**
+   ```sh
+   createdb CineCritic
+   ```
+   If `createdb` is not available, open `psql` and run:
+   ```sql
+   CREATE DATABASE "CineCritic";
+   ```
+5. **Seed the database**
+   ```bash
+   npm run seed
+   ```
+6. **Start the API**
+   ```bash
+   npm run dev
+   ```
+7. **Login details (seeded users)**
+   ```txt
+   admin@example.com / adminpass
+   demo@example.com / demopass
+   jay.son@payload.dev / json123
+   ```
+
+## 🧩 Key Endpoints
 
 - GET /health – service check
 - Swagger UI: /docs (served from docs/openapi.yaml)
@@ -50,7 +116,59 @@ Docs available at `http://localhost:4000/docs` once the server is running.
   - Role rules: only admins can delete users or change roles; reviews and watchlist mutations require the owner or an admin.
   - PATCH supports updating username/email/password/role (admin only) and `favouriteTmdbId` (sets favourite movie by TMDB id).
 
-## Environment Variables
+## 🧪 Endpoints
+
+### Authentication
+
+| Operation | URL                | Method | Body                                           | Access |
+| --------- | ------------------ | ------ | ---------------------------------------------- | ------ |
+| Login     | `/api/users/login` | POST   | `{"username": "demo", "password": "demopass"}` | Public |
+
+### Movies (TMDB Proxy)
+
+| Operation       | URL                                                                     | Method | Body | Access |
+| --------------- | ----------------------------------------------------------------------- | ------ | ---- | ------ |
+| Trending        | `/api/movies/trending`                                                  | GET    | -    | Public |
+| Top Rated       | `/api/movies/top-rated`                                                 | GET    | -    | Public |
+| Genres          | `/api/movies/genres`                                                    | GET    | -    | Public |
+| Search          | `/api/movies/search?q=QUERY`                                            | GET    | -    | Public |
+| Advanced Search | `/api/movies/advanced?query=&year=&genres=&crew=&ratingMin=&ratingMax=` | GET    | -    | Public |
+| By Year         | `/api/movies/year/{year}`                                               | GET    | -    | Public |
+| By Genre        | `/api/movies/genre/{id}`                                                | GET    | -    | Public |
+| By TMDB Id      | `/api/movies/{id}`                                                      | GET    | -    | Public |
+
+### Reviews
+
+| Operation            | URL                     | Method | Body                                          | Access              |
+| -------------------- | ----------------------- | ------ | --------------------------------------------- | ------------------- |
+| Create Review        | `/api/reviews`          | POST   | `{"tmdbId": 550, "userId": 2, "rating": 4.5}` | Auth (author/admin) |
+| List Reviews (movie) | `/api/reviews/{tmdbId}` | GET    | -                                             | Public              |
+| Get Review By Id     | `/api/reviews/id/{id}`  | GET    | -                                             | Public              |
+| Update Review        | `/api/reviews/{id}`     | PUT    | `{"body": "Updated", "rating": 4}`            | Auth (author/admin) |
+| Delete Review        | `/api/reviews/{id}`     | DELETE | -                                             | Auth (author/admin) |
+
+### Watchlist
+
+| Operation        | URL                       | Method | Body                                                | Access            |
+| ---------------- | ------------------------- | ------ | --------------------------------------------------- | ----------------- |
+| Get Watchlist    | `/api/watchlist/{userId}` | GET    | -                                                   | Auth (self/admin) |
+| Add to Watchlist | `/api/watchlist`          | POST   | `{"tmdbId": 550, "userId": 2, "status": "planned"}` | Auth (self/admin) |
+| Update Watchlist | `/api/watchlist/{id}`     | PUT    | `{"status": "completed"}`                           | Auth (self/admin) |
+| Delete Watchlist | `/api/watchlist/{id}`     | DELETE | -                                                   | Auth (self/admin) |
+
+### Users
+
+| Operation   | URL                 | Method | Body                                                                    | Access            |
+| ----------- | ------------------- | ------ | ----------------------------------------------------------------------- | ----------------- |
+| Create User | `/api/users`        | POST   | `{"username": "alice", "email": "a@example.com", "password": "secret"}` | Public            |
+| List Users  | `/api/users`        | GET    | -                                                                       | Auth              |
+| Get User    | `/api/users/{id}`   | GET    | -                                                                       | Public            |
+| Get Me      | `/api/users/me`     | GET    | -                                                                       | Auth              |
+| Logout      | `/api/users/logout` | POST   | -                                                                       | Auth              |
+| Update User | `/api/users/{id}`   | PATCH  | `{"email": "new@example.com"}`                                          | Auth (self/admin) |
+| Delete User | `/api/users/{id}`   | DELETE | -                                                                       | Auth (admin only) |
+
+## ⚙️ Environment Variables
 
 Copy `.env.example` to `.env` and set your values:
 
@@ -59,7 +177,7 @@ Copy `.env.example` to `.env` and set your values:
 - `JWT_SECRET` (required for auth): secret key for signing JWTs
 <!-- - `OMDB_API_KEY` (optional): OMDb key if you add extra ratings -->
 
-## Authentication
+## 🔐 Authentication
 
 - Login via `POST /api/users/login` to receive a JWT (`token`); default expiry 1 hour.
 - Send the token on protected routes using `Authorization: Bearer <token>`.
