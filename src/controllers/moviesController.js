@@ -11,6 +11,7 @@ import {
   discoverMovies,
 } from '../services/tmdb.js';
 import { upsertMovie } from '../models/movies.js';
+import { setMovieGenres, upsertGenre } from '../models/genres.js';
 
 export async function getTrendingHandler(req, res) {
   const results = await getTrending('movie');
@@ -69,13 +70,26 @@ export async function getByIdHandler(req, res) {
   const result = await getContentById(Number(id), 'movie');
 
   const releaseYear = result.release_date ? new Date(result.release_date).getFullYear() : null;
-  await upsertMovie({
+  const movieRow = await upsertMovie({
     tmdbId: result.id,
     title: result.title,
     releaseYear,
     posterUrl: getPosterUrl(result.poster_path),
     contentType: 'movie',
   });
+
+  if (Array.isArray(result.genres) && result.genres.length) {
+    const genreRows = await Promise.all(
+      result.genres.map((genre) =>
+        upsertGenre({
+          tmdbId: genre.id,
+          name: genre.name,
+        })
+      )
+    );
+    const genreIds = genreRows.map((genre) => genre.id);
+    await setMovieGenres(movieRow.id, genreIds);
+  }
 
   res.json(result);
 }
