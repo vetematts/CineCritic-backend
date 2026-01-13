@@ -33,6 +33,18 @@ export async function createTables(dbPool = pool) {
       CONSTRAINT ck_movies_content_type CHECK (content_type IN ('movie', 'tv'))
     );
 
+    CREATE TABLE IF NOT EXISTS genres (
+      id SERIAL PRIMARY KEY,
+      tmdb_id INTEGER NOT NULL UNIQUE,
+      name TEXT NOT NULL
+    );
+
+    CREATE TABLE IF NOT EXISTS movie_genres (
+      movie_id INTEGER NOT NULL REFERENCES movies(id) ON DELETE CASCADE,
+      genre_id INTEGER NOT NULL REFERENCES genres(id) ON DELETE CASCADE,
+      PRIMARY KEY (movie_id, genre_id)
+    );
+
     CREATE TABLE IF NOT EXISTS reviews (
       id SERIAL PRIMARY KEY,
       rating NUMERIC(2,1) NOT NULL,
