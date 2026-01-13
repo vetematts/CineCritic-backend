@@ -35,4 +35,33 @@ describe('database schema', () => {
     client.release();
     await pool.end();
   }, 10000);
+
+  test('genres and movie_genres tables exist with expected columns', async () => {
+    const mem = newDb();
+    const pg = mem.adapters.createPg();
+    const pool = new pg.Pool();
+    await createTables(pool);
+
+    const client = await pool.connect();
+    const genresColumnsResult = await client.query(
+      `SELECT column_name
+       FROM information_schema.columns
+       WHERE table_name = 'genres'
+       ORDER BY column_name;`
+    );
+    const genresColumns = genresColumnsResult.rows.map((row) => row.column_name);
+    expect(genresColumns).toEqual(expect.arrayContaining(['id', 'tmdb_id', 'name']));
+
+    const joinColumnsResult = await client.query(
+      `SELECT column_name
+       FROM information_schema.columns
+       WHERE table_name = 'movie_genres'
+       ORDER BY column_name;`
+    );
+    const joinColumns = joinColumnsResult.rows.map((row) => row.column_name);
+    expect(joinColumns).toEqual(expect.arrayContaining(['movie_id', 'genre_id']));
+
+    client.release();
+    await pool.end();
+  }, 10000);
 });
