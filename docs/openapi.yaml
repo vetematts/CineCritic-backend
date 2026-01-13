@@ -396,6 +396,7 @@ paths:
   /api/movies/{id}:
     get:
       summary: Get movie by TMDB id
+      description: Fetches TMDB details and caches the movie/genres in Postgres.
       parameters:
         - in: path
           name: id

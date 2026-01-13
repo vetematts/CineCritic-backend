@@ -126,6 +126,8 @@ Docs available at `http://localhost:4000/docs` once the server is running.
 
 ### Movies (TMDB Proxy)
 
+Note: `/api/movies/{id}` caches the movie and its genres into Postgres (`movies`, `genres`, `movie_genres`).
+
 | Operation       | URL                                                                     | Method | Body | Access |
 | --------------- | ----------------------------------------------------------------------- | ------ | ---- | ------ |
 | Trending        | `/api/movies/trending`                                                  | GET    | -    | Public |
