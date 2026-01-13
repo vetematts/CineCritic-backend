@@ -69,6 +69,40 @@ async function addWatchlist({ userId, movieId, status = 'planned' }) {
   );
 }
 
+async function upsertGenre({ tmdbId, name }) {
+  const insertSql = `
+    INSERT INTO genres (tmdb_id, name)
+    VALUES ($1, $2)
+    ON CONFLICT (tmdb_id) DO UPDATE
+      SET name = EXCLUDED.name
+    RETURNING id;
+  `;
+  const { rows } = await pool.query(insertSql, [tmdbId, name]);
+  return rows[0]?.id;
+}
+
+async function setMovieGenres(movieId, genres) {
+  if (!genres?.length) return;
+
+  const genreIds = [];
+  for (const genre of genres) {
+    const genreId = await upsertGenre(genre);
+    if (genreId) genreIds.push(genreId);
+  }
+
+  await pool.query('DELETE FROM movie_genres WHERE movie_id = $1', [movieId]);
+  if (!genreIds.length) return;
+
+  const placeholders = genreIds.map((_, index) => `($1, $${index + 2})`).join(', ');
+  const values = [movieId, ...genreIds];
+  await pool.query(
+    `INSERT INTO movie_genres (movie_id, genre_id)
+     VALUES ${placeholders}
+     ON CONFLICT DO NOTHING`,
+    values
+  );
+}
+
 async function seed() {
   await createTables();
 
@@ -99,6 +133,10 @@ async function seed() {
     releaseYear: 1999,
     posterUrl: '/a26cQPRhJPX6GbWfQbvZdrrp9j9.jpg',
   });
+  await setMovieGenres(fightClubId, [
+    { tmdbId: 18, name: 'Drama' },
+    { tmdbId: 53, name: 'Thriller' },
+  ]);
 
   const duneId = await upsertMovie({
     tmdbId: 438631,
@@ -106,6 +144,10 @@ async function seed() {
     releaseYear: 2024,
     posterUrl: '/1pdfLvkbY9ohJlCjQH2CZjjYVvJ.jpg',
   });
+  await setMovieGenres(duneId, [
+    { tmdbId: 878, name: 'Science Fiction' },
+    { tmdbId: 12, name: 'Adventure' },
+  ]);
 
   const rushHourId = await upsertMovie({
     tmdbId: 2109,
@@ -113,6 +155,11 @@ async function seed() {
     releaseYear: 1998,
     posterUrl: null,
   });
+  await setMovieGenres(rushHourId, [
+    { tmdbId: 28, name: 'Action' },
+    { tmdbId: 35, name: 'Comedy' },
+    { tmdbId: 80, name: 'Crime' },
+  ]);
 
   const jasonBourneId = await upsertMovie({
     tmdbId: 324668,
@@ -120,6 +167,10 @@ async function seed() {
     releaseYear: 2016,
     posterUrl: null,
   });
+  await setMovieGenres(jasonBourneId, [
+    { tmdbId: 28, name: 'Action' },
+    { tmdbId: 53, name: 'Thriller' },
+  ]);
 
   const freddyVsJasonId = await upsertMovie({
     tmdbId: 6466,
@@ -127,6 +178,7 @@ async function seed() {
     releaseYear: 2003,
     posterUrl: null,
   });
+  await setMovieGenres(freddyVsJasonId, [{ tmdbId: 27, name: 'Horror' }]);
 
   const jasonXId = await upsertMovie({
     tmdbId: 11499,
@@ -134,6 +186,10 @@ async function seed() {
     releaseYear: 2001,
     posterUrl: null,
   });
+  await setMovieGenres(jasonXId, [
+    { tmdbId: 27, name: 'Horror' },
+    { tmdbId: 878, name: 'Science Fiction' },
+  ]);
 
   const minionsGruId = await upsertMovie({
     tmdbId: 438148,
@@ -141,6 +197,11 @@ async function seed() {
     releaseYear: 2022,
     posterUrl: null,
   });
+  await setMovieGenres(minionsGruId, [
+    { tmdbId: 16, name: 'Animation' },
+    { tmdbId: 35, name: 'Comedy' },
+    { tmdbId: 10751, name: 'Family' },
+  ]);
 
   await addReview({
     userId: adminId,
