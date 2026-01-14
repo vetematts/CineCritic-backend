@@ -7,7 +7,7 @@ Backend-only Express API for fetching TMDB data and serving movie endpoints. Fro
 - Backend: https://github.com/vetematts/CineCritic-backend.git
 - Frontend: https://github.com/vetematts/CineCritic-frontend.git
 - Live API Docs (GitHub Pages): https://vetematts.github.io/CineCritic-backend/
-- Local Swagger UI: http://localhost:4000/api-docs
+- Local Swagger UI: http://localhost:4000/docs (alias: http://localhost:4000/api-docs)
 
 ## 🚀 Deployed URLs
 

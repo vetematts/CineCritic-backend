@@ -41,6 +41,7 @@ app.use('/api/reviews', reviewsRouter);
 app.use('/api/watchlist', watchlistRouter);
 app.use('/api/users', usersRouter);
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDoc));
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDoc));
 
 app.use(notFound);
 app.use(errorHandler);
