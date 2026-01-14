@@ -5,7 +5,7 @@ export async function createTables(dbPool = pool) {
   try {
     await dbPool.query("CREATE TYPE review_status_enum AS ENUM ('draft', 'published', 'flagged');");
   } catch (err) {
-    // 42710 = duplicate_object (type already exists)
+    // Ignore if the enum already exists.
     if (err.code !== '42710') {
       throw err;
     }

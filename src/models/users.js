@@ -39,6 +39,7 @@ export async function listUsers() {
 }
 
 export async function updateUser(id, fields) {
+  // Build an update query only for fields that were provided.
   const updates = [];
   const values = [];
   let idx = 1;

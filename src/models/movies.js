@@ -9,6 +9,7 @@ export async function upsertMovie({
   posterUrl,
   contentType = 'movie',
 }) {
+  // Insert or update by TMDB id so cached movies stay current.
   const query = `
     INSERT INTO movies (tmdb_id, title, release_year, poster_url, content_type)
     VALUES ($1, $2, $3, $4, $5)

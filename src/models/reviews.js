@@ -34,6 +34,7 @@ export async function getReviewById(id) {
 }
 
 export async function updateReview(id, fields) {
+  // Build an update query only for fields that were provided.
   const updates = [];
   const values = [];
   let idx = 1;
