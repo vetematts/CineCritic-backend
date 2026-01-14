@@ -4,7 +4,9 @@ on:
     branches: [main] # Runs every time push to the main branch
 
 permissions:
-  contents: write
+  contents: read
+  pages: write
+  id-token: write
 
 jobs:
   build-and-deploy:
@@ -18,10 +20,11 @@ jobs:
         with:
           output: swagger-ui
           spec-file: docs/openapi.yaml # Path to OpenAPI file
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: swagger-ui
 
       - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: swagger-ui
+        uses: actions/deploy-pages@v4
