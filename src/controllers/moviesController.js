@@ -53,6 +53,7 @@ export async function searchHandler(req, res) {
 
 export async function advancedSearchHandler(req, res) {
   const { parsed } = req;
+  // Use validated query params from the middleware to build TMDB discover filters.
   const results = await discoverMovies({
     query: parsed.query,
     year: parsed.year,
@@ -79,6 +80,7 @@ export async function getByIdHandler(req, res) {
   });
 
   if (Array.isArray(result.genres) && result.genres.length) {
+    // Persist TMDB genres and link them to the cached movie.
     const genreRows = await Promise.all(
       result.genres.map((genre) =>
         upsertGenre({
