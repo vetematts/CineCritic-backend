@@ -1,0 +1,30 @@
+name: Deploy API Docs
+on:
+  push:
+    branches: [main] # Runs every time push to the main branch
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Generate Swagger UI
+        uses: Legion2/swagger-ui-action@v1
+        with:
+          output: swagger-ui
+          spec-file: docs/openapi.yaml # Path to OpenAPI file
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: swagger-ui
+
+      - name: Deploy to GitHub Pages
+        uses: actions/deploy-pages@v4
