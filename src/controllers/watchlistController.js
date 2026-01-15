@@ -10,6 +10,7 @@ import {
 import { BadRequestError, ForbiddenError, NotFoundError } from '../errors/http.js';
 
 async function ensureMovieId(tmdbId) {
+  // Cache the TMDB movie locally so watchlist entries can reference a DB id.
   const existingId = await getMovieIdByTmdbId(Number(tmdbId));
   if (existingId) return existingId;
   const movie = await getContentById(Number(tmdbId), 'movie');

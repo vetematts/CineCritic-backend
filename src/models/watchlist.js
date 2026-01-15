@@ -3,6 +3,7 @@ import pool from './database.js';
 const baseColumns = 'id, user_id, movie_id, status, added_at';
 
 export async function addToWatchlist({ userId, movieId, status = 'planned' }) {
+  // Keep one row per user/movie pair and update the status on conflict.
   const query = `
     INSERT INTO watchlist (user_id, movie_id, status)
     VALUES ($1, $2, $3)

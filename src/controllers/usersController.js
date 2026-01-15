@@ -16,12 +16,14 @@ import { BadRequestError, ForbiddenError, NotFoundError } from '../errors/http.j
 const roles = ['user', 'admin'];
 
 function hashPassword(password) {
+  // Add a random string before hashing so identical passwords don't match.
   const salt = crypto.randomBytes(16).toString('hex');
   const hash = crypto.pbkdf2Sync(password, salt, 100000, 64, 'sha512').toString('hex');
   return `${salt}:${hash}`;
 }
 
 function verifyPassword(password, storedHash) {
+  // Compare without leaking timing clues.
   if (!storedHash || !storedHash.includes(':')) return false;
   const [salt, hash] = storedHash.split(':');
   const attempted = crypto.pbkdf2Sync(password, salt, 100000, 64, 'sha512').toString('hex');
@@ -29,12 +31,14 @@ function verifyPassword(password, storedHash) {
 }
 
 function sanitizeUser(user) {
+  // Never return password hashes to users.
   if (!user) return null;
   const { password_hash: _passwordHash, ...rest } = user;
   return rest;
 }
 
 async function ensureMovieId(tmdbId) {
+  // Cache the favourite TMDB movie locally so a FK can be stored.
   const existingId = await getMovieIdByTmdbId(Number(tmdbId));
   if (existingId) return existingId;
   const movie = await getContentById(Number(tmdbId), 'movie');

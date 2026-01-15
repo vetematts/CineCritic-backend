@@ -20,6 +20,7 @@ export async function getGenreIdByTmdbId(tmdbId) {
 }
 
 export async function setMovieGenres(movieId, genreIds) {
+  // Replace all genres for a movie with the provided list.
   await pool.query('DELETE FROM movie_genres WHERE movie_id = $1', [movieId]);
 
   if (!genreIds?.length) {

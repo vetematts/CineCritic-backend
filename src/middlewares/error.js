@@ -1,7 +1,7 @@
 import { HttpError } from '../errors/http.js';
 import { logger } from '../utils/errorLogger.js';
 
-// General error handler for the app
+// Final error handler that keeps API responses consistent.
 // eslint-disable-next-line no-unused-vars
 export function errorHandler(err, req, res, next) {
   logger.error(err);

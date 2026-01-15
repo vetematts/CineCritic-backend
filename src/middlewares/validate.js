@@ -6,6 +6,7 @@ export function validate(schema) {
         query: req.query,
         body: req.body,
       });
+      // Store validated data so handlers don't read raw input.
       req.validated = parsed;
       next();
     } catch (err) {

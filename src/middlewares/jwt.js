@@ -1,5 +1,6 @@
 import jwt from 'jsonwebtoken';
 
+// Use a fallback secret only for local development.
 const secret = process.env.JWT_SECRET || 'dev-secret';
 
 export function signJwt(payload, options = {}) {
