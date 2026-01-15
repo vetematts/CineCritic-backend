@@ -33,7 +33,7 @@ Style is enforced with ESLint (eslint-config-google) and formatting is handled b
 | [jsonwebtoken](https://www.npmjs.com/package/jsonwebtoken)                                                                                                                     | JWT signing/verification for auth               |
 | [swagger-ui-express](https://www.npmjs.com/package/swagger-ui-express), [yamljs](https://www.npmjs.com/package/yamljs)                                                         | Serve Swagger docs from openapi.yaml            |
 | [zod](https://www.npmjs.com/package/zod)                                                                                                                                       | Request schema validation for routes            |
-| [jest](https://www.npmjs.com/package/jest), [supertest](https://www.npmjs.com/package/supertest), [pg-mem](https://www.npmjs.com/package/pg-mem)                               | Testing (unit, integration, in-memory Postgres) |
+| [jest](https://www.npmjs.com/package/jest), [supertest](https://www.npmjs.com/package/supertest), [pg-mem](https://www.npmjs.com/package/pg-mem)                               | Testing (unit, integration, pg-mem for in-memory Postgres) |
 | [eslint](https://www.npmjs.com/package/eslint), [prettier](https://www.npmjs.com/package/prettier), [eslint-config-google](https://www.npmjs.com/package/eslint-config-google) | Code style and formatting                       |
 
 ## 💻 Hardware Requirements
