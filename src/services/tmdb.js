@@ -8,6 +8,7 @@ const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
 const responseCache = new Map();
 
 async function fetchFromTMDB(endpoint, params = {}) {
+  // Use a short-lived cache to reduce repeated TMDB calls.
   if (!TMDB_API_KEY) {
     const error = new Error('TMDB_API_KEY is not set');
     error.status = 500;
@@ -29,7 +30,7 @@ async function fetchFromTMDB(endpoint, params = {}) {
   const response = await fetch(url.toString());
 
   if (!response.ok) {
-    // Handle rate limiting gracefully
+    // Retry once if TMDB is rate limiting requests.
     if (response.status === 429) {
       await new Promise((resolve) => setTimeout(resolve, 1000));
       return fetchFromTMDB(endpoint, params);
@@ -48,6 +49,7 @@ async function fetchFromTMDB(endpoint, params = {}) {
 }
 
 export function getPosterUrl(path, size = 'w500') {
+  // Build a full TMDB image URL from the poster path.
   if (!path) return null;
   return `${TMDB_IMAGE_BASE_URL}/${size}${path}`;
 }
@@ -120,6 +122,7 @@ export async function searchContent(query, contentType = 'movie', page = 1) {
 const genreCache = {};
 
 export async function getCachedGenres(contentType = 'movie') {
+  // Cache the genre list in memory to avoid extra TMDB calls.
   if (genreCache[contentType]) {
     return genreCache[contentType];
   }
@@ -146,6 +149,7 @@ export async function discoverMovies({
   crewName,
   page = 1,
 }) {
+  // If a crew name is provided, resolve it to a TMDB person id first.
   let withPeople;
   if (crewName) {
     const person = await searchPerson(crewName);
