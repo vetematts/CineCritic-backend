@@ -10,7 +10,10 @@ export function errorHandler(err, req, res, next) {
   const message = err instanceof HttpError ? err.message : err.message || 'Internal Server Error';
 
   res.status(status).json({
+    success: false,
+    status,
     error: message,
     code,
+    timestamp: new Date().toISOString(),
   });
 }

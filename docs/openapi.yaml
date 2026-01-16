@@ -34,14 +34,24 @@ components:
 
     Error:
       type: object
-      required: [error, code]
+      required: [success, status, error, code, timestamp]
       properties:
+        success:
+          type: boolean
+          example: false
+        status:
+          type: integer
+          example: 401
         error:
           type: string
           example: 'Unauthorized'
         code:
           type: string
-          example: 'AUTH_001'
+          example: 'unauthorised'
+        timestamp:
+          type: string
+          format: date-time
+          example: '2024-01-15T10:30:00.000Z'
 
     MovieSummary:
       type: object

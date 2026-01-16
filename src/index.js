@@ -12,6 +12,7 @@ import watchlistRouter from './routes/watchlist.js';
 import usersRouter from './routes/users.js';
 import { errorHandler } from './middlewares/error.js';
 import { notFound } from './middlewares/notFound.js';
+import { requestLogger } from './middlewares/logger.js';
 import pool from './models/database.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -23,6 +24,9 @@ const app = express();
 app.use(helmet());
 app.use(cors());
 app.use(express.json());
+
+// Request logging middleware (should be early in the stack to log all requests)
+app.use(requestLogger);
 
 // Limit how many requests one IP can make in a short time to protect TMDB and the server.
 const apiLimiter = rateLimit({
