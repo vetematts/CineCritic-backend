@@ -12,6 +12,7 @@ import watchlistRouter from './routes/watchlist.js';
 import usersRouter from './routes/users.js';
 import { errorHandler } from './middlewares/error.js';
 import { notFound } from './middlewares/notFound.js';
+import pool from './models/database.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -34,6 +35,25 @@ const apiLimiter = rateLimit({
 app.use('/api', apiLimiter);
 app.get('/health', (req, res) => {
   res.json({ status: 'ok' });
+});
+
+// Database health check endpoint
+app.get('/api/health/database', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT NOW() as timestamp, version() as version');
+    res.json({
+      status: 'ok',
+      database: 'connected',
+      timestamp: result.rows[0].timestamp,
+      version: result.rows[0].version.split(' ')[0] + ' ' + result.rows[0].version.split(' ')[1],
+    });
+  } catch (err) {
+    res.status(503).json({
+      status: 'error',
+      database: 'disconnected',
+      error: err.message,
+    });
+  }
 });
 
 app.use('/api/movies', moviesRouter);

@@ -227,6 +227,66 @@ components:
             error: 'Server error'
             code: 'SRV_500'
 paths:
+  /health:
+    get:
+      summary: Basic health check
+      description: Returns a simple status check without database verification
+      tags:
+        - Health
+      responses:
+        '200':
+          description: Service is running
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: 'ok'
+  /api/health/database:
+    get:
+      summary: Database health check
+      description: Verifies database connectivity and returns connection status
+      tags:
+        - Health
+      responses:
+        '200':
+          description: Database is connected
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: 'ok'
+                  database:
+                    type: string
+                    example: 'connected'
+                  timestamp:
+                    type: string
+                    format: date-time
+                    example: '2024-01-15T10:30:00.000Z'
+                  version:
+                    type: string
+                    example: 'PostgreSQL 15.0'
+        '503':
+          description: Database is disconnected
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: 'error'
+                  database:
+                    type: string
+                    example: 'disconnected'
+                  error:
+                    type: string
+                    example: 'Connection timeout'
   /api/movies/trending:
     get:
       summary: Get trending movies

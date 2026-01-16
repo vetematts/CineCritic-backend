@@ -83,6 +83,24 @@ describe('health', () => {
     expect(res._getStatusCode()).toBe(200);
     expect(res._getJSONData()).toEqual({ status: 'ok' });
   });
+
+  test('database health check returns connected status', async () => {
+    const req = createRequest({ method: 'GET', url: '/api/health/database' });
+    const res = createResponse();
+    const { default: app } = await import('../src/index.js');
+    await new Promise((resolve, reject) => {
+      res.on('end', () => resolve());
+      app.handle(req, res, (err) => {
+        if (err) reject(err);
+      });
+    });
+    expect(res._getStatusCode()).toBe(200);
+    const body = res._getJSONData();
+    expect(body.status).toBe('ok');
+    expect(body.database).toBe('connected');
+    expect(body.timestamp).toBeDefined();
+    expect(body.version).toBeDefined();
+  });
 });
 
 describe('movies routes', () => {
