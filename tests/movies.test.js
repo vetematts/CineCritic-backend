@@ -49,8 +49,17 @@ beforeAll(() => {
   });
 });
 
-afterAll(() => {
+afterAll(async () => {
   global.fetch = undefined;
+  // Close database pool if it was imported
+  try {
+    const pool = (await import('../src/models/database.js')).default;
+    if (pool && typeof pool.end === 'function') {
+      await pool.end();
+    }
+  } catch {
+    // Pool might not be imported, ignore
+  }
 });
 
 async function runRouter(method, url, { query } = {}) {
