@@ -103,7 +103,7 @@ async function fetchFromTMDB(endpoint, params = {}) {
   let json;
   try {
     json = await response.json();
-  } catch (parseError) {
+  } catch {
     const error = new Error('Invalid response from TMDB API');
     error.status = 502;
     error.name = 'ParseError';
