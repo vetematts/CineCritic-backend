@@ -44,10 +44,29 @@ Style is enforced with ESLint (eslint-config-google) and formatting is handled b
 
 ## 🧭 Technology Choices and Alternatives
 
-- Express + Node: fast to iterate and aligns with class examples; alternative: Fastify for stricter performance/typing.
-- PostgreSQL via `pg`: relational data + constraints suit users/reviews/watchlist; alternative: MongoDB for schema-flexible docs.
-- JWT auth: stateless and simple to integrate with frontend; alternative: server sessions with cookies.
-- Zod validation: clear, reusable schema validation; alternative: express-validator or Joi.
+### Core Framework & Database
+
+**Express.js + Node.js**
+- **Purpose:** Web framework for building RESTful APIs
+- **Why Chosen:** Fast development iteration, extensive middleware ecosystem, large community support, excellent documentation
+- **Alternatives:** Fastify (faster performance, stricter typing), Koa (modern async/await patterns), NestJS (TypeScript-first with dependency injection)
+
+**PostgreSQL via `pg` (node-postgres)**
+- **Purpose:** Relational database for storing users, movies, reviews, watchlist with ACID compliance
+- **Why Chosen:** Relational structure suits user-reviews-watchlist relationships, strong data integrity with foreign keys, excellent query support
+- **Alternatives:** MongoDB (document-based, flexible schemas), MySQL (similar but fewer advanced features), SQLite (file-based, not suitable for production)
+
+### Authentication & Validation
+
+**JWT (jsonwebtoken)**
+- **Purpose:** Stateless authentication using JSON Web Tokens
+- **Why Chosen:** Stateless authentication scales well (no session storage needed), simple to implement, industry-standard approach
+- **Alternatives:** Server-side sessions with cookies (more secure, can revoke sessions), OAuth 2.0 (better for third-party auth but more complex)
+
+**Zod**
+- **Purpose:** Runtime schema validation for request bodies, query parameters, and URL parameters
+- **Why Chosen:** Modern API with clear error messages, reusable schemas, excellent developer experience, strong type inference
+- **Alternatives:** express-validator (Express-specific, middleware-oriented), Joi (mature validation library), Yup (similar to Zod but less popular)
 
 ## 📜 Licensing Notes
 
