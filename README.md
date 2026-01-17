@@ -47,11 +47,13 @@ Style is enforced with ESLint (eslint-config-google) and formatting is handled b
 ### Core Framework & Database
 
 **Express.js + Node.js**
+
 - **Purpose:** Web framework for building RESTful APIs
 - **Why Chosen:** Fast development iteration, extensive middleware ecosystem, large community support, excellent documentation
 - **Alternatives:** Fastify (faster performance, stricter typing), Koa (modern async/await patterns), NestJS (TypeScript-first with dependency injection)
 
 **PostgreSQL via `pg` (node-postgres)**
+
 - **Purpose:** Relational database for storing users, movies, reviews, watchlist with ACID compliance
 - **Why Chosen:** Relational structure suits user-reviews-watchlist relationships, strong data integrity with foreign keys, excellent query support
 - **Alternatives:** MongoDB (document-based, flexible schemas), MySQL (similar but fewer advanced features), SQLite (file-based, not suitable for production)
@@ -59,11 +61,13 @@ Style is enforced with ESLint (eslint-config-google) and formatting is handled b
 ### Authentication & Validation
 
 **JWT (jsonwebtoken)**
+
 - **Purpose:** Stateless authentication using JSON Web Tokens
 - **Why Chosen:** Stateless authentication scales well (no session storage needed), simple to implement, industry-standard approach
 - **Alternatives:** Server-side sessions with cookies (more secure, can revoke sessions), OAuth 2.0 (better for third-party auth but more complex)
 
 **Zod**
+
 - **Purpose:** Runtime schema validation for request bodies, query parameters, and URL parameters
 - **Why Chosen:** Modern API with clear error messages, reusable schemas, excellent developer experience, strong type inference
 - **Alternatives:** express-validator (Express-specific, middleware-oriented), Joi (mature validation library), Yup (similar to Zod but less popular)

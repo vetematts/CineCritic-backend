@@ -11,7 +11,13 @@ import {
   deleteUser,
 } from '../models/users.js';
 import { signJwt } from '../middlewares/jwt.js';
-import { BadRequestError, ForbiddenError, NotFoundError, UnauthorisedError, ConflictError } from '../errors/http.js';
+import {
+  BadRequestError,
+  ForbiddenError,
+  NotFoundError,
+  UnauthorisedError,
+  ConflictError,
+} from '../errors/http.js';
 
 const roles = ['user', 'admin'];
 

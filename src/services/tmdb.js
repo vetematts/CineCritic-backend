@@ -51,7 +51,9 @@ async function fetchFromTMDB(endpoint, params = {}) {
 
     // Handle network errors (ECONNREFUSED, ENOTFOUND, etc.)
     if (fetchError.code === 'ECONNREFUSED' || fetchError.code === 'ENOTFOUND') {
-      const error = new Error('Unable to connect to TMDB API. Please check your internet connection.');
+      const error = new Error(
+        'Unable to connect to TMDB API. Please check your internet connection.'
+      );
       error.status = 503;
       error.name = 'NetworkError';
       throw error;
