@@ -70,27 +70,53 @@ export async function getByIdHandler(req, res) {
   const { id } = req.params;
   const result = await getContentById(Number(id), 'movie');
 
-  const releaseYear = result.release_date ? new Date(result.release_date).getFullYear() : null;
+  // Validate that result has required fields
+  if (!result || !result.id) {
+    throw new BadRequestError('Invalid movie data received from TMDB');
+  }
+
+  // Safely extract release year, handling invalid dates
+  let releaseYear = null;
+  if (result.release_date) {
+    const date = new Date(result.release_date);
+    if (!isNaN(date.getTime())) {
+      releaseYear = date.getFullYear();
+    }
+  }
+
   const movieRow = await upsertMovie({
     tmdbId: result.id,
-    title: result.title,
+    title: result.title || null,
     releaseYear,
     posterUrl: getPosterUrl(result.poster_path),
     contentType: 'movie',
   });
 
-  if (Array.isArray(result.genres) && result.genres.length) {
+  // Only process genres if movie was successfully saved
+  if (movieRow && movieRow.id && Array.isArray(result.genres) && result.genres.length) {
     // Persist TMDB genres and link them to the cached movie.
-    const genreRows = await Promise.all(
-      result.genres.map((genre) =>
-        upsertGenre({
-          tmdbId: genre.id,
-          name: genre.name,
-        })
-      )
-    );
-    const genreIds = genreRows.map((genre) => genre.id);
-    await setMovieGenres(movieRow.id, genreIds);
+    // Filter out any genres with missing required fields to prevent errors
+    const validGenres = result.genres.filter((genre) => genre && genre.id && genre.name);
+    if (validGenres.length > 0) {
+      try {
+        const genreRows = await Promise.all(
+          validGenres.map((genre) =>
+            upsertGenre({
+              tmdbId: genre.id,
+              name: genre.name,
+            })
+          )
+        );
+        const genreIds = genreRows.map((genre) => genre.id).filter((id) => id != null);
+        if (genreIds.length > 0) {
+          await setMovieGenres(movieRow.id, genreIds);
+        }
+      } catch (genreError) {
+        // Log genre error but don't fail the entire request
+        // The movie data is still valid even if genre linking fails
+        console.error('Error processing genres:', genreError);
+      }
+    }
   }
 
   res.json(result);
