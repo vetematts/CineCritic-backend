@@ -1,3 +1,5 @@
+import { BadRequestError } from '../errors/http.js';
+
 export function validate(schema) {
   return (req, res, next) => {
     try {
@@ -11,7 +13,10 @@ export function validate(schema) {
       next();
     } catch (err) {
       const first = err?.errors?.[0];
-      return res.status(400).json({ error: first?.message || 'Invalid request' });
+      const message = first?.message || 'Invalid request';
+      // Use custom error class so it goes through error handler middleware
+      // which provides consistent error format (success, status, error, code, timestamp)
+      return next(new BadRequestError(message, 'validation_error'));
     }
   };
 }

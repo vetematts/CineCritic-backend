@@ -11,7 +11,7 @@ import {
   deleteUser,
 } from '../models/users.js';
 import { signJwt } from '../middlewares/jwt.js';
-import { BadRequestError, ForbiddenError, NotFoundError } from '../errors/http.js';
+import { BadRequestError, ForbiddenError, NotFoundError, UnauthorisedError, ConflictError } from '../errors/http.js';
 
 const roles = ['user', 'admin'];
 
@@ -69,7 +69,7 @@ export async function createUserHandler(req, res) {
     res.status(201).json(sanitizeUser(user));
   } catch (err) {
     if (err.code === '23505') {
-      return res.status(409).json({ error: 'username or email already exists' });
+      throw new ConflictError('username or email already exists');
     }
     throw err;
   }
@@ -81,7 +81,7 @@ export async function loginHandler(req, res) {
     (username && (await getUserByUsername(username))) || (email && (await getUserByEmail(email)));
 
   if (!user || !verifyPassword(password, user.password_hash)) {
-    return res.status(401).json({ error: 'Invalid credentials' });
+    throw new UnauthorisedError('Invalid credentials');
   }
 
   const token = signJwt({ sub: user.id, role: user.role, username: user.username });
@@ -142,7 +142,7 @@ export async function updateUserHandler(req, res) {
     res.json(sanitizeUser(updated));
   } catch (err) {
     if (err.code === '23505') {
-      return res.status(409).json({ error: 'username or email already exists', code: 'conflict' });
+      throw new ConflictError('username or email already exists');
     }
     throw err;
   }
@@ -152,7 +152,7 @@ export async function deleteUserHandler(req, res) {
   const { id } = req.params;
   const removed = await deleteUser(Number(id));
   if (!removed) {
-    return res.status(404).json({ error: 'User not found' });
+    throw new NotFoundError('User not found');
   }
   res.status(204).send();
 }
