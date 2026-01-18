@@ -18,7 +18,7 @@ export async function addToWatchlist({ userId, movieId, status = 'planned' }) {
 export async function getWatchlistByUser(userId) {
   const { rows } = await pool.query(
     `SELECT w.id, w.user_id, w.movie_id, w.status, w.added_at,
-            m.title, m.poster_url, m.release_year
+            m.title, m.poster_url, m.release_year, m.tmdb_id
        FROM watchlist w
        JOIN movies m ON m.id = w.movie_id
       WHERE w.user_id = $1
