@@ -9,7 +9,7 @@ import {
 } from '../models/watchlist.js';
 import { BadRequestError, ForbiddenError, NotFoundError } from '../errors/http.js';
 
-async function ensureMovieId(tmdbId) {
+export async function ensureMovieId(tmdbId) {
   const existingId = await getMovieIdByTmdbId(Number(tmdbId));
   if (existingId) return existingId;
   const movie = await getContentById(Number(tmdbId), 'movie');
