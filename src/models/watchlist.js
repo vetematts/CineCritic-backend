@@ -39,6 +39,7 @@ export async function updateWatchStatus(id, status) {
   return rows[0] || null;
 }
 
+// Delete a watchlist entry and return whether a row was actually removed.
 export async function removeFromWatchlist(id) {
   const { rowCount } = await pool.query('DELETE FROM watchlist WHERE id = $1', [id]);
   return rowCount > 0;
