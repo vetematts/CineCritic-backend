@@ -68,6 +68,13 @@ export async function createTables(dbPool = pool) {
       added_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
       CONSTRAINT uq_watchlist_user_movie UNIQUE (user_id, movie_id)
     );
+
+    CREATE TABLE IF NOT EXISTS favourites (
+      user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      movie_id INTEGER NOT NULL REFERENCES movies(id) ON DELETE CASCADE,
+      PRIMARY KEY (user_id, movie_id),
+      CONSTRAINT cant_favourite_movie_again UNIQUE (user_id, movie_id)
+    );
   `);
 
   await dbPool.query(`
