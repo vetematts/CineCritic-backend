@@ -11,7 +11,7 @@ Backend-only Express API for fetching TMDB data and serving movie endpoints. Fro
 
 ## 🚀 Deployed URLs
 
-- Backend API: (to be added)
+- Backend API: https://cinecritic.onrender.com
 - Frontend App: (to be added)
 
 ## 📏 Code Style Guide
