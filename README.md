@@ -212,7 +212,6 @@ Copy `.env.example` to `.env` and set your values:
 - `TMDB_API_KEY` (required): your TMDB API key (kept server-side)
 - `DATABASE_URL` (required): Postgres connection string
 - `JWT_SECRET` (required for auth): secret key for signing JWTs
-<!-- - `OMDB_API_KEY` (optional): OMDb key if you add extra ratings -->
 
 ## 🔐 Authentication
 
