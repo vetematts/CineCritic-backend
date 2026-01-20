@@ -9,6 +9,7 @@ import { fileURLToPath } from 'url';
 import moviesRouter from './routes/movies.js';
 import reviewsRouter from './routes/reviews.js';
 import watchlistRouter from './routes/watchlist.js';
+import favouritesRouter from './routes/favourites.js';
 import usersRouter from './routes/users.js';
 import { errorHandler } from './middlewares/error.js';
 import { notFound } from './middlewares/notFound.js';
@@ -63,6 +64,7 @@ app.get('/api/health/database', async (req, res) => {
 app.use('/api/movies', moviesRouter);
 app.use('/api/reviews', reviewsRouter);
 app.use('/api/watchlist', watchlistRouter);
+app.use('/api/favourites', favouritesRouter);
 app.use('/api/users', usersRouter);
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDoc));
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDoc));
