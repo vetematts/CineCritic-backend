@@ -2,16 +2,16 @@ import express from "express";
 import {z} from "zod";
 
 // Import Middlewares - Authentication, validation, handling promises
-import { requireAuth } from "../middlewares/auth";
-import { validate } from "../middlewares/validate";
-import { asyncHandler } from "../middlewares/asyncHandler";
+import { requireAuth } from "../middlewares/auth.js";
+import { validate } from "../middlewares/validate.js";
+import { asyncHandler } from "../middlewares/asyncHandler.js";
 
 // Import the Favourites Table and Controller
 import { 
     deleteFavouritesHandler, 
     getFavouritesHandler 
-} from "../controllers/favouritesController";
-import { addToFavourites } from "../models/favourites";
+} from "../controllers/favouritesController.js";
+import { addToFavourites } from "../models/favourites.js";
 
 // Create an instance of the router
 const router = express.Router();
@@ -63,7 +63,7 @@ router.post(
 // Read - Get all this user's favourite movies
 router.get(
     '/:userId', 
-    requireAuth, 
+    // requireAuth, 
     validate(favouritesGetSchema), 
     asyncHandler(getFavouritesHandler)
 );
