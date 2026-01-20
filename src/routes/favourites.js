@@ -63,7 +63,7 @@ router.post(
 // Read - Get all this user's favourite movies
 router.get(
     '/:userId', 
-    // requireAuth, 
+    requireAuth, 
     validate(favouritesGetSchema), 
     asyncHandler(getFavouritesHandler)
 );
