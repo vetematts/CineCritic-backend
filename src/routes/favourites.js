@@ -14,6 +14,7 @@ import {
 } from '../controllers/favouritesController.js';
 
 // Create an instance of the router
+// eslint-disable-next-line new-cap
 const router = express.Router();
 
 // Set the expectations of what will be passed as a
