@@ -176,6 +176,25 @@ components:
           example: '2026-01-11T07:15:00Z'
       additionalProperties: true
 
+    FavouriteEntry:
+      type: object
+      required: [id, tmdbId, userId]
+      properties:
+        id:
+          type: integer
+          example: 22
+        tmdbId:
+          type: integer
+          example: 129
+        userId:
+          type: integer
+          example: 5
+        title:
+          type: string
+          nullable: true
+          example: 'Spirited Away'
+      additionalProperties: true
+
   responses:
     BadRequestError:
       description: Bad request
@@ -884,6 +903,91 @@ paths:
       parameters:
         - in: path
           name: id
+          required: true
+          schema: { type: integer }
+      responses:
+        '204':
+          description: Deleted
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /api/favourites:
+    post:
+      summary: Add a movie to favourites
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [tmdbId, userId]
+              properties:
+                tmdbId:
+                  type: integer
+                userId:
+                  type: integer
+      responses:
+        '201':
+          description: Favourite created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FavouriteEntry'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /api/favourites/{userId}:
+    get:
+      summary: Get a user's favourite movies
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Favourite movies
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FavouriteEntry'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /api/favourites/{userId}/{tmdbId}:
+    delete:
+      summary: Remove a movie from favourites
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          schema: { type: integer }
+        - in: path
+          name: tmdbId
           required: true
           schema: { type: integer }
       responses:
