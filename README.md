@@ -187,11 +187,11 @@ Note: `/api/movies/{id}` caches the movie and its genres into Postgres (`movies`
 
 ### Favourites
 
-| Operation            | URL                                  | Method | Body                                   | Access            |
-| -------------------- | ------------------------------------ | ------ | -------------------------------------- | ----------------- |
-| Get Favourites       | `/api/favourites/{userId}`           | GET    | -                                      | Auth (self/admin) |
-| Add to Favourites    | `/api/favourites`                    | POST   | `{"tmdbId": 550, "userId": 2}`         | Auth (self/admin) |
-| Delete from Favourites | `/api/favourites/{userId}/{tmdbId}` | DELETE | -                                      | Auth (self/admin) |
+| Operation              | URL                                 | Method | Body                           | Access            |
+| ---------------------- | ----------------------------------- | ------ | ------------------------------ | ----------------- |
+| Get Favourites         | `/api/favourites/{userId}`          | GET    | -                              | Auth (self/admin) |
+| Add to Favourites      | `/api/favourites`                   | POST   | `{"tmdbId": 550, "userId": 2}` | Auth (self/admin) |
+| Delete from Favourites | `/api/favourites/{userId}/{tmdbId}` | DELETE | -                              | Auth (self/admin) |
 
 ### Users
 
