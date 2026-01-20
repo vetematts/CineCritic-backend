@@ -36,16 +36,13 @@ export async function removeFromFavourites({ userId, movieId }) {
 
 // Return all this user's favourite movies
 export async function getFavourites({ userId }) {
-  // Apply a JOIN ON movies to find all userid-movieid key pairs
-  //  that exist in this table
   const { rows } = await pool.query(
-    `
-            SELECT f.user_id, f.movie_id, f.added_at, m.title, m.poster_url, m.release_year, m.tmdb_id
-            FROM favourites f
-            JOIN movies m ON m.id = f.movie_id
-            WHERE f.user_id = $1
-            ORDER BY f.added_at DESC
-        `,
+    `SELECT f.user_id, f.movie_id, f.added_at,
+            m.title, m.poster_url, m.release_year, m.tmdb_id
+       FROM favourites f
+       JOIN movies m ON m.id = f.movie_id
+      WHERE f.user_id = $1
+      ORDER BY f.added_at DESC`,
     [userId]
   );
 
