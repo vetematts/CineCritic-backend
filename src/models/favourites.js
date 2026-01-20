@@ -36,13 +36,30 @@ export async function removeFromFavourites({ userId, movieId }) {
 
 // Return all this user's favourite movies
 export async function getFavourites({ userId }) {
+  // Check if added_at column exists
+  let hasAddedAt = false;
+  try {
+    const checkResult = await pool.query(`
+      SELECT column_name
+      FROM information_schema.columns
+      WHERE table_name = 'favourites' AND column_name = 'added_at'
+    `);
+    hasAddedAt = checkResult.rows.length > 0;
+  } catch {
+    // If check fails, assume column doesn't exist
+    hasAddedAt = false;
+  }
+
+  const selectAddedAt = hasAddedAt ? 'f.added_at,' : '';
+  const orderBy = hasAddedAt ? 'f.added_at DESC' : 'f.movie_id DESC';
+
   const { rows } = await pool.query(
-    `SELECT f.user_id, f.movie_id,
+    `SELECT f.user_id, f.movie_id, ${selectAddedAt}
             m.title, m.poster_url, m.release_year, m.tmdb_id
        FROM favourites f
        JOIN movies m ON m.id = f.movie_id
       WHERE f.user_id = $1
-      ORDER BY f.movie_id DESC`,
+      ORDER BY ${orderBy}`,
     [userId]
   );
 

@@ -72,6 +72,7 @@ export async function createTables(dbPool = pool) {
     CREATE TABLE IF NOT EXISTS favourites (
       user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
       movie_id INTEGER NOT NULL REFERENCES movies(id) ON DELETE CASCADE,
+      added_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
       PRIMARY KEY (user_id, movie_id),
       CONSTRAINT cant_favourite_movie_again UNIQUE (user_id, movie_id)
     );
@@ -80,5 +81,8 @@ export async function createTables(dbPool = pool) {
   await dbPool.query(`
     ALTER TABLE users
     ADD COLUMN IF NOT EXISTS favourite_movie_id INTEGER REFERENCES movies(id) ON DELETE SET NULL;
+
+    ALTER TABLE favourites
+    ADD COLUMN IF NOT EXISTS added_at TIMESTAMPTZ NOT NULL DEFAULT NOW();
   `);
 }
