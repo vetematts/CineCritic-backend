@@ -69,12 +69,15 @@ async function addWatchlist({ userId, movieId, status = 'planned' }) {
   );
 }
 
-async function addFavourites({userId, movieId}) {
-  await pool.query(`
+async function addFavourites({ userId, movieId }) {
+  await pool.query(
+    `
       INSERT INTO favourites (user_id, movie_id)
       VALUES($1, $2)
       ON CONFLICT (user_id, movie_id) DO NOTHING;
-    `, [userId, movieId]);
+    `,
+    [userId, movieId]
+  );
 }
 
 async function upsertGenre({ tmdbId, name }) {
@@ -242,12 +245,12 @@ async function seed() {
   await pool.query('UPDATE users SET favourite_movie_id = $1 WHERE id = $2', [duneId, userId]);
   await pool.query('UPDATE users SET favourite_movie_id = $1 WHERE id = $2', [jasonXId, jayId]);
 
-  await addFavourites({userId: userId, movieId: duneId});
-  await addFavourites({userId: userId, movieId: jasonBourneId});
-  await addFavourites({userId: userId, movieId: rushHourId});
-  await addFavourites({userId: jayId, movieId: jasonXId});
-  await addFavourites({userId: jayId, movieId: minionsGruId});
-  await addFavourites({userId: jayId, movieId: freddyVsJasonId});
+  await addFavourites({ userId: userId, movieId: duneId });
+  await addFavourites({ userId: userId, movieId: jasonBourneId });
+  await addFavourites({ userId: userId, movieId: rushHourId });
+  await addFavourites({ userId: jayId, movieId: jasonXId });
+  await addFavourites({ userId: jayId, movieId: minionsGruId });
+  await addFavourites({ userId: jayId, movieId: freddyVsJasonId });
 
   console.log('Seed data inserted.');
 }
