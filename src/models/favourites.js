@@ -1,6 +1,6 @@
 import pool from './database.js';
 
-const baseColumns = 'id, user_id, movie_id';
+const baseColumns = 'user_id, movie_id';
 
 // Get the user's ID and add the movie ID they favourited to the
 // junction table
@@ -40,7 +40,7 @@ export async function getFavourites({ userId }) {
   //  that exist in this table
   const { rows } = await pool.query(
     `
-            SELECT f.user_id, f.movie_id, m.title, m.tmdb_id
+            SELECT f.user_id, f.movie_id, m.title, m.poster_url, m.release_year, m.tmdb_id
             FROM favourites f
             JOIN movies m ON m.id = f.movie_id
             WHERE f.user_id = $1
