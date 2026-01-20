@@ -45,3 +45,16 @@ export async function getFavourites({userID}) {
 
     return rows;
 }
+
+// // Return the specific combination in the junction table
+// // Used to check if this exists.
+// export async function getFavouritedMovie({userId, movieId}) {
+//     const {favouritedMovie} = await pool.query(`
+//             SELECT f.user_id, f.movie_id
+//             FROM favourites f
+//             JOIN movies m ON m.id = f.movie_id
+//             WHERE (f.user_id, f.movie_id) = ($1, $2)
+//         `, [userId, movieId]);
+
+//     return favouritedMovie;
+// }
