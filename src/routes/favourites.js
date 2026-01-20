@@ -7,11 +7,11 @@ import { validate } from "../middlewares/validate.js";
 import { asyncHandler } from "../middlewares/asyncHandler.js";
 
 // Import the Favourites Table and Controller
-import { 
-    deleteFavouritesHandler, 
-    getFavouritesHandler 
+import {
+    addToFavouritesHandler,
+    deleteFavouritesHandler,
+    getFavouritesHandler
 } from "../controllers/favouritesController.js";
-import { addToFavourites } from "../models/favourites.js";
 
 // Create an instance of the router
 const router = express.Router();
@@ -22,7 +22,7 @@ const favouritesCreateSchema = z.object({
     // Expect a JSON body with only two arguments, userId and movieId
     body: z.object({
         userId: z.number().int(),   // UserId is an int
-        movieId: z.number().int(),  // MovieId is an int
+        tmdbId: z.number().int(),   // TMDB movie id is an int
     }),
     // Parameters and queries can send undefined for debugging
     params: z.object({}).optional(),
@@ -35,7 +35,7 @@ const favouritesKeySchema = z.object({
     // UserId and MovieId must be ints only
     params: z.object({ 
         userId: z.string().regex(/^\d+$/, 'userId must be a number'),
-        movieId: z.string().regex(/^\d+$/, 'movieId must be a number'),
+        tmdbId: z.string().regex(/^\d+$/, 'tmdbId must be a number'),
     }),
     // Parameters and queries can send undefined for debugging
     body: z.object({}).optional(),
@@ -57,7 +57,7 @@ router.post(
     '/',
     requireAuth,
     validate(favouritesCreateSchema),
-    asyncHandler(addToFavourites)
+    asyncHandler(addToFavouritesHandler)
 );
 
 // Read - Get all this user's favourite movies
@@ -70,7 +70,7 @@ router.get(
 
 // Delete - Remove a movie from a user's favourites
 router.delete(
-    '/:userId/:movieId',
+    '/:userId/:tmdbId',
     requireAuth,
     validate(favouritesKeySchema),
     asyncHandler(deleteFavouritesHandler)

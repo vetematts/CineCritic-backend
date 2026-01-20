@@ -7,7 +7,7 @@ import { addToFavourites, getFavourites, removeFromFavourites } from '../models/
 
 // Checks you are the user before adding a movie to your favourites list
 export async function addToFavouritesHandler(req, res) {
-    const {userId, tmdbId} = req.validated.body;    // Unpackage the userID and tmdbID from the request body
+    const { userId, tmdbId } = req.validated.body;    // Unpackage the userID and tmdbID from the request body
     const targetId = Number(userId);          // Convert the user ID into a number
     if (req.user.role !== 'admin' && req.user.sub !== targetId) {
         // Restrict viewing this unless the one making the request is the user
@@ -34,7 +34,7 @@ export async function getFavouritesHandler(req, res) {
   }
 
   // Get the favourites of the user
-  const favourites = await getFavourites(targetId);
+  const favourites = await getFavourites({ userId: targetId });
   res.json(favourites); // Return all the favourite movies as a JSON response
 }
 
@@ -42,10 +42,10 @@ export async function getFavouritesHandler(req, res) {
 export async function deleteFavouritesHandler(req, res) {
     const { userId, tmdbId } = req.validated.params;    // Unpackage the userID from the request body
     const targetUserId = Number(userId);                // Convert the userID into a number
-    const targetMovieId = ensureMovieId(tmdbId);        // Check this movie exists
+    const targetMovieId = await ensureMovieId(tmdbId);  // Check this movie exists
 
     // Attempt to remove the movie from user's favourites
-    const deletedEntry = await removeFromFavourites(targetUserId, targetMovieId);
+    const deletedEntry = await removeFromFavourites({ userId: targetUserId, movieId: targetMovieId });
     if (!deletedEntry) {
         throw new NotFoundError("This movie is not on your Favourite's list");
     }
