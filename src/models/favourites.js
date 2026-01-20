@@ -40,7 +40,7 @@ export async function getFavourites({ userId }) {
   //  that exist in this table
   const { rows } = await pool.query(
     `
-            SELECT f.user_id, f.movie_id, m.title
+            SELECT f.user_id, f.movie_id, m.title, m.tmdb_id
             FROM favourites f
             JOIN movies m ON m.id = f.movie_id
             WHERE f.user_id = $1
