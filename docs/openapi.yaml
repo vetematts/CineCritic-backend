@@ -5,6 +5,9 @@ info:
   description: API for fetching movie data via TMDB proxy and CineCritic resources.
 servers:
   - url: http://localhost:4000
+    description: Local development
+  - url: https://cinecritic.onrender.com
+    description: Production (Render)
 components:
   securitySchemes:
     bearerAuth:
