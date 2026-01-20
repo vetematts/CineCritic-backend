@@ -1,6 +1,6 @@
 import pool from './database.js';
 
-const baseColumns = 'user_id, movie_id, added_at';
+const baseColumns = 'user_id, movie_id';
 
 // Get the user's ID and add the movie ID they favourited to the
 // junction table
@@ -37,12 +37,12 @@ export async function removeFromFavourites({ userId, movieId }) {
 // Return all this user's favourite movies
 export async function getFavourites({ userId }) {
   const { rows } = await pool.query(
-    `SELECT f.user_id, f.movie_id, f.added_at,
+    `SELECT f.user_id, f.movie_id,
             m.title, m.poster_url, m.release_year, m.tmdb_id
        FROM favourites f
        JOIN movies m ON m.id = f.movie_id
       WHERE f.user_id = $1
-      ORDER BY f.added_at DESC`,
+      ORDER BY f.movie_id DESC`,
     [userId]
   );
 
