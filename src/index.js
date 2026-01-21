@@ -43,7 +43,11 @@ app.get('/health', (req, res) => {
 });
 
 app.get('/', (req, res) => {
-  res.redirect('/docs');
+  res.json({
+    message: 'CineCritic API',
+    docs: '/docs',
+    health: '/health',
+  });
 });
 
 // Database health check endpoint
