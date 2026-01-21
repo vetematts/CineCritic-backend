@@ -9,6 +9,7 @@ import {
   createReviewHandler,
   updateReviewHandler,
   deleteReviewHandler,
+  getReviewsByUserHandler,
 } from '../controllers/reviewsController.js';
 
 // eslint-disable-next-line new-cap
@@ -35,6 +36,7 @@ const idParamSchema = z.object({
   query: z.object({}).optional(),
 });
 
+router.get('/user/:userId', requireAuth, asyncHandler(getReviewsByUserHandler));
 router.get('/:tmdbId', asyncHandler(getReviewsByTmdbId));
 router.get('/id/:id', validate(idParamSchema), asyncHandler(getReviewByIdHandler));
 router.post('/', requireAuth, validate(createReviewSchema), asyncHandler(createReviewHandler));

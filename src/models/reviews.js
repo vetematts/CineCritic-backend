@@ -107,3 +107,46 @@ export async function deleteReview(id) {
   const { rowCount } = await pool.query('DELETE FROM reviews WHERE id = $1', [id]);
   return rowCount > 0;
 }
+
+export async function getReviewsByUser(userId) {
+  const { rows } = await pool.query(
+    `SELECT
+       r.id,
+       r.user_id,
+       r.movie_id,
+       r.rating,
+       r.body,
+       r.status,
+       r.created_at,
+       r.updated_at,
+       r.published_at,
+       r.flagged_at,
+       m.tmdb_id,
+       m.title,
+       m.poster_url,
+       m.release_year
+     FROM reviews r
+     JOIN movies m ON r.movie_id = m.id
+     WHERE r.user_id = $1 AND r.status = 'published'
+     ORDER BY r.published_at DESC, r.created_at DESC`,
+    [userId]
+  );
+  return rows.map((row) => ({
+    id: row.id,
+    user_id: row.user_id,
+    movie_id: row.movie_id,
+    rating: row.rating,
+    body: row.body,
+    status: row.status,
+    created_at: row.created_at,
+    updated_at: row.updated_at,
+    published_at: row.published_at,
+    flagged_at: row.flagged_at,
+    movie: {
+      tmdb_id: row.tmdb_id,
+      title: row.title,
+      poster_url: row.poster_url,
+      release_year: row.release_year,
+    },
+  }));
+}

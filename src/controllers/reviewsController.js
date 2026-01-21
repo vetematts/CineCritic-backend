@@ -6,6 +6,7 @@ import {
   updateReview,
   deleteReview,
   getReviewById,
+  getReviewsByUser,
 } from '../models/reviews.js';
 import { ForbiddenError, NotFoundError } from '../errors/http.js';
 
@@ -85,4 +86,14 @@ export async function deleteReviewHandler(req, res) {
     throw new NotFoundError('Review not found');
   }
   res.status(204).send();
+}
+
+export async function getReviewsByUserHandler(req, res) {
+  const { userId } = req.params;
+  // Users can only view their own reviews unless they're admin
+  if (req.user?.role !== 'admin' && Number(userId) !== req.user?.sub) {
+    throw new ForbiddenError();
+  }
+  const reviews = await getReviewsByUser(Number(userId));
+  res.json(reviews);
 }
