@@ -42,6 +42,10 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok' });
 });
 
+app.get('/', (req, res) => {
+  res.redirect('/docs');
+});
+
 // Database health check endpoint
 app.get('/api/health/database', async (req, res) => {
   try {
