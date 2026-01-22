@@ -192,7 +192,7 @@ async function seed() {
   await setMovieGenres(freddyVsJasonId, [{ tmdbId: 27, name: 'Horror' }]);
 
   const jasonXId = await upsertMovie({
-    tmdbId: 11499,
+    tmdbId: 11470,
     title: 'Jason X',
     releaseYear: 2001,
     posterUrl: null,
