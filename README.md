@@ -78,6 +78,11 @@ Style is enforced with ESLint (eslint-config-google) and formatting is handled b
 
 The project depends on open-source packages under permissive licenses (MIT/ISC/BSD-2/3). See each dependency's npm page for details.
 
+## 📌 Data Source Attribution
+
+This product uses the TMDB API but is not endorsed or certified by TMDB.  
+See TMDB documentation: https://developer.themoviedb.org/docs
+
 ### Commands
 
 - `npm run lint` # check style + code issues
