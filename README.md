@@ -23,7 +23,10 @@ CineCritic is a movie discovery and review platform; this back-end API is built 
 
 - Backend: https://github.com/vetematts/CineCritic-backend.git
 - Frontend: https://github.com/vetematts/CineCritic-frontend.git
-- Live API Docs (GitHub Pages): https://vetematts.github.io/CineCritic-backend/
+
+## 📚 Docs
+
+- API Docs (GitHub Pages): https://vetematts.github.io/CineCritic-backend/
 - Local Swagger UI: http://localhost:4000/docs (alias: http://localhost:4000/api-docs)
 
 ## 🚀 Deployed URLs
@@ -31,7 +34,6 @@ CineCritic is a movie discovery and review platform; this back-end API is built 
 - Backend API: https://cinecritic.onrender.com
 - Health Check: https://cinecritic.onrender.com/health
 - Swagger Docs: https://cinecritic.onrender.com/docs
-- Frontend App: (to be added)
 
 ## 📏 Code Style Guide
 
