@@ -10,7 +10,8 @@
     "seed": "node src/utils/seedDatabase.js",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "generate-docs": "node scripts/generate-openapi.js"
   },
   "dependencies": {
     "cors": "^2.8.5",
