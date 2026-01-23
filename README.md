@@ -161,7 +161,7 @@ Docs available at `http://localhost:4000/docs` once the server is running.
 | Area       | Highlights                                | Notes                                                            |
 | ---------- | ----------------------------------------- | ---------------------------------------------------------------- |
 | Health     | `GET /health`, `GET /api/health/database` | Service + DB connectivity checks                                 |
-| Docs       | `GET /docs`                               | Swagger UI from `docs/openapi.yaml`                              |
+| Docs       | `GET /docs`                               | Swagger UI generated from JSDoc comments                         |
 | Movies     | `/api/movies/*`                           | Trending, top-rated, genres, search, advanced, year/genre, by id |
 | Reviews    | `/api/reviews/*`                          | List/create/update/delete reviews                                |
 | Watchlist  | `/api/watchlist/*`                        | Get/add/update/delete watchlist items                            |
