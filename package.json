@@ -10,7 +10,8 @@
     "seed": "node src/utils/seedDatabase.js",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "generate-docs": "node scripts/generate-openapi.js"
   },
   "dependencies": {
     "cors": "^2.8.5",
@@ -20,6 +21,7 @@
     "helmet": "^7.1.0",
     "jsonwebtoken": "^9.0.3",
     "pg": "^8.11.5",
+    "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1",
     "yamljs": "^0.3.0",
     "zod": "^4.2.1"

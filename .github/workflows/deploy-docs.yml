@@ -1,7 +1,7 @@
 name: Deploy API Docs
 on:
   push:
-    branches: [main] # Runs every time push to the main branch
+    branches: [main]
 
 permissions:
   contents: read
@@ -15,13 +15,24 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate OpenAPI spec from JSDoc
+        run: node scripts/generate-openapi.js
+
       - name: Generate Swagger UI
         uses: Legion2/swagger-ui-action@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           output: swagger-ui
-          spec-file: docs/openapi.yaml # Path to OpenAPI file
+          spec-file: docs/openapi.yaml
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3

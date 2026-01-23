@@ -1,330 +1,142 @@
 openapi: 3.0.3
 info:
-  title: CineCritic API
+  title: 'CineCritic API'
   version: 0.1.0
-  description: API for fetching movie data via TMDB proxy and CineCritic resources.
+  description: 'API for fetching movie data via TMDB proxy and CineCritic resources.'
 servers:
-  - url: http://localhost:4000
-    description: Local development
-  - url: https://cinecritic.onrender.com
-    description: Production (Render)
-components:
-  securitySchemes:
-    bearerAuth:
-      type: http
-      scheme: bearer
-      bearerFormat: JWT
-  schemas:
-    User:
-      type: object
-      properties:
-        id:
-          type: integer
-        username:
-          type: string
-        email:
-          type: string
-          format: email
-        role:
-          type: string
-          enum: [user, admin]
-        created_at:
-          type: string
-          format: date-time
-        favourite_movie_id:
-          type: integer
-          nullable: true
-
-    Error:
-      type: object
-      required: [success, status, error, code, timestamp]
-      properties:
-        success:
-          type: boolean
-          example: false
-        status:
-          type: integer
-          example: 401
-        error:
-          type: string
-          example: 'Unauthorized'
-        code:
-          type: string
-          example: 'unauthorised'
-        timestamp:
-          type: string
-          format: date-time
-          example: '2024-01-15T10:30:00.000Z'
-
-    MovieSummary:
-      type: object
-      required: [id, title]
-      properties:
-        id:
-          type: integer
-          example: 129
-        title:
-          type: string
-          example: 'Spirited Away'
-        poster_path:
-          type: string
-          nullable: true
-          example: '/poster.jpg'
-        release_date:
-          type: string
-          nullable: true
-          example: '2001-07-20'
-        vote_average:
-          type: number
-          example: 8.5
-      additionalProperties: true
-
-    MovieDetail:
-      allOf:
-        - $ref: '#/components/schemas/MovieSummary'
-        - type: object
-          properties:
-            overview:
-              type: string
-              example: 'A young girl enters the world of spirits...'
-            genres:
-              type: array
-              items:
-                $ref: '#/components/schemas/Genre'
-          additionalProperties: true
-
-    Genre:
-      type: object
-      required: [id, name]
-      properties:
-        id:
-          type: integer
-          example: 16
-        name:
-          type: string
-          example: 'Animation'
-
-    TmdbPagedMovies:
-      type: object
-      required: [page, results]
-      properties:
-        page:
-          type: integer
-          example: 1
-        results:
-          type: array
-          items:
-            $ref: '#/components/schemas/MovieSummary'
-        total_pages:
-          type: integer
-          example: 10
-        total_results:
-          type: integer
-          example: 200
-      additionalProperties: true
-
-    TmdbGenresResponse:
-      type: object
-      required: [genres]
-      properties:
-        genres:
-          type: array
-          items:
-            $ref: '#/components/schemas/Genre'
-      additionalProperties: true
-
-    Review:
-      type: object
-      required: [id, tmdbId, userId, rating]
-      properties:
-        id:
-          type: integer
-          example: 1
-        tmdbId:
-          type: integer
-          example: 129
-        userId:
-          type: integer
-          example: 5
-        rating:
-          type: number
-          format: float
-          example: 4.5
-        body:
-          type: string
-          nullable: true
-          example: 'Loved the visuals and story.'
-        status:
-          type: string
-          enum: [draft, published, flagged]
-          example: published
-        created_at:
-          type: string
-          format: date-time
-          nullable: true
-          example: '2026-01-11T07:15:00Z'
-      additionalProperties: true
-
-    WatchlistEntry:
-      type: object
-      required: [id, tmdbId, userId, status]
-      properties:
-        id:
-          type: integer
-          example: 10
-        tmdbId:
-          type: integer
-          example: 129
-        userId:
-          type: integer
-          example: 5
-        status:
-          type: string
-          enum: [planned, watching, completed]
-          example: planned
-        created_at:
-          type: string
-          format: date-time
-          nullable: true
-          example: '2026-01-11T07:15:00Z'
-      additionalProperties: true
-
-    FavouriteEntry:
-      type: object
-      required: [id, tmdbId, userId]
-      properties:
-        id:
-          type: integer
-          example: 22
-        tmdbId:
-          type: integer
-          example: 129
-        userId:
-          type: integer
-          example: 5
-        title:
-          type: string
-          nullable: true
-          example: 'Spirited Away'
-      additionalProperties: true
-
-  responses:
-    BadRequestError:
-      description: Bad request
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-          example:
-            error: 'Invalid parameters'
-            code: 'REQ_400'
-
-    UnauthorizedError:
-      description: Unauthorized
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-          example:
-            error: 'Missing or invalid token'
-            code: 'AUTH_401'
-
-    ForbiddenError:
-      description: Forbidden
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-          example:
-            error: 'Forbidden'
-            code: 'AUTH_403'
-
-    NotFoundError:
-      description: Not found
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-          example:
-            error: 'Not found'
-            code: 'GEN_404'
-
-    ServerError:
-      description: Server error
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-          example:
-            error: 'Server error'
-            code: 'SRV_500'
+  -
+    url: 'http://localhost:4000'
+    description: 'Local development'
+  -
+    url: 'https://cinecritic.onrender.com'
+    description: 'Production (Render)'
+tags:
+  -
+    name: Movies
+    description: 'Movie discovery and search endpoints'
+  -
+    name: Users
+    description: 'User authentication and management'
+  -
+    name: Reviews
+    description: 'Movie reviews and ratings'
+  -
+    name: Favourites
+    description: 'User favourite movies'
+  -
+    name: Watchlist
+    description: 'User watchlist management'
+  -
+    name: Health
+    description: 'Health check endpoints'
 paths:
-  /health:
-    get:
-      summary: Basic health check
-      description: Returns a simple status check without database verification
+  /api/favourites:
+    post:
+      summary: 'Add a movie to favourites'
       tags:
-        - Health
+        - Favourites
+      security:
+        -
+          bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - tmdbId
+                - userId
+              properties:
+                tmdbId:
+                  type: integer
+                userId:
+                  type: integer
+      responses:
+        '201':
+          description: 'Favourite created'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FavouriteEntry'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  '/api/favourites/{userId}':
+    get:
+      summary: 'Get a user''s favourite movies'
+      tags:
+        - Favourites
+      security:
+        -
+          bearerAuth: []
+      parameters:
+        -
+          in: path
+          name: userId
+          required: true
+          schema:
+            type: integer
       responses:
         '200':
-          description: Service is running
+          description: 'Favourite movies'
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  status:
-                    type: string
-                    example: 'ok'
-  /api/health/database:
-    get:
-      summary: Database health check
-      description: Verifies database connectivity and returns connection status
+                type: array
+                items:
+                  $ref: '#/components/schemas/FavouriteEntry'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  '/api/favourites/{userId}/{tmdbId}':
+    delete:
+      summary: 'Remove a movie from favourites'
       tags:
-        - Health
+        - Favourites
+      security:
+        -
+          bearerAuth: []
+      parameters:
+        -
+          in: path
+          name: userId
+          required: true
+          schema:
+            type: integer
+        -
+          in: path
+          name: tmdbId
+          required: true
+          schema:
+            type: integer
       responses:
-        '200':
-          description: Database is connected
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  status:
-                    type: string
-                    example: 'ok'
-                  database:
-                    type: string
-                    example: 'connected'
-                  timestamp:
-                    type: string
-                    format: date-time
-                    example: '2024-01-15T10:30:00.000Z'
-                  version:
-                    type: string
-                    example: 'PostgreSQL 15.0'
-        '503':
-          description: Database is disconnected
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  status:
-                    type: string
-                    example: 'error'
-                  database:
-                    type: string
-                    example: 'disconnected'
-                  error:
-                    type: string
-                    example: 'Connection timeout'
+        '204':
+          description: Deleted
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/ServerError'
   /api/movies/trending:
     get:
-      summary: Get trending movies
+      summary: 'Get trending movies'
+      tags:
+        - Movies
       responses:
         '200':
-          description: List of trending items
+          description: 'List of trending items'
           content:
             application/json:
               schema:
@@ -333,10 +145,12 @@ paths:
           $ref: '#/components/responses/ServerError'
   /api/movies/top-rated:
     get:
-      summary: Get top rated movies
+      summary: 'Get top rated movies'
+      tags:
+        - Movies
       responses:
         '200':
-          description: List of top rated items
+          description: 'List of top rated items'
           content:
             application/json:
               schema:
@@ -345,34 +159,104 @@ paths:
           $ref: '#/components/responses/ServerError'
   /api/movies/genres:
     get:
-      summary: Get genres
+      summary: 'Get genres'
+      tags:
+        - Movies
       responses:
         '200':
-          description: List of genres
+          description: 'List of genres'
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/TmdbGenresResponse'
         '500':
           $ref: '#/components/responses/ServerError'
+  '/api/movies/year/{year}':
+    get:
+      summary: 'Get movies by release year'
+      tags:
+        - Movies
+      parameters:
+        -
+          in: path
+          name: year
+          required: true
+          schema:
+            type: integer
+        -
+          in: query
+          name: sortBy
+          schema:
+            type: string
+          description: 'Sort option'
+        -
+          in: query
+          name: limit
+          schema:
+            type: integer
+          description: 'Limit results'
+      responses:
+        '200':
+          description: 'Results for the year'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TmdbPagedMovies'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  '/api/movies/genre/{id}':
+    get:
+      summary: 'Get movies by genre'
+      tags:
+        - Movies
+      parameters:
+        -
+          in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+        -
+          in: query
+          name: sortBy
+          schema:
+            type: string
+        -
+          in: query
+          name: page
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: 'Results for the genre'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TmdbPagedMovies'
+        '500':
+          $ref: '#/components/responses/ServerError'
   /api/movies/search:
     get:
-      summary: Search movies
+      summary: 'Search movies'
+      tags:
+        - Movies
       parameters:
-        - in: query
+        -
+          in: query
           name: q
           required: true
           schema:
             type: string
-          description: Search query
-        - in: query
+          description: 'Search query'
+        -
+          in: query
           name: page
           schema:
             type: integer
-          description: Page number
+          description: 'Page number'
       responses:
         '200':
-          description: Search results
+          description: 'Search results'
           content:
             application/json:
               schema:
@@ -383,46 +267,55 @@ paths:
           $ref: '#/components/responses/ServerError'
   /api/movies/advanced:
     get:
-      summary: Advanced movie search (title/year/genres/crew/rating)
+      summary: 'Advanced movie search (title/year/genres/crew/rating)'
+      tags:
+        - Movies
       parameters:
-        - in: query
+        -
+          in: query
           name: query
           schema:
             type: string
-          description: Title keyword
-        - in: query
+          description: 'Title keyword'
+        -
+          in: query
           name: year
           schema:
             type: string
-          description: Release year (YYYY)
-        - in: query
+          description: 'Release year (YYYY)'
+        -
+          in: query
           name: genres
           schema:
             type: string
-          description: Comma-separated TMDB genre ids
-        - in: query
+          description: 'Comma-separated TMDB genre ids'
+        -
+          in: query
           name: crew
           schema:
             type: string
-          description: Crew name (uses TMDB person search)
-        - in: query
+          description: 'Crew name (uses TMDB person search)'
+        -
+          in: query
           name: ratingMin
           schema:
             type: string
-          description: Minimum vote_average
-        - in: query
+          description: 'Minimum vote_average'
+        -
+          in: query
           name: ratingMax
           schema:
             type: string
-          description: Maximum vote_average
-        - in: query
+          description: 'Maximum vote_average'
+        -
+          in: query
           name: page
           schema:
             type: integer
-          description: Page number
+          description: 'Page number'
       responses:
         '200':
-          description: Matching movies
+          description: 'Matching movies'
           content:
             application/json:
               schema:
@@ -431,87 +324,203 @@ paths:
           $ref: '#/components/responses/BadRequestError'
         '500':
           $ref: '#/components/responses/ServerError'
-  /api/movies/year/{year}:
+  '/api/movies/{id}':
     get:
-      summary: Get movies by release year
+      summary: 'Get movie by TMDB id'
+      description: 'Fetches TMDB details and caches the movie/genres in Postgres.'
+      tags:
+        - Movies
       parameters:
-        - in: path
-          name: year
-          required: true
-          schema:
-            type: integer
-        - in: query
-          name: sortBy
-          schema:
-            type: string
-          description: Sort option
-        - in: query
-          name: limit
-          schema:
-            type: integer
-          description: Limit results
-      responses:
-        '200':
-          description: Results for the year
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/TmdbPagedMovies'
-        '500':
-          $ref: '#/components/responses/ServerError'
-  /api/movies/genre/{id}:
-    get:
-      summary: Get movies by genre
-      parameters:
-        - in: path
-          name: id
-          required: true
-          schema:
-            type: integer
-        - in: query
-          name: sortBy
-          schema:
-            type: string
-        - in: query
-          name: page
-          schema:
-            type: integer
-      responses:
-        '200':
-          description: Results for the genre
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/TmdbPagedMovies'
-        '500':
-          $ref: '#/components/responses/ServerError'
-  /api/movies/{id}:
-    get:
-      summary: Get movie by TMDB id
-      description: Fetches TMDB details and caches the movie/genres in Postgres.
-      parameters:
-        - in: path
+        -
+          in: path
           name: id
           required: true
           schema:
             type: integer
       responses:
         '200':
-          description: Movie details
+          description: 'Movie details'
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/MovieDetail'
         '500':
           $ref: '#/components/responses/ServerError'
-  /api/users:
+  '/api/reviews/{tmdbId}':
     get:
-      summary: List users
-      security:
-        - bearerAuth: []
+      summary: 'Get reviews for a movie by TMDB id'
+      tags:
+        - Reviews
+      parameters:
+        -
+          in: path
+          name: tmdbId
+          required: true
+          schema:
+            type: integer
       responses:
         '200':
-          description: List of users (password hashes omitted)
+          description: 'List of reviews for the movie'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Review'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  '/api/reviews/id/{id}':
+    get:
+      summary: 'Get a review by id'
+      tags:
+        - Reviews
+      parameters:
+        -
+          in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Review
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Review'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /api/reviews:
+    post:
+      summary: 'Create a review for a movie'
+      tags:
+        - Reviews
+      security:
+        -
+          bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - tmdbId
+                - userId
+                - rating
+              properties:
+                tmdbId:
+                  type: integer
+                userId:
+                  type: integer
+                rating:
+                  type: number
+                  format: float
+                  description: 'Rating between 0.5 and 5 in 0.5 steps'
+                body:
+                  type: string
+                status:
+                  type: string
+                  enum: [draft, published, flagged]
+                  default: published
+      responses:
+        '201':
+          description: 'Review created'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Review'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  '/api/reviews/{id}':
+    put:
+      summary: 'Update a review'
+      tags:
+        - Reviews
+      security:
+        -
+          bearerAuth: []
+      parameters:
+        -
+          in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                rating:
+                  type: number
+                  format: float
+                body:
+                  type: string
+                status:
+                  type: string
+                  enum: [draft, published, flagged]
+      responses:
+        '200':
+          description: 'Review updated'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Review'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/ServerError'
+    delete:
+      summary: 'Delete a review'
+      tags:
+        - Reviews
+      security:
+        -
+          bearerAuth: []
+      parameters:
+        -
+          in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: 'Review deleted'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /api/users:
+    get:
+      summary: 'List users'
+      tags:
+        - Users
+      security:
+        -
+          bearerAuth: []
+      responses:
+        '200':
+          description: 'List of users (password hashes omitted)'
           content:
             application/json:
               schema:
@@ -525,14 +534,19 @@ paths:
         '500':
           $ref: '#/components/responses/ServerError'
     post:
-      summary: Create a user
+      summary: 'Create a user'
+      tags:
+        - Users
       requestBody:
         required: true
         content:
           application/json:
             schema:
               type: object
-              required: [username, email, password]
+              required:
+                - username
+                - email
+                - password
               properties:
                 username:
                   type: string
@@ -548,7 +562,7 @@ paths:
                   default: user
       responses:
         '201':
-          description: User created
+          description: 'User created'
           content:
             application/json:
               schema:
@@ -556,19 +570,22 @@ paths:
         '400':
           $ref: '#/components/responses/BadRequestError'
         '409':
-          description: Username or email already exists
+          description: 'Username or email already exists'
         '500':
           $ref: '#/components/responses/ServerError'
   /api/users/login:
     post:
-      summary: Login with username or email (returns JWT)
+      summary: 'Login with username or email (returns JWT)'
+      tags:
+        - Users
       requestBody:
         required: true
         content:
           application/json:
             schema:
               type: object
-              required: [password]
+              required:
+                - password
               properties:
                 username:
                   type: string
@@ -580,17 +597,14 @@ paths:
                   format: password
       responses:
         '200':
-          description: Login success returns JWT token and user
+          description: 'Login success returns JWT token and user'
           content:
             application/json:
               schema:
                 type: object
                 properties:
-                  token:
-                    type: string
-                    description: JWT token (HS256)
-                  user:
-                    $ref: '#/components/schemas/User'
+                  token: {type: string, description: 'JWT token (HS256)'}
+                  user: {$ref: '#/components/schemas/User'}
         '400':
           $ref: '#/components/responses/BadRequestError'
         '401':
@@ -599,12 +613,15 @@ paths:
           $ref: '#/components/responses/ServerError'
   /api/users/me:
     get:
-      summary: Get the current authenticated user
+      summary: 'Get the current authenticated user'
+      tags:
+        - Users
       security:
-        - bearerAuth: []
+        -
+          bearerAuth: []
       responses:
         '200':
-          description: Current user (password hash omitted)
+          description: 'Current user (password hash omitted)'
           content:
             application/json:
               schema:
@@ -617,29 +634,33 @@ paths:
           $ref: '#/components/responses/ServerError'
   /api/users/logout:
     post:
-      summary: Logout (client should clear stored token)
+      summary: 'Logout (client should clear stored token)'
+      tags:
+        - Users
       security:
-        - bearerAuth: []
+        -
+          bearerAuth: []
       responses:
         '200':
-          description: Logout acknowledgement (stateless; client clears token)
+          description: 'Logout acknowledgement (stateless; client clears token)'
           content:
             application/json:
               schema:
                 type: object
                 properties:
-                  message:
-                    type: string
-                    example: 'Logged out'
+                  message: {type: string, example: 'Logged out'}
         '401':
           $ref: '#/components/responses/UnauthorizedError'
         '500':
           $ref: '#/components/responses/ServerError'
-  /api/users/{id}:
+  '/api/users/{id}':
     get:
-      summary: Get a user by id
+      summary: 'Get a user by id'
+      tags:
+        - Users
       parameters:
-        - in: path
+        -
+          in: path
           name: id
           required: true
           schema:
@@ -656,11 +677,15 @@ paths:
         '500':
           $ref: '#/components/responses/ServerError'
     patch:
-      summary: Update a user (self or admin)
+      summary: 'Update a user (self or admin)'
+      tags:
+        - Users
       security:
-        - bearerAuth: []
+        -
+          bearerAuth: []
       parameters:
-        - in: path
+        -
+          in: path
           name: id
           required: true
           schema:
@@ -687,7 +712,7 @@ paths:
                   type: integer
       responses:
         '200':
-          description: User updated
+          description: 'User updated'
           content:
             application/json:
               schema:
@@ -701,22 +726,26 @@ paths:
         '404':
           $ref: '#/components/responses/NotFoundError'
         '409':
-          description: Duplicate username or email
+          description: 'Duplicate username or email'
         '500':
           $ref: '#/components/responses/ServerError'
     delete:
-      summary: Delete a user
+      summary: 'Delete a user'
+      tags:
+        - Users
       security:
-        - bearerAuth: []
+        -
+          bearerAuth: []
       parameters:
-        - in: path
+        -
+          in: path
           name: id
           required: true
           schema:
             type: integer
       responses:
         '204':
-          description: User deleted
+          description: 'User deleted'
         '401':
           $ref: '#/components/responses/UnauthorizedError'
         '403':
@@ -725,164 +754,24 @@ paths:
           $ref: '#/components/responses/NotFoundError'
         '500':
           $ref: '#/components/responses/ServerError'
-  /api/reviews/{tmdbId}:
+  '/api/watchlist/{userId}':
     get:
-      summary: Get reviews for a movie by TMDB id
-      parameters:
-        - in: path
-          name: tmdbId
-          required: true
-          schema:
-            type: integer
-      responses:
-        '200':
-          description: List of reviews for the movie
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Review'
-        '500':
-          $ref: '#/components/responses/ServerError'
-  /api/reviews/id/{id}:
-    get:
-      summary: Get a review by id
-      parameters:
-        - in: path
-          name: id
-          required: true
-          schema:
-            type: integer
-      responses:
-        '200':
-          description: Review
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Review'
-        '404':
-          $ref: '#/components/responses/NotFoundError'
-        '500':
-          $ref: '#/components/responses/ServerError'
-  /api/reviews:
-    post:
-      summary: Create a review for a movie
+      summary: 'Get a user watchlist'
+      tags:
+        - Watchlist
       security:
-        - bearerAuth: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              required: [tmdbId, userId, rating]
-              properties:
-                tmdbId:
-                  type: integer
-                userId:
-                  type: integer
-                rating:
-                  type: number
-                  format: float
-                  description: Rating between 0.5 and 5 in 0.5 steps
-                body:
-                  type: string
-                status:
-                  type: string
-                  enum: [draft, published, flagged]
-                  default: published
-      responses:
-        '201':
-          description: Review created
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Review'
-        '400':
-          $ref: '#/components/responses/BadRequestError'
-        '401':
-          $ref: '#/components/responses/UnauthorizedError'
-        '403':
-          $ref: '#/components/responses/ForbiddenError'
-        '500':
-          $ref: '#/components/responses/ServerError'
-  /api/reviews/{id}:
-    put:
-      summary: Update a review
-      security:
-        - bearerAuth: []
+        -
+          bearerAuth: []
       parameters:
-        - in: path
-          name: id
-          required: true
-          schema:
-            type: integer
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                rating:
-                  type: number
-                  format: float
-                body:
-                  type: string
-                status:
-                  type: string
-                  enum: [draft, published, flagged]
-      responses:
-        '200':
-          description: Review updated
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Review'
-        '404':
-          $ref: '#/components/responses/NotFoundError'
-        '401':
-          $ref: '#/components/responses/UnauthorizedError'
-        '403':
-          $ref: '#/components/responses/ForbiddenError'
-        '500':
-          $ref: '#/components/responses/ServerError'
-    delete:
-      summary: Delete a review
-      security:
-        - bearerAuth: []
-      parameters:
-        - in: path
-          name: id
-          required: true
-          schema:
-            type: integer
-      responses:
-        '204':
-          description: Review deleted
-        '401':
-          $ref: '#/components/responses/UnauthorizedError'
-        '403':
-          $ref: '#/components/responses/ForbiddenError'
-        '404':
-          $ref: '#/components/responses/NotFoundError'
-        '500':
-          $ref: '#/components/responses/ServerError'
-
-  /api/watchlist/{userId}:
-    get:
-      summary: Get a user watchlist
-      security:
-        - bearerAuth: []
-      parameters:
-        - in: path
+        -
+          in: path
           name: userId
           required: true
-          schema: { type: integer }
+          schema:
+            type: integer
       responses:
         '200':
-          description: Watchlist items
+          description: 'Watchlist items'
           content:
             application/json:
               schema:
@@ -895,29 +784,35 @@ paths:
           $ref: '#/components/responses/ForbiddenError'
         '500':
           $ref: '#/components/responses/ServerError'
-
   /api/watchlist:
     post:
-      summary: Add/update watchlist entry
+      summary: 'Add/update watchlist entry'
+      tags:
+        - Watchlist
       security:
-        - bearerAuth: []
+        -
+          bearerAuth: []
       requestBody:
         required: true
         content:
           application/json:
             schema:
               type: object
-              required: [tmdbId, userId]
+              required:
+                - tmdbId
+                - userId
               properties:
-                tmdbId: { type: integer }
-                userId: { type: integer }
+                tmdbId:
+                  type: integer
+                userId:
+                  type: integer
                 status:
                   type: string
                   enum: [planned, watching, completed]
                   default: planned
       responses:
         '201':
-          description: Watchlist entry created/updated
+          description: 'Watchlist entry created/updated'
           content:
             application/json:
               schema:
@@ -930,31 +825,36 @@ paths:
           $ref: '#/components/responses/ForbiddenError'
         '500':
           $ref: '#/components/responses/ServerError'
-
-  /api/watchlist/{id}:
+  '/api/watchlist/{id}':
     put:
-      summary: Update watchlist status
+      summary: 'Update watchlist status'
+      tags:
+        - Watchlist
       security:
-        - bearerAuth: []
+        -
+          bearerAuth: []
       parameters:
-        - in: path
+        -
+          in: path
           name: id
           required: true
-          schema: { type: integer }
+          schema:
+            type: integer
       requestBody:
         required: true
         content:
           application/json:
             schema:
               type: object
-              required: [status]
+              required:
+                - status
               properties:
                 status:
                   type: string
                   enum: [planned, watching, completed]
       responses:
         '200':
-          description: Updated entry
+          description: 'Updated entry'
           content:
             application/json:
               schema:
@@ -970,14 +870,19 @@ paths:
         '500':
           $ref: '#/components/responses/ServerError'
     delete:
-      summary: Remove watchlist entry
+      summary: 'Remove watchlist entry'
+      tags:
+        - Watchlist
       security:
-        - bearerAuth: []
+        -
+          bearerAuth: []
       parameters:
-        - in: path
+        -
+          in: path
           name: id
           required: true
-          schema: { type: integer }
+          schema:
+            type: integer
       responses:
         '204':
           description: Deleted
@@ -989,88 +894,343 @@ paths:
           $ref: '#/components/responses/NotFoundError'
         '500':
           $ref: '#/components/responses/ServerError'
-
-  /api/favourites:
-    post:
-      summary: Add a movie to favourites
-      security:
-        - bearerAuth: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              required: [tmdbId, userId]
-              properties:
-                tmdbId:
-                  type: integer
-                userId:
-                  type: integer
-      responses:
-        '201':
-          description: Favourite created
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/FavouriteEntry'
-        '400':
-          $ref: '#/components/responses/BadRequestError'
-        '401':
-          $ref: '#/components/responses/UnauthorizedError'
-        '403':
-          $ref: '#/components/responses/ForbiddenError'
-        '500':
-          $ref: '#/components/responses/ServerError'
-
-  /api/favourites/{userId}:
+  /health:
     get:
-      summary: Get a user's favourite movies
-      security:
-        - bearerAuth: []
-      parameters:
-        - in: path
-          name: userId
-          required: true
-          schema: { type: integer }
+      summary: 'Basic health check'
+      description: 'Returns a simple status check without database verification'
+      tags:
+        - Health
       responses:
         '200':
-          description: Favourite movies
+          description: 'Service is running'
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/FavouriteEntry'
-        '401':
-          $ref: '#/components/responses/UnauthorizedError'
-        '403':
-          $ref: '#/components/responses/ForbiddenError'
-        '500':
-          $ref: '#/components/responses/ServerError'
-
-  /api/favourites/{userId}/{tmdbId}:
-    delete:
-      summary: Remove a movie from favourites
-      security:
-        - bearerAuth: []
-      parameters:
-        - in: path
-          name: userId
-          required: true
-          schema: { type: integer }
-        - in: path
-          name: tmdbId
-          required: true
-          schema: { type: integer }
+                type: object
+                properties:
+                  status: {type: string, example: ok}
+  /api/health/database:
+    get:
+      summary: 'Database health check'
+      description: 'Verifies database connectivity and returns connection status'
+      tags:
+        - Health
       responses:
-        '204':
-          description: Deleted
-        '401':
-          $ref: '#/components/responses/UnauthorizedError'
-        '403':
-          $ref: '#/components/responses/ForbiddenError'
-        '404':
-          $ref: '#/components/responses/NotFoundError'
-        '500':
-          $ref: '#/components/responses/ServerError'
+        '200':
+          description: 'Database is connected'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status: {type: string, example: ok}
+                  database: {type: string, example: connected}
+                  timestamp: {type: string, format: date-time, example: '2024-01-15T10:30:00.000Z'}
+                  version: {type: string, example: 'PostgreSQL 15.0'}
+        '503':
+          description: 'Database is disconnected'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status: {type: string, example: error}
+                  database: {type: string, example: disconnected}
+                  error: {type: string, example: 'Connection timeout'}
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: 'User ID'
+        username:
+          type: string
+          description: Username
+        email:
+          type: string
+          format: email
+          description: 'User email address'
+        role:
+          type: string
+          enum:
+            - user
+            - admin
+          description: 'User role'
+        created_at:
+          type: string
+          format: date-time
+          description: 'Account creation timestamp'
+        favourite_movie_id:
+          type: integer
+          nullable: true
+          description: 'TMDB ID of user''s favourite movie'
+    Error:
+      type: object
+      required:
+        - success
+        - status
+        - error
+        - code
+        - timestamp
+      properties:
+        success:
+          type: boolean
+          example: false
+        status:
+          type: integer
+          example: 401
+        error:
+          type: string
+          example: Unauthorized
+        code:
+          type: string
+          example: unauthorised
+        timestamp:
+          type: string
+          format: date-time
+          example: '2024-01-15T10:30:00.000Z'
+    MovieSummary:
+      type: object
+      required:
+        - id
+        - title
+      properties:
+        id:
+          type: integer
+          description: 'TMDB movie ID'
+          example: 129
+        title:
+          type: string
+          description: 'Movie title'
+          example: 'Spirited Away'
+        poster_path:
+          type: string
+          nullable: true
+          description: 'Poster image path'
+          example: /poster.jpg
+        release_date:
+          type: string
+          nullable: true
+          description: 'Release date (YYYY-MM-DD)'
+          example: '2001-07-20'
+        vote_average:
+          type: number
+          description: 'Average rating'
+          example: 8.5
+      additionalProperties: true
+    MovieDetail:
+      allOf:
+        -
+          $ref: '#/components/schemas/MovieSummary'
+        -
+          type: object
+          properties:
+            overview:
+              type: string
+              example: 'A young girl enters the world of spirits...'
+            genres:
+              type: array
+              items:
+                $ref: '#/components/schemas/Genre'
+          additionalProperties: true
+    Genre:
+      type: object
+      required:
+        - id
+        - name
+      properties:
+        id:
+          type: integer
+          description: 'TMDB genre ID'
+          example: 16
+        name:
+          type: string
+          description: 'Genre name'
+          example: Animation
+    TmdbPagedMovies:
+      type: object
+      required:
+        - page
+        - results
+      properties:
+        page:
+          type: integer
+          example: 1
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/MovieSummary'
+        total_pages:
+          type: integer
+          example: 10
+        total_results:
+          type: integer
+          example: 200
+      additionalProperties: true
+    TmdbGenresResponse:
+      type: object
+      required:
+        - genres
+      properties:
+        genres:
+          type: array
+          items:
+            $ref: '#/components/schemas/Genre'
+    Review:
+      type: object
+      required:
+        - id
+        - tmdbId
+        - userId
+        - rating
+      properties:
+        id:
+          type: integer
+          description: 'Review ID'
+          example: 1
+        tmdbId:
+          type: integer
+          description: 'TMDB movie ID'
+          example: 129
+        userId:
+          type: integer
+          description: 'User ID who wrote the review'
+          example: 5
+        rating:
+          type: number
+          format: float
+          description: 'Rating between 0.5 and 5.0'
+          example: 4.5
+        body:
+          type: string
+          nullable: true
+          description: 'Review text content'
+          example: 'Loved the visuals and story.'
+        status:
+          type: string
+          enum:
+            - draft
+            - published
+            - flagged
+          description: 'Review status'
+          example: published
+        created_at:
+          type: string
+          format: date-time
+          nullable: true
+          description: 'Review creation timestamp'
+          example: '2026-01-11T07:15:00Z'
+      additionalProperties: true
+    WatchlistEntry:
+      type: object
+      required:
+        - id
+        - tmdbId
+        - userId
+        - status
+      properties:
+        id:
+          type: integer
+          description: 'Watchlist entry ID'
+          example: 10
+        tmdbId:
+          type: integer
+          description: 'TMDB movie ID'
+          example: 129
+        userId:
+          type: integer
+          description: 'User ID'
+          example: 5
+        status:
+          type: string
+          enum:
+            - planned
+            - watching
+            - completed
+          description: 'Watchlist status'
+          example: planned
+        created_at:
+          type: string
+          format: date-time
+          nullable: true
+          description: 'Entry creation timestamp'
+          example: '2026-01-11T07:15:00Z'
+      additionalProperties: true
+    FavouriteEntry:
+      type: object
+      required:
+        - id
+        - tmdbId
+        - userId
+      properties:
+        id:
+          type: integer
+          description: 'Favourite entry ID'
+          example: 22
+        tmdbId:
+          type: integer
+          description: 'TMDB movie ID'
+          example: 129
+        userId:
+          type: integer
+          description: 'User ID'
+          example: 5
+        title:
+          type: string
+          nullable: true
+          description: 'Movie title (cached)'
+          example: 'Spirited Away'
+      additionalProperties: true
+  responses:
+    BadRequestError:
+      description: 'Bad request'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: 'Invalid parameters'
+            code: REQ_400
+    UnauthorizedError:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: 'Missing or invalid token'
+            code: AUTH_401
+    ForbiddenError:
+      description: Forbidden
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: Forbidden
+            code: AUTH_403
+    NotFoundError:
+      description: 'Not found'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: 'Not found'
+            code: GEN_404
+    ServerError:
+      description: 'Server error'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: 'Server error'
+            code: SRV_500
