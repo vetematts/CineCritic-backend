@@ -1,0 +1,285 @@
+/**
+ * @swagger
+ * components:
+ *   securitySchemes:
+ *     bearerAuth:
+ *       type: http
+ *       scheme: bearer
+ *       bearerFormat: JWT
+ *
+ *   schemas:
+ *     User:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: integer
+ *         username:
+ *           type: string
+ *         email:
+ *           type: string
+ *           format: email
+ *         role:
+ *           type: string
+ *           enum: [user, admin]
+ *         created_at:
+ *           type: string
+ *           format: date-time
+ *         favourite_movie_id:
+ *           type: integer
+ *           nullable: true
+ *
+ *     Error:
+ *       type: object
+ *       required: [success, status, error, code, timestamp]
+ *       properties:
+ *         success:
+ *           type: boolean
+ *           example: false
+ *         status:
+ *           type: integer
+ *           example: 401
+ *         error:
+ *           type: string
+ *           example: 'Unauthorized'
+ *         code:
+ *           type: string
+ *           example: 'unauthorised'
+ *         timestamp:
+ *           type: string
+ *           format: date-time
+ *           example: '2024-01-15T10:30:00.000Z'
+ *
+ *     MovieSummary:
+ *       type: object
+ *       required: [id, title]
+ *       properties:
+ *         id:
+ *           type: integer
+ *           example: 129
+ *         title:
+ *           type: string
+ *           example: 'Spirited Away'
+ *         poster_path:
+ *           type: string
+ *           nullable: true
+ *           example: '/poster.jpg'
+ *         release_date:
+ *           type: string
+ *           nullable: true
+ *           example: '2001-07-20'
+ *         vote_average:
+ *           type: number
+ *           example: 8.5
+ *       additionalProperties: true
+ *
+ *     MovieDetail:
+ *       allOf:
+ *         - $ref: '#/components/schemas/MovieSummary'
+ *         - type: object
+ *           properties:
+ *             overview:
+ *               type: string
+ *               example: 'A young girl enters the world of spirits...'
+ *             genres:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Genre'
+ *           additionalProperties: true
+ *
+ *     Genre:
+ *       type: object
+ *       required: [id, name]
+ *       properties:
+ *         id:
+ *           type: integer
+ *           example: 16
+ *         name:
+ *           type: string
+ *           example: 'Animation'
+ *
+ *     TmdbPagedMovies:
+ *       type: object
+ *       required: [page, results]
+ *       properties:
+ *         page:
+ *           type: integer
+ *           example: 1
+ *         results:
+ *           type: array
+ *           items:
+ *             $ref: '#/components/schemas/MovieSummary'
+ *         total_pages:
+ *           type: integer
+ *           example: 10
+ *         total_results:
+ *           type: integer
+ *           example: 200
+ *       additionalProperties: true
+ *
+ *     TmdbGenresResponse:
+ *       type: object
+ *       required: [genres]
+ *       properties:
+ *         genres:
+ *           type: array
+ *           items:
+ *             $ref: '#/components/schemas/Genre'
+ *
+ *     Review:
+ *       type: object
+ *       required: [id, tmdbId, userId, rating]
+ *       properties:
+ *         id:
+ *           type: integer
+ *           example: 1
+ *         tmdbId:
+ *           type: integer
+ *           example: 129
+ *         userId:
+ *           type: integer
+ *           example: 5
+ *         rating:
+ *           type: number
+ *           format: float
+ *           example: 4.5
+ *         body:
+ *           type: string
+ *           nullable: true
+ *           example: 'Loved the visuals and story.'
+ *         status:
+ *           type: string
+ *           enum: [draft, published, flagged]
+ *           example: published
+ *         created_at:
+ *           type: string
+ *           format: date-time
+ *           nullable: true
+ *           example: '2026-01-11T07:15:00Z'
+ *       additionalProperties: true
+ *
+ *     WatchlistEntry:
+ *       type: object
+ *       required: [id, tmdbId, userId, status]
+ *       properties:
+ *         id:
+ *           type: integer
+ *           example: 10
+ *         tmdbId:
+ *           type: integer
+ *           example: 129
+ *         userId:
+ *           type: integer
+ *           example: 5
+ *         status:
+ *           type: string
+ *           enum: [planned, watching, completed]
+ *           example: planned
+ *         created_at:
+ *           type: string
+ *           format: date-time
+ *           nullable: true
+ *           example: '2026-01-11T07:15:00Z'
+ *       additionalProperties: true
+ *
+ *     FavouriteEntry:
+ *       type: object
+ *       required: [id, tmdbId, userId]
+ *       properties:
+ *         id:
+ *           type: integer
+ *           example: 22
+ *         tmdbId:
+ *           type: integer
+ *           example: 129
+ *         userId:
+ *           type: integer
+ *           example: 5
+ *         title:
+ *           type: string
+ *           nullable: true
+ *           example: 'Spirited Away'
+ *       additionalProperties: true
+ *
+ *   responses:
+ *     BadRequestError:
+ *       description: Bad request
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/Error'
+ *           example:
+ *             error: 'Invalid parameters'
+ *             code: 'REQ_400'
+ *
+ *     UnauthorizedError:
+ *       description: Unauthorized
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/Error'
+ *           example:
+ *             error: 'Missing or invalid token'
+ *             code: 'AUTH_401'
+ *
+ *     ForbiddenError:
+ *       description: Forbidden
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/Error'
+ *           example:
+ *             error: 'Forbidden'
+ *             code: 'AUTH_403'
+ *
+ *     NotFoundError:
+ *       description: Not found
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/Error'
+ *           example:
+ *             error: 'Not found'
+ *             code: 'GEN_404'
+ *
+ *     ServerError:
+ *       description: Server error
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/Error'
+ *           example:
+ *             error: 'Server error'
+ *             code: 'SRV_500'
+ */
+
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+export const swaggerOptions = {
+  definition: {
+    openapi: '3.0.3',
+    info: {
+      title: 'CineCritic API',
+      version: '0.1.0',
+      description: 'API for fetching movie data via TMDB proxy and CineCritic resources.',
+    },
+    servers: [
+      {
+        url: 'http://localhost:4000',
+        description: 'Local development',
+      },
+      {
+        url: 'https://cinecritic.onrender.com',
+        description: 'Production (Render)',
+      },
+    ],
+  },
+  apis: [
+    path.join(__dirname, '../routes/*.js'),
+    path.join(__dirname, '../index.js'),
+    path.join(__dirname, 'swagger.js'),
+  ],
+};
