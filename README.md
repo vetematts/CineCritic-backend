@@ -52,7 +52,7 @@ Style is enforced with ESLint (eslint-config-google) and formatting is handled b
 | [cors](https://www.npmjs.com/package/cors)                                                                                                                                     | Cross-origin resource sharing                              |
 | [express-rate-limit](https://www.npmjs.com/package/express-rate-limit)                                                                                                         | Basic rate limiting (protect TMDB proxy)                   |
 | [jsonwebtoken](https://www.npmjs.com/package/jsonwebtoken)                                                                                                                     | JWT signing/verification for auth                          |
-| [swagger-ui-express](https://www.npmjs.com/package/swagger-ui-express), [swagger-jsdoc](https://www.npmjs.com/package/swagger-jsdoc)                                         | Serve Swagger docs generated from JSDoc comments           |
+| [swagger-ui-express](https://www.npmjs.com/package/swagger-ui-express), [swagger-jsdoc](https://www.npmjs.com/package/swagger-jsdoc)                                           | Serve Swagger docs generated from JSDoc comments           |
 | [zod](https://www.npmjs.com/package/zod)                                                                                                                                       | Request schema validation for routes                       |
 | [jest](https://www.npmjs.com/package/jest), [supertest](https://www.npmjs.com/package/supertest), [pg-mem](https://www.npmjs.com/package/pg-mem)                               | Testing (unit, integration, pg-mem for in-memory Postgres) |
 | [eslint](https://www.npmjs.com/package/eslint), [prettier](https://www.npmjs.com/package/prettier), [eslint-config-google](https://www.npmjs.com/package/eslint-config-google) | Code style and formatting                                  |
@@ -157,15 +157,15 @@ Docs available at `http://localhost:4000/docs` once the server is running.
 
 ## 🧩 Key Endpoints
 
-| Area | Highlights | Notes |
-| --- | --- | --- |
-| Health | `GET /health`, `GET /api/health/database` | Service + DB connectivity checks |
-| Docs | `GET /docs` | Swagger UI from `docs/openapi.yaml` |
-| Movies | `/api/movies/*` | Trending, top-rated, genres, search, advanced, year/genre, by id |
-| Reviews | `/api/reviews/*` | List/create/update/delete reviews |
-| Watchlist | `/api/watchlist/*` | Get/add/update/delete watchlist items |
-| Favourites | `/api/favourites/*` | Get/add/delete favourites |
-| Users | `/api/users/*` | Create/login/me/logout/update/delete users |
+| Area       | Highlights                                | Notes                                                            |
+| ---------- | ----------------------------------------- | ---------------------------------------------------------------- |
+| Health     | `GET /health`, `GET /api/health/database` | Service + DB connectivity checks                                 |
+| Docs       | `GET /docs`                               | Swagger UI from `docs/openapi.yaml`                              |
+| Movies     | `/api/movies/*`                           | Trending, top-rated, genres, search, advanced, year/genre, by id |
+| Reviews    | `/api/reviews/*`                          | List/create/update/delete reviews                                |
+| Watchlist  | `/api/watchlist/*`                        | Get/add/update/delete watchlist items                            |
+| Favourites | `/api/favourites/*`                       | Get/add/delete favourites                                        |
+| Users      | `/api/users/*`                            | Create/login/me/logout/update/delete users                       |
 
 Auth: protected routes require a Bearer JWT. Admin-only: delete users or change roles. Reviews/watchlist mutations require the owner or an admin. `PATCH /api/users/{id}` supports username/email/password/role (admin only) and `favouriteTmdbId`.
 
