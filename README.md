@@ -113,6 +113,7 @@ See TMDB documentation: https://developer.themoviedb.org/docs
 - `npm run seed` # seed the database with sample data (dev)
   - Seeds admin (`admin@example.com` / `adminpass`) and demo (`demo@example.com` / `demopass`) users, two movies, reviews, and watchlist entries. Idempotent; run against the DB in `DATABASE_URL`.
   - To reseed: ensure `DATABASE_URL` points at your Postgres, then rerun `npm run seed` (safe to run multiple times).
+- `npm run generate-docs` # generate OpenAPI spec from JSDoc comments (for GitHub Pages deployment)
 
 Docs available at `http://localhost:4000/docs` once the server is running.
 
