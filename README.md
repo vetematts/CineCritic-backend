@@ -1,6 +1,6 @@
 # 🎞️ CineCritic API
 
-Backend-only Express API for fetching TMDB data and serving movie endpoints. Frontend will live in a separate repo.
+CineCritic is a movie discovery and review platform; this back-end API is built with Node.js, Express, and PostgreSQL.
 
 ## Contents
 
@@ -97,7 +97,7 @@ The project depends on open-source packages under permissive licenses (MIT/ISC/B
 
 ## 📌 Data Source Attribution
 
-This product uses the TMDB API but is not endorsed or certified by TMDB.  
+This product uses the TMDB API but is not endorsed or certified by TMDB.
 See TMDB documentation: https://developer.themoviedb.org/docs
 
 ### Commands
