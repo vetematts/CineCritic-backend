@@ -276,6 +276,32 @@ export const swaggerOptions = {
         description: 'Production (Render)',
       },
     ],
+    tags: [
+      {
+        name: 'Movies',
+        description: 'Movie discovery and search endpoints',
+      },
+      {
+        name: 'Users',
+        description: 'User authentication and management',
+      },
+      {
+        name: 'Reviews',
+        description: 'Movie reviews and ratings',
+      },
+      {
+        name: 'Favourites',
+        description: 'User favourite movies',
+      },
+      {
+        name: 'Watchlist',
+        description: 'User watchlist management',
+      },
+      {
+        name: 'Health',
+        description: 'Health check endpoints',
+      },
+    ],
   },
   apis: [
     path.join(__dirname, '../routes/*.js'),
