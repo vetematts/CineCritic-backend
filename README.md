@@ -2,6 +2,23 @@
 
 Backend-only Express API for fetching TMDB data and serving movie endpoints. Frontend will live in a separate repo.
 
+## Contents
+
+- [Repositories](#-repositories)
+- [Deployed URLs](#-deployed-urls)
+- [Code Style Guide](#-code-style-guide)
+- [Dependencies](#-dependencies)
+- [Hardware Requirements](#-hardware-requirements)
+- [Technology Choices and Alternatives](#-technology-choices-and-alternatives)
+- [Licensing Notes](#-licensing-notes)
+- [Data Source Attribution](#-data-source-attribution)
+- [Commands](#-commands)
+- [Backend Install Instructions](#-backend-install-instructions)
+- [Key Endpoints](#-key-endpoints)
+- [Endpoints](#-endpoints)
+- [Environment Variables](#-environment-variables)
+- [Authentication](#-authentication)
+
 ## 📂 Repositories
 
 - Backend: https://github.com/vetematts/CineCritic-backend.git
