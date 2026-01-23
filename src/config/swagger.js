@@ -13,20 +13,26 @@
  *       properties:
  *         id:
  *           type: integer
+ *           description: User ID
  *         username:
  *           type: string
+ *           description: Username
  *         email:
  *           type: string
  *           format: email
+ *           description: User email address
  *         role:
  *           type: string
  *           enum: [user, admin]
+ *           description: User role
  *         created_at:
  *           type: string
  *           format: date-time
+ *           description: Account creation timestamp
  *         favourite_movie_id:
  *           type: integer
  *           nullable: true
+ *           description: TMDB ID of user's favourite movie
  *
  *     Error:
  *       type: object
@@ -55,20 +61,25 @@
  *       properties:
  *         id:
  *           type: integer
+ *           description: TMDB movie ID
  *           example: 129
  *         title:
  *           type: string
+ *           description: Movie title
  *           example: 'Spirited Away'
  *         poster_path:
  *           type: string
  *           nullable: true
+ *           description: Poster image path
  *           example: '/poster.jpg'
  *         release_date:
  *           type: string
  *           nullable: true
+ *           description: Release date (YYYY-MM-DD)
  *           example: '2001-07-20'
  *         vote_average:
  *           type: number
+ *           description: Average rating
  *           example: 8.5
  *       additionalProperties: true
  *
@@ -92,9 +103,11 @@
  *       properties:
  *         id:
  *           type: integer
+ *           description: TMDB genre ID
  *           example: 16
  *         name:
  *           type: string
+ *           description: Genre name
  *           example: 'Animation'
  *
  *     TmdbPagedMovies:
@@ -131,29 +144,36 @@
  *       properties:
  *         id:
  *           type: integer
+ *           description: Review ID
  *           example: 1
  *         tmdbId:
  *           type: integer
+ *           description: TMDB movie ID
  *           example: 129
  *         userId:
  *           type: integer
+ *           description: User ID who wrote the review
  *           example: 5
  *         rating:
  *           type: number
  *           format: float
+ *           description: Rating between 0.5 and 5.0
  *           example: 4.5
  *         body:
  *           type: string
  *           nullable: true
+ *           description: Review text content
  *           example: 'Loved the visuals and story.'
  *         status:
  *           type: string
  *           enum: [draft, published, flagged]
+ *           description: Review status
  *           example: published
  *         created_at:
  *           type: string
  *           format: date-time
  *           nullable: true
+ *           description: Review creation timestamp
  *           example: '2026-01-11T07:15:00Z'
  *       additionalProperties: true
  *
@@ -163,21 +183,26 @@
  *       properties:
  *         id:
  *           type: integer
+ *           description: Watchlist entry ID
  *           example: 10
  *         tmdbId:
  *           type: integer
+ *           description: TMDB movie ID
  *           example: 129
  *         userId:
  *           type: integer
+ *           description: User ID
  *           example: 5
  *         status:
  *           type: string
  *           enum: [planned, watching, completed]
+ *           description: Watchlist status
  *           example: planned
  *         created_at:
  *           type: string
  *           format: date-time
  *           nullable: true
+ *           description: Entry creation timestamp
  *           example: '2026-01-11T07:15:00Z'
  *       additionalProperties: true
  *
@@ -187,16 +212,20 @@
  *       properties:
  *         id:
  *           type: integer
+ *           description: Favourite entry ID
  *           example: 22
  *         tmdbId:
  *           type: integer
+ *           description: TMDB movie ID
  *           example: 129
  *         userId:
  *           type: integer
+ *           description: User ID
  *           example: 5
  *         title:
  *           type: string
  *           nullable: true
+ *           description: Movie title (cached)
  *           example: 'Spirited Away'
  *       additionalProperties: true
  *

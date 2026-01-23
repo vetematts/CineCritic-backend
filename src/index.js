@@ -161,8 +161,20 @@ app.get('/api-docs.json', (req, res) => {
   res.send(swaggerSpec);
 });
 
-app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+const swaggerUiOptions = {
+  customSiteTitle: 'CineCritic API Documentation',
+  swaggerOptions: {
+    persistAuthorization: true,
+    displayRequestDuration: true,
+    filter: true,
+    tryItOutEnabled: true,
+    defaultModelsExpandDepth: 2,
+    defaultModelExpandDepth: 2,
+  },
+};
+
+app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, swaggerUiOptions));
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, swaggerUiOptions));
 
 app.use(notFound);
 app.use(errorHandler);
