@@ -35,6 +35,8 @@ app.use(
   cors({
     origin: true,
     credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
   })
 );
 app.use(express.json());
@@ -48,6 +50,7 @@ const apiLimiter = rateLimit({
   max: 60, // limit each IP to 60 requests per window
   standardHeaders: true,
   legacyHeaders: false,
+  skip: (req) => req.method === 'OPTIONS',
 });
 
 app.use('/api', apiLimiter);
