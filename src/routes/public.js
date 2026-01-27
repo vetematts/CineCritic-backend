@@ -2,9 +2,7 @@ import express from 'express';
 import { z } from 'zod';
 import { validate } from '../middlewares/validate.js';
 import { asyncHandler } from '../middlewares/asyncHandler.js';
-import {
-  getFavouritesPublicHandler,
-} from '../controllers/favouritesController.js';
+import { getFavouritesPublicHandler } from '../controllers/favouritesController.js';
 import { getWatchlistPublicHandler } from '../controllers/watchlistController.js';
 import { getReviewsByUserPublicHandler } from '../controllers/reviewsController.js';
 
