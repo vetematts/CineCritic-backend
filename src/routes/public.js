@@ -13,21 +13,27 @@ const userIdParams = z.object({
   userId: z.string().regex(/^\d+$/, 'userId must be a number'),
 });
 
+const publicUserSchema = z.object({
+  params: userIdParams,
+  body: z.object({}).optional(),
+  query: z.object({}).optional(),
+});
+
 router.get(
   '/users/:userId/favourites',
-  validate({ params: userIdParams }),
+  validate(publicUserSchema),
   asyncHandler(getFavouritesPublicHandler)
 );
 
 router.get(
   '/users/:userId/watchlist',
-  validate({ params: userIdParams }),
+  validate(publicUserSchema),
   asyncHandler(getWatchlistPublicHandler)
 );
 
 router.get(
   '/users/:userId/reviews',
-  validate({ params: userIdParams }),
+  validate(publicUserSchema),
   asyncHandler(getReviewsByUserPublicHandler)
 );
 
