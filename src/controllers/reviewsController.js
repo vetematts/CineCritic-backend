@@ -97,3 +97,9 @@ export async function getReviewsByUserHandler(req, res) {
   const reviews = await getReviewsByUser(Number(userId));
   res.json(reviews);
 }
+
+export async function getReviewsByUserPublicHandler(req, res) {
+  const { userId } = req.params;
+  const reviews = await getReviewsByUser(Number(userId));
+  res.json(reviews);
+}
