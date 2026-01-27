@@ -9,6 +9,7 @@ import reviewsRouter from './routes/reviews.js';
 import watchlistRouter from './routes/watchlist.js';
 import favouritesRouter from './routes/favourites.js';
 import usersRouter from './routes/users.js';
+import publicRouter from './routes/public.js';
 import { errorHandler } from './middlewares/error.js';
 import { notFound } from './middlewares/notFound.js';
 import { requestLogger } from './middlewares/logger.js';
@@ -154,6 +155,7 @@ app.use('/api/reviews', reviewsRouter);
 app.use('/api/watchlist', watchlistRouter);
 app.use('/api/favourites', favouritesRouter);
 app.use('/api/users', usersRouter);
+app.use('/api/public', publicRouter);
 
 app.get('/api-docs.json', (req, res) => {
   res.setHeader('Content-Type', 'application/json');
