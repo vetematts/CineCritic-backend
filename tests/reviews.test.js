@@ -80,6 +80,8 @@ jest.unstable_mockModule('../src/models/reviews.js', () => ({
     reviewsStore.splice(idx, 1);
     return true;
   },
+  getReviewsByUser: async (userId) =>
+    reviewsStore.filter((r) => r.user_id === userId && r.status === 'published'),
 }));
 
 const { default: reviewsRouter } = await import('../src/routes/reviews.js');
