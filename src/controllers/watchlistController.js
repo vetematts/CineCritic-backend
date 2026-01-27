@@ -35,6 +35,13 @@ export async function getWatchlistHandler(req, res) {
   res.json(watchlist);
 }
 
+export async function getWatchlistPublicHandler(req, res) {
+  const { userId } = req.validated.params;
+  const targetId = Number(userId);
+  const watchlist = await getWatchlistByUser(targetId);
+  res.json(watchlist);
+}
+
 export async function addToWatchlistHandler(req, res) {
   const { tmdbId, userId, status } = req.validated.body;
   if (req.user.role !== 'admin' && Number(userId) !== req.user.sub) {
