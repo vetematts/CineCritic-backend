@@ -31,6 +31,13 @@ export async function getFavouritesHandler(req, res) {
   res.json(favourites);
 }
 
+export async function getFavouritesPublicHandler(req, res) {
+  const { userId } = req.validated.params;
+  const targetId = Number(userId);
+  const favourites = await getFavourites({ userId: targetId });
+  res.json(favourites);
+}
+
 export async function deleteFavouritesHandler(req, res) {
   const { userId, tmdbId } = req.validated.params; // Extract userId and tmdbId from params
   const targetUserId = Number(userId);
