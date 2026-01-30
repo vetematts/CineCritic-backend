@@ -24,8 +24,7 @@ export async function getReviewsByMovie(movieId) {
        r.updated_at,
        r.published_at,
        r.flagged_at,
-       u.username,
-       u.email
+       u.username
      FROM reviews r
      LEFT JOIN users u ON r.user_id = u.id
      WHERE r.movie_id = $1
@@ -48,7 +47,6 @@ export async function getReviewsByMovie(movieId) {
       ? {
           id: row.user_id,
           username: row.username,
-          email: row.email,
         }
       : null,
     username: row.username, // Also include at top level for easier access
