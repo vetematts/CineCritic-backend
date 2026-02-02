@@ -1,6 +1,6 @@
 #<img width="647" height="491" alt="cine_critic_logo" src="https://github.com/user-attachments/assets/7fc394ad-fb28-4aec-8977-a94f7bf02885" />
- 
- 🎞️ CineCritic API
+
+#🎞️ CineCritic API
 
 CineCritic is a movie discovery and review platform; this back-end API is built with Node.js, Express, and PostgreSQL.
 
