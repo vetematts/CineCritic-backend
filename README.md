@@ -1,4 +1,6 @@
-<img width="647" height="491" alt="cine_critic_logo" src="https://github.com/user-attachments/assets/7fc394ad-fb28-4aec-8977-a94f7bf02885" />
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/7fc394ad-fb28-4aec-8977-a94f7bf02885" alt="CineCritic Logo" width="555" />
+</p>
 
 # 🎞️ CineCritic API
 
