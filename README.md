@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/7fc394ad-fb28-4aec-8977-a94f7bf02885" alt="CineCritic Logo" width="555" />
+  <img src="https://github.com/user-attachments/assets/7fc394ad-fb28-4aec-8977-a94f7bf02885" alt="CineCritic Logo" width="444" />
 </p>
 
 # 🎞️ CineCritic API
