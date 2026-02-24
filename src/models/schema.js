@@ -76,6 +76,14 @@ export async function createTables(dbPool = pool) {
       PRIMARY KEY (user_id, movie_id),
       CONSTRAINT cant_favourite_movie_again UNIQUE (user_id, movie_id)
     );
+
+    CREATE TABLE IF NOT EXISTS movie_likes (
+      id SERIAL PRIMARY KEY,
+      user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      movie_id INTEGER NOT NULL REFERENCES movies(id) ON DELETE CASCADE,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      CONSTRAINT uq_movie_likes_user_movie UNIQUE (user_id, movie_id)
+    );
   `);
 
   await dbPool.query(`
