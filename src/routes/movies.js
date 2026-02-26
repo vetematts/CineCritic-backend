@@ -4,6 +4,7 @@ import { BadRequestError } from '../errors/http.js';
 import { asyncHandler } from '../middlewares/asyncHandler.js';
 import {
   getTrendingHandler,
+  getUserTrendingHandler,
   getTopRatedHandler,
   getGenresHandler,
   getByYearHandler,
@@ -63,6 +64,58 @@ const advancedSearchSchema = z.object({
  *         $ref: '#/components/responses/ServerError'
  */
 router.get('/trending', asyncHandler(getTrendingHandler));
+
+/**
+ * @swagger
+ * /api/movies/trending-users:
+ *   get:
+ *     summary: Get user trending movies from recent likes
+ *     description: Uses likes as engagement signals. Likes are separate from review ratings.
+ *     tags: [Movies]
+ *     parameters:
+ *       - in: query
+ *         name: days
+ *         schema:
+ *           type: integer
+ *         description: Ranking window in days (default 30)
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *         description: Maximum results (default 20)
+ *     responses:
+ *       200:
+ *         description: List of user-trending movies
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   id:
+ *                     type: integer
+ *                   tmdb_id:
+ *                     type: integer
+ *                   title:
+ *                     type: string
+ *                   release_year:
+ *                     type: integer
+ *                   poster_url:
+ *                     type: string
+ *                     nullable: true
+ *                   content_type:
+ *                     type: string
+ *                     enum: [movie, tv]
+ *                   likes_last_window:
+ *                     type: integer
+ *                   latest_like_at:
+ *                     type: string
+ *                     format: date-time
+ *       500:
+ *         $ref: '#/components/responses/ServerError'
+ */
+router.get('/trending-users', asyncHandler(getUserTrendingHandler));
 
 /**
  * @swagger

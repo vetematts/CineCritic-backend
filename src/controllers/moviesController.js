@@ -1,4 +1,5 @@
 import { BadRequestError } from '../errors/http.js';
+import { getTrendingMoviesByRecentLikes } from '../models/likes.js';
 import {
   getTrending,
   getTopRated,
@@ -15,6 +16,17 @@ import { setMovieGenres, upsertGenre } from '../models/genres.js';
 
 export async function getTrendingHandler(req, res) {
   const results = await getTrending('movie');
+  res.json(results);
+}
+
+/**
+ * Return user-driven trending movies based on recent likes.
+ * Defaults to a 30-day window with a maximum of 20 items.
+ */
+export async function getUserTrendingHandler(req, res) {
+  const days = req.query.days ?? 30;
+  const limit = req.query.limit ?? 20;
+  const results = await getTrendingMoviesByRecentLikes({ days, limit });
   res.json(results);
 }
 
