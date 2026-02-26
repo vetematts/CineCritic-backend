@@ -41,6 +41,7 @@ export async function removeMovieLike({ userId, movieId }) {
  * @returns {Promise<object[]>} Ranked movie summaries with like counts
  */
 export async function getTrendingMoviesByRecentLikes({ days = 30, limit = 20 }) {
+  // Keep query inputs bounded to avoid extreme windows or payload sizes.
   const safeDays = Math.max(1, Math.min(90, Number(days)));
   const safeLimit = Math.max(1, Math.min(50, Number(limit)));
   const query = `
@@ -55,8 +56,10 @@ export async function getTrendingMoviesByRecentLikes({ days = 30, limit = 20 }) 
       MAX(ml.created_at) AS latest_like_at
     FROM movie_likes ml
     JOIN movies m ON m.id = ml.movie_id
+    -- Only include likes within the rolling N-day window.
     WHERE ml.created_at >= NOW() - make_interval(days => $1::int)
     GROUP BY m.id
+    -- Break ties by most recent like so results feel fresh.
     ORDER BY likes_last_window DESC, latest_like_at DESC
     LIMIT $2;
   `;

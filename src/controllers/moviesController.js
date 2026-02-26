@@ -24,6 +24,7 @@ export async function getTrendingHandler(req, res) {
  * Defaults to a 30-day window with a maximum of 20 items.
  */
 export async function getUserTrendingHandler(req, res) {
+  // Defaults keep the endpoint useful without requiring query params.
   const days = req.query.days ?? 30;
   const limit = req.query.limit ?? 20;
   const results = await getTrendingMoviesByRecentLikes({ days, limit });

@@ -33,6 +33,7 @@ async function ensureMovieId(tmdbId) {
 export async function addMovieLikeHandler(req, res) {
   const { tmdbId } = req.validated.body;
   const userId = req.user.sub;
+  // Ensure the like always references a local cached movie row.
   const movieId = await ensureMovieId(tmdbId);
 
   try {
